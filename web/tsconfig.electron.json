@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": ".",
+    "outDir": "dist-electron",
+    "types": ["node", "electron"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": [
+    "electron/**/*.ts",
+    "electron/**/*.cts",
+    "src/sse-parser.ts",
+    "src/serverConfig.ts",
+    "src/types.ts"
+  ]
+}

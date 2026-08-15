@@ -1,0 +1,129 @@
+{
+  "name": "harness-remote-web",
+  "private": true,
+  "version": "2.10.3",
+  "description": "Companion app for controlling coding-agent harnesses from phone or desktop",
+  "homepage": "https://github.com/giuliastro/harness-remote",
+  "author": {
+    "name": "Giulio Ardoino",
+    "email": "giuliaccio@gmail.com"
+  },
+  "type": "module",
+  "main": "dist-electron/electron/main.js",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc -b && vite build",
+    "build:desktop-renderer": "tsc -p tsconfig.app.json && vite build --base=./",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "build:desktop": "npm run build:desktop-renderer && npm run build:electron",
+    "electron:dev": "npm run build:desktop && electron .",
+    "package:win:dir": "npm run build:desktop && electron-builder --publish never --win dir",
+    "package:win": "npm run build:desktop && electron-builder --publish never --win",
+    "package:mac": "npm run build:desktop && electron-builder --publish never --mac",
+    "package:linux": "npm run build:desktop && electron-builder --publish never --linux",
+    "test:i18n": "node --experimental-strip-types src/i18n.test.mjs",
+    "preview": "vite preview --host",
+    "cap:sync": "npx cap sync",
+    "cap:sync:android": "npx cap sync android && node scripts/sync-native-live-events.mjs",
+    "cap:add:android": "npx cap add android",
+    "test:ui": "node src/ui-regression.test.mjs",
+    "test:settings": "node src/settings-regression.test.mjs",
+    "test:model": "node src/model-regression.test.mjs",
+    "test:events": "node --experimental-strip-types src/opencode-events.test.mjs",
+    "test:profiles": "node --experimental-strip-types src/server-profiles.test.mjs",
+    "test:markdown": "node --experimental-strip-types src/markdown-directives.test.mjs",
+    "test:config": "node --experimental-strip-types src/server-config.test.mjs",
+    "test:attachments": "node --experimental-strip-types src/attachments.test.mjs",
+    "test:agent-runs": "node --experimental-strip-types src/agent-runs.test.mjs",
+    "test:platform": "node src/platform-regression.test.mjs",
+    "test:desktop": "npm run build:electron && node --test electron/*.test.mjs",
+    "test:desktop:menu": "npm run build:electron && electron scripts/menu-smoke.mjs"
+  },
+  "build": {
+    "appId": "com.harnessremote.desktop",
+    "productName": "Harness Remote",
+    "executableName": "Harness Remote",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json",
+      "!node_modules/**/*",
+      "!**/*.map",
+      "!**/*.test.*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "public/app-icon.png",
+      "artifactName": "Harness-Remote-${version}-win-${arch}-unsigned.${ext}"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["arm64", "x64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["arm64", "x64"]
+        }
+      ],
+      "icon": "public/app-icon.png",
+      "category": "public.app-category.developer-tools",
+      "artifactName": "Harness-Remote-${version}-mac-${arch}-unsigned.${ext}",
+      "identity": null
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "public/app-icon.png",
+      "category": "Development",
+      "maintainer": "Giulio Ardoino <giuliaccio@gmail.com>",
+      "artifactName": "Harness-Remote-${version}-linux-${arch}.${ext}"
+    },
+    "forceCodeSigning": false,
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "publish": null
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/cli": "^8.3.4",
+    "@capacitor/core": "^8.3.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "^6.0.2",
+    "electron": "^43.3.0",
+    "electron-builder": "^26.15.3",
+    "typescript": "5.6.3",
+    "vite": "^8.0.14"
+  }
+}
