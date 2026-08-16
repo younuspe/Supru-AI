@@ -1,13 +1,9 @@
 {
-  "name": "harness-remote-web",
+  "name": "supru-ai-web",
   "private": true,
   "version": "2.10.3",
-  "description": "Companion app for controlling coding-agent harnesses from phone or desktop",
-  "homepage": "https://github.com/giuliastro/harness-remote",
-  "author": {
-    "name": "Giulio Ardoino",
-    "email": "giuliaccio@gmail.com"
-  },
+  "description": "Supru-AI companion app for controlling coding-agent harnesses from phone or desktop",
+  "homepage": "https://github.com/younuspe/Supru-AI",
   "type": "module",
   "main": "dist-electron/electron/main.js",
   "scripts": {
@@ -40,9 +36,9 @@
     "test:desktop:menu": "npm run build:electron && electron scripts/menu-smoke.mjs"
   },
   "build": {
-    "appId": "com.harnessremote.desktop",
-    "productName": "Harness Remote",
-    "executableName": "Harness Remote",
+    "appId": "ai.supru.desktop",
+    "productName": "Supru-AI",
+    "executableName": "Supru-AI",
     "asar": true,
     "directories": {
       "output": "release"
@@ -63,7 +59,7 @@
         }
       ],
       "icon": "public/app-icon.png",
-      "artifactName": "Harness-Remote-${version}-win-${arch}-unsigned.${ext}"
+      "artifactName": "Supru-AI-${version}-win-${arch}-unsigned.${ext}"
     },
     "mac": {
       "target": [
@@ -78,7 +74,7 @@
       ],
       "icon": "public/app-icon.png",
       "category": "public.app-category.developer-tools",
-      "artifactName": "Harness-Remote-${version}-mac-${arch}-unsigned.${ext}",
+      "artifactName": "Supru-AI-${version}-mac-${arch}-unsigned.${ext}",
       "identity": null
     },
     "linux": {
@@ -94,8 +90,7 @@
       ],
       "icon": "public/app-icon.png",
       "category": "Development",
-      "maintainer": "Giulio Ardoino <giuliaccio@gmail.com>",
-      "artifactName": "Harness-Remote-${version}-linux-${arch}.${ext}"
+      "artifactName": "Supru-AI-${version}-linux-${arch}.${ext}"
     },
     "forceCodeSigning": false,
     "nsis": {
