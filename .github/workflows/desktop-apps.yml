@@ -53,12 +53,19 @@ jobs:
         run: npm run package:mac -- --arm64
         working-directory: web
 
-      - name: Verify ARM64 artifacts
+      - name: Verify ARM64 artifacts and signatures
         run: |
-          test -n "$(find release -maxdepth 1 -type f -name '*-mac-arm64-unsigned.dmg' -print -quit)"
-          test -n "$(find release -maxdepth 1 -type f -name '*-mac-arm64-unsigned.zip' -print -quit)"
+          DMG="$(find release -maxdepth 1 -type f -name '*-mac-arm64-adhoc.dmg' -print -quit)"
+          ZIP="$(find release -maxdepth 1 -type f -name '*-mac-arm64-adhoc.zip' -print -quit)"
+          test -n "$DMG"
+          test -n "$ZIP"
+          APP="$(find release -maxdepth 1 -type d -name '*.app' -print -quit)"
+          if [ -n "$APP" ]; then
+            codesign --verify --deep --strict "$APP"
+            codesign -dv --verbose=2 "$APP" 2>&1 | grep -E 'Identifier=|Signature=|TeamIdentifier=' || true
+          fi
           echo "Supru-AI macOS ARM64 artifacts:"
-          find release -maxdepth 1 -type f \( -name '*-mac-arm64-unsigned.dmg' -o -name '*-mac-arm64-unsigned.zip' \) -print
+          find release -maxdepth 1 -type f \( -name '*-mac-arm64-adhoc.dmg' -o -name '*-mac-arm64-adhoc.zip' \) -print
         working-directory: web
 
       - name: Upload macOS ARM64 artifacts
@@ -66,7 +73,7 @@ jobs:
         with:
           name: Supru-AI-macOS-arm64-${{ github.sha }}
           path: |
-            web/release/*-mac-arm64-unsigned.dmg
-            web/release/*-mac-arm64-unsigned.zip
+            web/release/*-mac-arm64-adhoc.dmg
+            web/release/*-mac-arm64-adhoc.zip
           if-no-files-found: error
           retention-days: 14
