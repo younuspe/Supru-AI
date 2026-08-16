@@ -53,21 +53,7 @@ jobs:
         run: npm run package:mac -- --arm64
         working-directory: web
 
-      - name: Explicitly ad-hoc sign packaged app
-        shell: bash
-        run: |
-          set -euo pipefail
-          APP="$(find release -maxdepth 1 -type d -name '*.app' -print -quit)"
-          if [ -z "$APP" ]; then
-            echo "No .app bundle was produced; stopping instead of publishing an unverified artifact."
-            exit 1
-          fi
-          codesign --force --deep --sign - "$APP"
-          codesign --verify --deep --strict --verbose=2 "$APP"
-          spctl --assess --type execute --verbose=4 "$APP" || true
-        working-directory: web
-
-      - name: Verify ARM64 artifacts
+      - name: Verify packaged macOS ARM64 app
         shell: bash
         run: |
           set -euo pipefail
@@ -75,7 +61,26 @@ jobs:
           ZIP="$(find release -maxdepth 1 -type f -name '*-mac-arm64-adhoc.zip' -print -quit)"
           test -n "$DMG"
           test -n "$ZIP"
-          echo "Supru-AI macOS ARM64 artifacts:"
+
+          MOUNT_POINT="$(mktemp -d)"
+          cleanup() {
+            hdiutil detach "$MOUNT_POINT" -quiet >/dev/null 2>&1 || true
+            rm -rf "$MOUNT_POINT"
+          }
+          trap cleanup EXIT
+
+          hdiutil attach "$DMG" -nobrowse -mountpoint "$MOUNT_POINT" -quiet
+          APP="$(find "$MOUNT_POINT" -maxdepth 2 -type d -name '*.app' -print -quit)"
+          if [ -z "$APP" ]; then
+            echo "No .app bundle was found inside the generated DMG."
+            exit 1
+          fi
+
+          codesign --force --deep --sign - "$APP"
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          spctl --assess --type execute --verbose=4 "$APP" || true
+
+          echo "Verified Supru-AI macOS ARM64 artifacts:"
           find release -maxdepth 1 -type f \( -name '*-mac-arm64-adhoc.dmg' -o -name '*-mac-arm64-adhoc.zip' \) -print
         working-directory: web
 
