@@ -19,12 +19,11 @@
       @keyframes supru-blink{0%,42%,46%,100%{transform:scaleY(1)}44%{transform:scaleY(.08)}}
       .supru-welcome-title{margin:0;font:600 clamp(28px,5vw,46px)/1.1 system-ui,-apple-system,sans-serif;letter-spacing:.04em}
       .supru-welcome-subtitle{margin:-8px 0 14px;color:#a99f8d;font:400 clamp(14px,2vw,17px)/1.5 system-ui,-apple-system,sans-serif}
-      .supru-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
-      .supru-action{min-width:180px;min-height:50px;padding:12px 24px;border:1px solid rgba(226,166,62,.38);border-radius:999px;background:rgba(255,255,255,.045);color:#f1eadc;cursor:pointer;font:600 14px/1 system-ui,-apple-system,sans-serif;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 8px 30px rgba(0,0,0,.28);backdrop-filter:blur(12px);transition:transform 180ms ease,background 180ms ease,border-color 180ms ease}
-      .supru-action:hover{transform:translateY(-2px);background:rgba(226,166,62,.13);border-color:rgba(226,166,62,.65)}
-      .supru-action.primary{background:#e2a63e;border-color:#e2a63e;color:#171006}.supru-action.primary:hover{background:#f0bd5c}
-      #supru-welcome.is-connected .supru-action{color:#211f1b;background:rgba(255,255,255,.5);border-color:#d8cbb8}#supru-welcome.is-connected .supru-action.primary{background:#c77b22;border-color:#c77b22;color:#fffdf8}
-      @media(max-width:560px){.supru-actions{width:min(88vw,360px);flex-direction:column}.supru-action{width:100%}}
+      .supru-actions{display:flex;justify-content:center;gap:12px}
+      .supru-action{min-width:190px;min-height:50px;padding:12px 28px;border:1px solid rgba(226,166,62,.38);border-radius:999px;background:#e2a63e;color:#171006;cursor:pointer;font:600 14px/1 system-ui,-apple-system,sans-serif;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 8px 30px rgba(0,0,0,.28);transition:transform 180ms ease,background 180ms ease,border-color 180ms ease}
+      .supru-action:hover{transform:translateY(-2px);background:#f0bd5c;border-color:rgba(226,166,62,.75)}
+      #supru-welcome.is-connected .supru-action{background:#c77b22;border-color:#c77b22;color:#fffdf8}
+      @media(max-width:560px){.supru-action{width:min(82vw,340px)}}
       @media(prefers-reduced-motion:reduce){#supru-welcome,.supru-action{transition:none}.supru-eye{animation:none}}
     </style>
   </head>
@@ -35,15 +34,17 @@
         <div class="supru-eyes" aria-hidden="true"><span class="supru-eye"></span><span class="supru-eye"></span></div>
         <h1 class="supru-welcome-title">Supru-AI</h1>
         <p class="supru-welcome-subtitle">Supru is waiting… curious.</p>
-        <div class="supru-actions"><button id="supru-connect" class="supru-action primary" type="button">Connect</button><button id="supru-server-ai" class="supru-action" type="button">Server / AI</button></div>
+        <div class="supru-actions"><button id="supru-connect" class="supru-action" type="button">Connect</button></div>
       </div>
     </div>
     <script>
-      (()=>{const w=document.getElementById("supru-welcome"),c=document.getElementById("supru-connect"),s=document.getElementById("supru-server-ai");let a=null,t=null,enabled=true;
-      const cry=()=>{if(!enabled)return;try{a ||= new(window.AudioContext||window.webkitAudioContext)();const n=a.currentTime,o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.setValueAtTime(620,n);o.frequency.exponentialRampToValueAtTime(390,n+.32);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.035,n+.035);g.gain.exponentialRampToValueAtTime(.0001,n+.42);o.connect(g).connect(a.destination);o.start(n);o.stop(n+.44)}catch(_){}}
-      const stop=()=>{if(t)clearInterval(t);t=null};const connect=()=>{stop();document.documentElement.dataset.supruState="connecting";w.querySelector(".supru-welcome-subtitle").textContent="Waking Supru...";setTimeout(()=>{document.documentElement.dataset.supruState="connected";w.classList.add("is-connected","is-leaving");window.dispatchEvent(new CustomEvent("supru:connected"));setTimeout(()=>w.remove(),950)},650)};
-      c.addEventListener("click",connect);s.addEventListener("click",()=>{stop();document.documentElement.dataset.supruState="connecting";w.querySelector(".supru-welcome-subtitle").textContent="Choose where Supru should connect.";window.dispatchEvent(new CustomEvent("supru:open-server-ai"));setTimeout(connect,650)});document.documentElement.dataset.supruState="waiting";
-      window.addEventListener("pointerdown",()=>{if(enabled){try{a ||= new(window.AudioContext||window.webkitAudioContext)()}catch(_){}cry();t=setInterval(cry,7000)}},{once:true})})()
+      (()=>{const w=document.getElementById("supru-welcome"),c=document.getElementById("supru-connect");let a=null,t=null;
+      const cry=()=>{try{a ||= new(window.AudioContext||window.webkitAudioContext)();const n=a.currentTime,o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.setValueAtTime(620,n);o.frequency.exponentialRampToValueAtTime(390,n+.32);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.035,n+.035);g.gain.exponentialRampToValueAtTime(.0001,n+.42);o.connect(g).connect(a.destination);o.start(n);o.stop(n+.44)}catch(_){}};
+      const stop=()=>{if(t)clearInterval(t);t=null};
+      const connect=()=>{stop();document.documentElement.dataset.supruState="connecting";c.disabled=true;w.querySelector(".supru-welcome-subtitle").textContent="Waking Supru...";c.textContent="Connecting…";setTimeout(()=>{document.documentElement.dataset.supruState="connected";w.classList.add("is-connected","is-leaving");window.dispatchEvent(new CustomEvent("supru:connected"));setTimeout(()=>w.remove(),950)},650)};
+      c.addEventListener("click",connect);
+      window.addEventListener("pointerdown",()=>{try{a ||= new(window.AudioContext||window.webkitAudioContext)();cry();t=setInterval(cry,7000)}catch(_){}},{once:true});
+      })()
     </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
