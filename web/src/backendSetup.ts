@@ -1,7 +1,6 @@
 import type { BackendKind } from "./types"
 
-/** Declaration order everywhere a harness has to be listed, so the Settings picker, the connect
- *  wizard and the docs links can never drift out of sync with each other. */
+/** Declaration order everywhere a harness has to be listed. */
 export const BACKEND_KINDS: BackendKind[] = ["opencode", "omp", "pi", "claude", "codex"]
 
 export function backendDisplayName(backend: BackendKind): string {
@@ -12,8 +11,6 @@ export function backendDisplayName(backend: BackendKind): string {
   return "OpenCode"
 }
 
-/** Whether the harness is reached through the bundled bridge rather than by talking to a server it
- *  runs itself — which is what decides the command the user has to run on the host machine. */
 export function isBridgeBackend(backend: BackendKind): boolean {
   return backend === "omp" || backend === "pi" || backend === "claude" || backend === "codex"
 }
@@ -22,8 +19,9 @@ export function backendDefaultPort(backend: BackendKind): number {
   return backend === "opencode" ? 4096 : 4097
 }
 
-export function backendDefaultUsername(backend: BackendKind): string {
-  return backend === "opencode" ? "opencode" : backend
+/** Phase 1 intentionally has no login/security fields. */
+export function backendDefaultUsername(_backend: BackendKind): string {
+  return ""
 }
 
 export function backendDocsAnchor(backend: BackendKind): string {
@@ -35,30 +33,20 @@ export function backendDocsAnchor(backend: BackendKind): string {
 }
 
 /**
- * The exact line to paste on the machine that runs the agent, filled in with the address and
- * credentials the user has just typed. Setting a server up used to mean reading the Help page,
- * finding the right snippet for the chosen harness and editing four values into it by hand; the
- * wizard shows the finished command instead, which is the single biggest thing standing between a
- * new user and a working connection.
+ * Phase 1 connection command: deliberately no username, password, token, or other security setup.
+ * Authentication can be added later once the basic cross-platform connection is proven.
  */
 export function backendSetupCommand(
   backend: BackendKind,
   options: { port?: number; username?: string; password?: string } = {}
 ): string {
   const port = options.port && options.port > 0 ? options.port : backendDefaultPort(backend)
-  const username = options.username?.trim() || backendDefaultUsername(backend)
-  const password = options.password?.trim() || "your-password"
   if (backend === "opencode") {
-    return [
-      `OPENCODE_SERVER_USERNAME=${username} \\`,
-      `OPENCODE_SERVER_PASSWORD=${password} \\`,
-      `npx -y opencode-ai serve --hostname 0.0.0.0 --port ${port}`
-    ].join("\n")
+    return `npx -y opencode-ai serve --hostname 0.0.0.0 --port ${port}`
   }
   return [
     `npx --yes ./bridge --backend ${backend} \\`,
     `  --host 0.0.0.0 --port ${port} \\`,
-    `  --username ${username} --password ${password} \\`,
     `  --root "$PWD"`
   ].join("\n")
 }
