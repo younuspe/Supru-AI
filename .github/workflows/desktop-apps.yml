@@ -76,8 +76,9 @@ jobs:
             exit 1
           fi
 
-          codesign --force --deep --sign - "$APP"
+          echo "Checking the signature produced by electron-builder..."
           codesign --verify --deep --strict --verbose=2 "$APP"
+          codesign --display --verbose=2 "$APP" 2>&1 || true
           spctl --assess --type execute --verbose=4 "$APP" || true
 
           echo "Verified Supru-AI macOS ARM64 artifacts:"
