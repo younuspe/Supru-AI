@@ -15,7 +15,6 @@ jobs:
       ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
       ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-      # This line removes the annoying Node.js deprecation warning message
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true 
 
     steps:
@@ -26,9 +25,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          # Fixed: Removed the strict lockfile check to prevent the crash
-          cache: npm
-          cache-dependency-path: '**/package-lock.json' 
+          # Removed cache configuration to prevent the lock file requirement error
 
       - name: Install web dependencies
         run: |
