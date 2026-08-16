@@ -7,28 +7,25 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="icon-192.png" />
     <link rel="apple-touch-icon" href="icon-192.png" />
-    <meta name="theme-color" content="#f7f3ea" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#050504" media="(prefers-color-scheme: dark)" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#050504" />
     <style>
-      #supru-welcome{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 46%,#14120d 0%,#070706 34%,#020202 76%);color:#f1eadc;transition:opacity 900ms ease,background 900ms ease,color 700ms ease}
-      #supru-welcome::before{content:"";position:absolute;inset:-20%;background:radial-gradient(ellipse at 50% 52%,rgba(226,166,62,.065),transparent 40%);pointer-events:none}
+      #supru-welcome{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 46%,#14120d 0%,#070706 34%,#020202 76%);color:#f1eadc;transition:opacity 900ms ease,background 900ms ease}
       #supru-welcome.is-leaving{opacity:0;pointer-events:none}
-      #supru-welcome.is-connected{background:linear-gradient(135deg,#f7f3ea 0%,#fffdf8 52%,#eee6d8 100%);color:#211f1b}
-      .supru-welcome-inner{position:relative;z-index:1;width:min(92vw,760px);min-height:min(82vh,720px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;text-align:center}
+      #supru-welcome.is-connected{background:linear-gradient(135deg,#f7f3ea,#fffdf8 52%,#eee6d8);color:#211f1b}
+      .supru-welcome-inner{position:relative;z-index:1;width:min(92vw,760px);min-height:min(82vh,720px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;text-align:center}
       .supru-eyes{display:flex;align-items:center;justify-content:center;gap:clamp(42px,8vw,92px);height:92px;margin-bottom:10px}
-      .supru-eye{position:relative;width:clamp(54px,8vw,76px);height:clamp(28px,4.2vw,40px);border-radius:50%;background:radial-gradient(circle at 50% 50%,#fff2b2 0 8%,#f2b84b 18%,#c77b22 45%,#5a330e 70%,transparent 72%);box-shadow:0 0 18px rgba(242,184,75,.5),0 0 56px rgba(242,184,75,.2);animation:supru-blink 5.2s infinite}
+      .supru-eye{position:relative;width:clamp(54px,8vw,76px);height:clamp(28px,4.2vw,40px);border-radius:50%;background:radial-gradient(circle,#fff2b2 0 8%,#f2b84b 18%,#c77b22 45%,#5a330e 70%,transparent 72%);box-shadow:0 0 18px rgba(242,184,75,.5),0 0 56px rgba(242,184,75,.2);animation:supru-blink 5.2s infinite}
       .supru-eye::after{content:"";position:absolute;inset:7% 46%;border-radius:999px;background:#090704}.supru-eye:nth-child(2){animation-delay:120ms}
       @keyframes supru-blink{0%,42%,46%,100%{transform:scaleY(1)}44%{transform:scaleY(.08)}}
       .supru-welcome-title{margin:0;font:600 clamp(28px,5vw,46px)/1.1 system-ui,-apple-system,sans-serif;letter-spacing:.04em}
-      .supru-welcome-subtitle{margin:-10px 0 8px;color:#a99f8d;font:400 clamp(14px,2vw,17px)/1.5 system-ui,-apple-system,sans-serif}#supru-welcome.is-connected .supru-welcome-subtitle{color:#746d61}
-      .supru-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:8px}
-      .supru-action{min-width:190px;min-height:52px;padding:12px 24px;border:1px solid rgba(226,166,62,.38);border-radius:999px;background:rgba(255,255,255,.045);color:#f1eadc;cursor:pointer;font:600 14px/1 system-ui,-apple-system,sans-serif;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 8px 30px rgba(0,0,0,.28);backdrop-filter:blur(12px);transition:transform 180ms ease,background 180ms ease,border-color 180ms ease,color 180ms ease}
-      .supru-action:hover{transform:translateY(-2px);background:rgba(226,166,62,.13);border-color:rgba(226,166,62,.65)}.supru-action.primary{background:#e2a63e;border-color:#e2a63e;color:#171006}.supru-action.primary:hover{background:#f0bd5c}
-      #supru-welcome.is-connected .supru-action{color:#211f1b;background:rgba(255,255,255,.5);border-color:#d8cbb8;box-shadow:0 8px 30px rgba(80,60,30,.1)}#supru-welcome.is-connected .supru-action.primary{background:#c77b22;border-color:#c77b22;color:#fffdf8}
-      .supru-sound{position:absolute;bottom:22px;right:22px;z-index:2;border:0;background:transparent;color:#a99f8d;cursor:pointer;font:400 12px system-ui,-apple-system,sans-serif;opacity:.85}.supru-sound:hover{color:#f2b84b}
-      @media(max-width:560px){.supru-welcome-inner{min-height:76vh}.supru-actions{width:min(88vw,360px);flex-direction:column}.supru-action{width:100%}}@media(prefers-reduced-motion:reduce){#supru-welcome,.supru-action{transition:none}.supru-eye{animation:none}}
+      .supru-welcome-subtitle{margin:-8px 0 14px;color:#a99f8d;font:400 clamp(14px,2vw,17px)/1.5 system-ui,-apple-system,sans-serif}
+      .supru-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+      .supru-action{min-width:180px;min-height:50px;padding:12px 24px;border:1px solid rgba(226,166,62,.38);border-radius:999px;background:rgba(255,255,255,.045);color:#f1eadc;cursor:pointer;font:600 14px/1 system-ui,-apple-system,sans-serif;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 8px 30px rgba(0,0,0,.28);backdrop-filter:blur(12px);transition:transform 180ms ease,background 180ms ease,border-color 180ms ease}
+      .supru-action:hover{transform:translateY(-2px);background:rgba(226,166,62,.13);border-color:rgba(226,166,62,.65)}
+      .supru-action.primary{background:#e2a63e;border-color:#e2a63e;color:#171006}.supru-action.primary:hover{background:#f0bd5c}
+      #supru-welcome.is-connected .supru-action{color:#211f1b;background:rgba(255,255,255,.5);border-color:#d8cbb8}#supru-welcome.is-connected .supru-action.primary{background:#c77b22;border-color:#c77b22;color:#fffdf8}
+      @media(max-width:560px){.supru-actions{width:min(88vw,360px);flex-direction:column}.supru-action{width:100%}}
+      @media(prefers-reduced-motion:reduce){#supru-welcome,.supru-action{transition:none}.supru-eye{animation:none}}
     </style>
   </head>
   <body>
@@ -40,17 +37,13 @@
         <p class="supru-welcome-subtitle">Supru is waiting… curious.</p>
         <div class="supru-actions"><button id="supru-connect" class="supru-action primary" type="button">Connect</button><button id="supru-server-ai" class="supru-action" type="button">Server / AI</button></div>
       </div>
-      <button id="supru-sound" class="supru-sound" type="button" aria-label="Toggle Supru sound">🔊 Supru sound</button>
     </div>
     <script>
-      (()=>{const welcome=document.getElementById("supru-welcome"),connect=document.getElementById("supru-connect"),serverAI=document.getElementById("supru-server-ai"),soundButton=document.getElementById("supru-sound");let audioContext=null,soundEnabled=true,cryTimer=null;
-      const cry=()=>{if(!soundEnabled)return;try{audioContext ||= new(window.AudioContext||window.webkitAudioContext)();const now=audioContext.currentTime,osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type="sine";osc.frequency.setValueAtTime(620,now);osc.frequency.exponentialRampToValueAtTime(390,now+.32);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.035,now+.035);gain.gain.exponentialRampToValueAtTime(.0001,now+.42);osc.connect(gain).connect(audioContext.destination);osc.start(now);osc.stop(now+.44)}catch(_){}}
-      const startCry=()=>{if(!cryTimer)cryTimer=window.setInterval(cry,7000)},stopCry=()=>{if(cryTimer)window.clearInterval(cryTimer);cryTimer=null};
-      const enterConnected=()=>{stopCry();welcome.dataset.state="connected";welcome.classList.add("is-connected","is-leaving");document.documentElement.dataset.supruState="connected";window.dispatchEvent(new CustomEvent("supru:connected"));window.setTimeout(()=>welcome.remove(),950)};
-      connect.addEventListener("click",()=>{document.documentElement.dataset.supruState="connecting";welcome.querySelector(".supru-welcome-subtitle").textContent="Waking Supru...";stopCry();window.setTimeout(enterConnected,650)});
-      serverAI.addEventListener("click",()=>{document.documentElement.dataset.supruState="connecting";welcome.querySelector(".supru-welcome-subtitle").textContent="Choose where Supru should connect.";stopCry();window.dispatchEvent(new CustomEvent("supru:open-server-ai"));window.setTimeout(enterConnected,650)});
-      soundButton.addEventListener("click",()=>{soundEnabled=!soundEnabled;soundButton.textContent=soundEnabled?"🔊 Supru sound":"🔇 Supru sound";if(soundEnabled)cry();else stopCry()});document.documentElement.dataset.supruState="waiting";
-      const enableSound=()=>{if(soundEnabled){try{audioContext ||= new(window.AudioContext||window.webkitAudioContext)()}catch(_){}cry();startCry()}window.removeEventListener("pointerdown",enableSound)};window.addEventListener("pointerdown",enableSound,{once:true})})()
+      (()=>{const w=document.getElementById("supru-welcome"),c=document.getElementById("supru-connect"),s=document.getElementById("supru-server-ai");let a=null,t=null,enabled=true;
+      const cry=()=>{if(!enabled)return;try{a ||= new(window.AudioContext||window.webkitAudioContext)();const n=a.currentTime,o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.setValueAtTime(620,n);o.frequency.exponentialRampToValueAtTime(390,n+.32);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.035,n+.035);g.gain.exponentialRampToValueAtTime(.0001,n+.42);o.connect(g).connect(a.destination);o.start(n);o.stop(n+.44)}catch(_){}}
+      const stop=()=>{if(t)clearInterval(t);t=null};const connect=()=>{stop();document.documentElement.dataset.supruState="connecting";w.querySelector(".supru-welcome-subtitle").textContent="Waking Supru...";setTimeout(()=>{document.documentElement.dataset.supruState="connected";w.classList.add("is-connected","is-leaving");window.dispatchEvent(new CustomEvent("supru:connected"));setTimeout(()=>w.remove(),950)},650)};
+      c.addEventListener("click",connect);s.addEventListener("click",()=>{stop();document.documentElement.dataset.supruState="connecting";w.querySelector(".supru-welcome-subtitle").textContent="Choose where Supru should connect.";window.dispatchEvent(new CustomEvent("supru:open-server-ai"));setTimeout(connect,650)});document.documentElement.dataset.supruState="waiting";
+      window.addEventListener("pointerdown",()=>{if(enabled){try{a ||= new(window.AudioContext||window.webkitAudioContext)()}catch(_){}cry();t=setInterval(cry,7000)}},{once:true})})()
     </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
