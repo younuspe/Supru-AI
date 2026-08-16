@@ -24,10 +24,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
@@ -53,17 +53,28 @@ jobs:
         run: npm run package:mac -- --arm64
         working-directory: web
 
-      - name: Verify ARM64 artifacts and signatures
+      - name: Explicitly ad-hoc sign packaged app
+        shell: bash
         run: |
+          set -euo pipefail
+          APP="$(find release -maxdepth 1 -type d -name '*.app' -print -quit)"
+          if [ -z "$APP" ]; then
+            echo "No .app bundle was produced; stopping instead of publishing an unverified artifact."
+            exit 1
+          fi
+          codesign --force --deep --sign - "$APP"
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          spctl --assess --type execute --verbose=4 "$APP" || true
+        working-directory: web
+
+      - name: Verify ARM64 artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
           DMG="$(find release -maxdepth 1 -type f -name '*-mac-arm64-adhoc.dmg' -print -quit)"
           ZIP="$(find release -maxdepth 1 -type f -name '*-mac-arm64-adhoc.zip' -print -quit)"
           test -n "$DMG"
           test -n "$ZIP"
-          APP="$(find release -maxdepth 1 -type d -name '*.app' -print -quit)"
-          if [ -n "$APP" ]; then
-            codesign --verify --deep --strict "$APP"
-            codesign -dv --verbose=2 "$APP" 2>&1 | grep -E 'Identifier=|Signature=|TeamIdentifier=' || true
-          fi
           echo "Supru-AI macOS ARM64 artifacts:"
           find release -maxdepth 1 -type f \( -name '*-mac-arm64-adhoc.dmg' -o -name '*-mac-arm64-adhoc.zip' \) -print
         working-directory: web
