@@ -1,11 +1,11 @@
 {
-  "name": "harness-remote-bridge",
+  "name": "supru-ai-bridge",
   "version": "0.1.7",
   "private": true,
   "type": "module",
   "bin": {
-    "harness-remote-bridge": "./src/cli.js",
-    "harness-remote-daemon": "./src/daemon-cli.js"
+    "supru-ai-bridge": "./src/cli.js",
+    "supru-ai-daemon": "./src/daemon-cli.js"
   },
   "scripts": {
     "start": "node src/cli.js",
