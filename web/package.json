@@ -63,8 +63,9 @@
       ],
       "icon": "public/app-icon.png",
       "category": "public.app-category.developer-tools",
-      "artifactName": "Supru AI-${version}-mac-${arch}-unsigned.${ext}",
-      "identity": null
+      "artifactName": "Supru AI-${version}-mac-${arch}-adhoc.${ext}",
+      "identity": "-",
+      "hardenedRuntime": false
     },
     "linux": {
       "target": [
