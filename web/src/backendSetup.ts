@@ -33,8 +33,10 @@ export function backendDocsAnchor(backend: BackendKind): string {
 }
 
 /**
- * Phase 1 connection command: deliberately no username, password, token, or other security setup.
- * Authentication can be added later once the basic cross-platform connection is proven.
+ * Phase 1 connection command: keep the bridge local, with no login/security fields,
+ * while explicitly allowing the Supru-AI GitHub Pages origin to call it from a browser.
+ * This is required for the public web page -> local bridge connection and also avoids
+ * binding an unauthenticated bridge to the whole LAN.
  */
 export function backendSetupCommand(
   backend: BackendKind,
@@ -42,11 +44,12 @@ export function backendSetupCommand(
 ): string {
   const port = options.port && options.port > 0 ? options.port : backendDefaultPort(backend)
   if (backend === "opencode") {
-    return `npx -y opencode-ai serve --hostname 0.0.0.0 --port ${port}`
+    return `npx -y opencode-ai serve --hostname 127.0.0.1 --port ${port}`
   }
   return [
     `npx --yes ./bridge --backend ${backend} \\`,
-    `  --host 0.0.0.0 --port ${port} \\`,
+    `  --host 127.0.0.1 --port ${port} \\`,
+    `  --cors https://younuspe.github.io \\`,
     `  --root "$PWD"`
   ].join("\n")
 }
