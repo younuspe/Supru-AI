@@ -55,10 +55,10 @@ jobs:
 
       - name: Verify ARM64 artifacts
         run: |
-          test -n "$(find release -maxdepth 1 -type f -name '*-mac-arm64.dmg' -print -quit)"
-          test -n "$(find release -maxdepth 1 -type f -name '*-mac-arm64.zip' -print -quit)"
+          test -n "$(find release -maxdepth 1 -type f -name '*-mac-arm64-unsigned.dmg' -print -quit)"
+          test -n "$(find release -maxdepth 1 -type f -name '*-mac-arm64-unsigned.zip' -print -quit)"
           echo "Supru-AI macOS ARM64 artifacts:"
-          find release -maxdepth 1 -type f \( -name '*-mac-arm64.dmg' -o -name '*-mac-arm64.zip' \) -print
+          find release -maxdepth 1 -type f \( -name '*-mac-arm64-unsigned.dmg' -o -name '*-mac-arm64-unsigned.zip' \) -print
         working-directory: web
 
       - name: Upload macOS ARM64 artifacts
@@ -66,7 +66,7 @@ jobs:
         with:
           name: Supru-AI-macOS-arm64-${{ github.sha }}
           path: |
-            web/release/*-mac-arm64.dmg
-            web/release/*-mac-arm64.zip
+            web/release/*-mac-arm64-unsigned.dmg
+            web/release/*-mac-arm64-unsigned.zip
           if-no-files-found: error
           retention-days: 14
