@@ -19,6 +19,8 @@ function withDirectory(path: string, directory?: string): string {
 
 type RequestOptions = { method?: "GET" | "POST" | "PATCH" | "DELETE"; body?: unknown; readTimeout?: number }
 type ResponseWithHeaders<T> = { data: T; headers: Record<string, string> }
+export type InformationResult = { title: string; description: string; excerpt: string; sourceUrl: string }
+export type InformationSearchResponse = { query: string; provider: string; source: string; results: InformationResult[] }
 
 function responseDetail(body: unknown): string | null {
   if (!body) return null
@@ -80,6 +82,7 @@ export const api = {
   eventStream(config: ServerConfig) { const headers: Record<string, string> = {}; if (hasCredentials(config)) headers.Authorization = authHeader(config); return { url: streamURL(baseUrl(config), "global"), headers } },
   health(config: ServerConfig) { return request<HealthResponse>(config, "/global/health") },
   capabilities(config: ServerConfig) { return request<HarnessCapabilities>(config, "/v1/capabilities") },
+  informationSearch(config: ServerConfig, query: string, limit = 6) { return request<InformationSearchResponse>(config, `/v1/information/search?q=${encodeURIComponent(query)}&limit=${encodeURIComponent(String(limit))}`) },
   listSessions(config: ServerConfig, directory?: string) { return request<Session[]>(config, withDirectory("/session", directory)) },
   async listGlobalSessions(config: ServerConfig) { const sessions: Session[] = []; let cursor: string | undefined; do { const path = cursor ? `/experimental/session?cursor=${encodeURIComponent(cursor)}` : "/experimental/session"; const response = await requestWithHeaders<Session[]>(config, path); sessions.push(...response.data); cursor = response.headers["x-next-cursor"] } while (cursor); return sessions },
   listStatuses(config: ServerConfig, directory?: string) { return request<Record<string, SessionStatus>>(config, withDirectory("/session/status", directory)) },
@@ -89,7 +92,7 @@ export const api = {
   async listAgents(config: ServerConfig, directory?: string) { const agents = await request<AgentResponse>(config, withDirectory("/agent", directory)); return agents.map(toAgentOption).filter((agent) => agent.id && !agent.hidden) },
   async listModels(config: ServerConfig, directory?: string, sessionID?: string) {
     const path = withDirectory("/config/providers", directory); const sessionPath = sessionID ? `${path}${path.includes("?") ? "&" : "?"}sessionID=${encodeURIComponent(sessionID)}` : path; const response = await request<ConfigProvidersResponse>(config, sessionPath)
-    return response.providers.flatMap((provider) => { const defaultModel = response.default?.[provider.id]; return Object.entries(provider.models).flatMap(([modelID, model]) => { const base: ModelOption = { providerID: provider.id, providerName: provider.name || provider.id, modelID: model.id || modelID, modelName: model.name || model.id || modelID, description: model.description, status: model.status, contextLimit: model.limit?.context, outputLimit: model.limit?.output, tools: Boolean(model.capabilities?.toolcall || model.capabilities?.tools), attachments: Boolean(model.capabilities?.attachment), isDefault: defaultModel === modelID }; const variantIDs = Object.keys(model.variants ?? {}); return [base, ...variantIDs.map((variant) => ({ ...base, variant, isDefault: false }))] }) })
+    return response.providers.flatMap((provider) => { const defaultModel = response.default?.[provider.id]; return Object.entries(provider.models).flatMap(([modelID, model]) => { const base: ModelOption = { providerID: provider.id, providerName: provider.name || provider.id, modelID: model.id || modelID, modelName: model.name || model.id || modelID, description: model.description, status: model.status, contextLimit: model.limit?.context, outputLimit: model.limit?.output, tools: Boolean(model.capabilities?.toolcall || model.capabilities?.tools), attachments: Boolean(model.capabilities?.attachment), isDefault: defaultModel === modelID }; const variantIDs = Object.keys(model.variants ?? {}); return [base, ...variantIDs.map((variant) => ({ ...base, variant, isDefault: false })) }) })
   },
   createSession(config: ServerConfig, title?: string, model?: ModelSelection, directory?: string) { return request<Session>(config, withDirectory("/session", directory), { method: "POST", body: { title, model: toCreateSessionModel(model) } }) },
   renameSession(config: ServerConfig, id: string, title: string, directory?: string) { return request<Session>(config, withDirectory(`/session/${id}`, directory), { method: "PATCH", body: { title } }) },
