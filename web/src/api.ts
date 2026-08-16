@@ -91,8 +91,33 @@ export const api = {
   listCommands(config: ServerConfig) { return request<CommandInfo[]>(config, "/command") },
   async listAgents(config: ServerConfig, directory?: string) { const agents = await request<AgentResponse>(config, withDirectory("/agent", directory)); return agents.map(toAgentOption).filter((agent) => agent.id && !agent.hidden) },
   async listModels(config: ServerConfig, directory?: string, sessionID?: string) {
-    const path = withDirectory("/config/providers", directory); const sessionPath = sessionID ? `${path}${path.includes("?") ? "&" : "?"}sessionID=${encodeURIComponent(sessionID)}` : path; const response = await request<ConfigProvidersResponse>(config, sessionPath)
-    return response.providers.flatMap((provider) => { const defaultModel = response.default?.[provider.id]; return Object.entries(provider.models).flatMap(([modelID, model]) => { const base: ModelOption = { providerID: provider.id, providerName: provider.name || provider.id, modelID: model.id || modelID, modelName: model.name || model.id || modelID, description: model.description, status: model.status, contextLimit: model.limit?.context, outputLimit: model.limit?.output, tools: Boolean(model.capabilities?.toolcall || model.capabilities?.tools), attachments: Boolean(model.capabilities?.attachment), isDefault: defaultModel === modelID }; const variantIDs = Object.keys(model.variants ?? {}); return [base, ...variantIDs.map((variant) => ({ ...base, variant, isDefault: false })) }) })
+    const path = withDirectory("/config/providers", directory)
+    const sessionPath = sessionID ? `${path}${path.includes("?") ? "&" : "?"}sessionID=${encodeURIComponent(sessionID)}` : path
+    const response = await request<ConfigProvidersResponse>(config, sessionPath)
+    const models: ModelOption[] = []
+    for (const provider of response.providers) {
+      const defaultModel = response.default?.[provider.id]
+      for (const [modelID, model] of Object.entries(provider.models)) {
+        const base: ModelOption = {
+          providerID: provider.id,
+          providerName: provider.name || provider.id,
+          modelID: model.id || modelID,
+          modelName: model.name || model.id || modelID,
+          description: model.description,
+          status: model.status,
+          contextLimit: model.limit?.context,
+          outputLimit: model.limit?.output,
+          tools: Boolean(model.capabilities?.toolcall || model.capabilities?.tools),
+          attachments: Boolean(model.capabilities?.attachment),
+          isDefault: defaultModel === modelID,
+        }
+        models.push(base)
+        for (const variant of Object.keys(model.variants ?? {})) {
+          models.push({ ...base, variant, isDefault: false })
+        }
+      }
+    }
+    return models
   },
   createSession(config: ServerConfig, title?: string, model?: ModelSelection, directory?: string) { return request<Session>(config, withDirectory("/session", directory), { method: "POST", body: { title, model: toCreateSessionModel(model) } }) },
   renameSession(config: ServerConfig, id: string, title: string, directory?: string) { return request<Session>(config, withDirectory(`/session/${id}`, directory), { method: "PATCH", body: { title } }) },
