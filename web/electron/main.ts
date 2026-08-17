@@ -1,6 +1,5 @@
-import { app, BrowserWindow, Menu, Notification, nativeImage, screen, session, ipcMain, type IpcMainInvokeEvent } from "electron"
+import { app, BrowserWindow, Menu, Notification, nativeImage, screen, session, ipcMain, utilityProcess, type IpcMainInvokeEvent, type UtilityProcess } from "electron"
 import { readFileSync, writeFileSync } from "node:fs"
-import { spawn, type ChildProcess } from "node:child_process"
 import { dirname, join } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import { buildApplicationMenu } from "./app-menu.js"
@@ -19,7 +18,7 @@ const profileFile = () => join(app.getPath("userData"), "desktop-profiles.json")
 const bridgeEntry = () => isDevelopment
   ? join(__dirname, "../../../../bridge/src/cli.js")
   : join(process.resourcesPath, "bridge/src/cli.js")
-let bridgeProcess: ChildProcess | undefined
+let bridgeProcess: UtilityProcess | undefined
 
 type SavedWindowState = {
   x?: number
@@ -48,14 +47,11 @@ function restoredBounds(state: SavedWindowState) {
 function startLocalBridge(): void {
   if (bridgeProcess && !bridgeProcess.killed) return
   const entry = bridgeEntry()
-  bridgeProcess = spawn(process.execPath, [entry, "--backend", "omp", "--host", "127.0.0.1", "--port", "4097"], {
+  bridgeProcess = utilityProcess.fork(entry, ["--backend", "omp", "--host", "127.0.0.1", "--port", "4097"], {
     cwd: isDevelopment ? join(__dirname, "../../../../bridge") : process.resourcesPath,
-    env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" },
-    stdio: ["ignore", "pipe", "pipe"]
+    env: process.env
   })
-  bridgeProcess.stdout?.on("data", (data) => log(`bridge: ${String(data).trim()}`))
-  bridgeProcess.stderr?.on("data", (data) => log(`bridge: ${String(data).trim()}`))
-  bridgeProcess.on("error", (error) => log(`bridge could not start: ${error.message}`))
+  bridgeProcess.on("spawn", () => log(`bridge started (${entry})`))
   bridgeProcess.on("exit", (code, signal) => {
     log(`bridge exited (${code ?? "null"}${signal ? `/${signal}` : ""})`)
     bridgeProcess = undefined
@@ -64,7 +60,7 @@ function startLocalBridge(): void {
 
 function stopLocalBridge(): void {
   if (!bridgeProcess) return
-  bridgeProcess.kill("SIGTERM")
+  bridgeProcess.kill()
   bridgeProcess = undefined
 }
 
