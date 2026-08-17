@@ -51,6 +51,10 @@
       "!**/*.map",
       "!**/*.test.*"
     ],
+    "extraResources": [
+      { "from": "../bridge/src", "to": "bridge/src" },
+      { "from": "../bridge/package.json", "to": "bridge/package.json" }
+    ],
     "win": {
       "target": [{"target": "nsis", "arch": ["x64"]}],
       "icon": "public/app-icon.png",
