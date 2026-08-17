@@ -2,12 +2,6 @@ name: Build Supru-AI macOS ARM64
 
 on:
   workflow_dispatch: {}
-  push:
-    branches: [main]
-    paths:
-      - 'web/**'
-      - 'bridge/**'
-      - '.github/workflows/desktop-apps.yml'
 
 permissions:
   contents: read
