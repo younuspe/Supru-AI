@@ -47,11 +47,22 @@ function restoredBounds(state: SavedWindowState) {
 function startLocalBridge(): void {
   if (bridgeProcess && !bridgeProcess.killed) return
   const entry = bridgeEntry()
-  bridgeProcess = utilityProcess.fork(entry, ["--backend", "omp", "--host", "127.0.0.1", "--port", "4097"], {
+  bridgeProcess = utilityProcess.fork(entry, [
+    "--backend", "omp",
+    "--host", "127.0.0.1",
+    "--port", "4097",
+    // The packaged renderer is file:// and therefore sends Origin: null.
+    // The hosted PWA also needs explicit permission to call the local bridge.
+    "--cors", "null",
+    "--cors", "https://younuspe.github.io",
+    "--cors", "http://localhost:5173"
+  ], {
     cwd: isDevelopment ? join(__dirname, "../../../../bridge") : process.resourcesPath,
     env: process.env
   })
   bridgeProcess.on("spawn", () => log(`bridge started (${entry})`))
+  bridgeProcess.on("message", (message) => log(`bridge: ${typeof message === "string" ? message : JSON.stringify(message)}`))
+  bridgeProcess.on("error", (error) => log(`bridge process error: ${error.message}`))
   bridgeProcess.on("exit", (code, signal) => {
     log(`bridge exited (${code ?? "null"}${signal ? `/${signal}` : ""})`)
     bridgeProcess = undefined
