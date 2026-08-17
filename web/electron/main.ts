@@ -1,5 +1,6 @@
 import { app, BrowserWindow, Menu, Notification, nativeImage, screen, session, ipcMain, type IpcMainInvokeEvent } from "electron"
 import { readFileSync, writeFileSync } from "node:fs"
+import { spawn, type ChildProcess } from "node:child_process"
 import { dirname, join } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import { buildApplicationMenu } from "./app-menu.js"
@@ -11,12 +12,15 @@ import type { DesktopCompletionNotification, DesktopEventSubscriptionOptions, De
 import { MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH, restoredBounds as calculateRestoredBounds } from "./window-state.js"
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const isDevelopment = !app.isPackaged
-// The main process is the one place the three desktops genuinely differ: the taskbar overlay is
-// Windows-only, and the menu and quit-on-last-window conventions are macOS's own.
 const isWindows = process.platform === "win32"
 const isMac = process.platform === "darwin"
 const rendererEntry = join(__dirname, "../../dist/index.html")
 const profileFile = () => join(app.getPath("userData"), "desktop-profiles.json")
+const bridgeEntry = () => isDevelopment
+  ? join(__dirname, "../../../../bridge/src/cli.js")
+  : join(process.resourcesPath, "bridge/src/cli.js")
+let bridgeProcess: ChildProcess | undefined
+
 type SavedWindowState = {
   x?: number
   y?: number
@@ -41,6 +45,28 @@ function restoredBounds(state: SavedWindowState) {
   return calculateRestoredBounds(state, screen.getAllDisplays())
 }
 
+function startLocalBridge(): void {
+  if (bridgeProcess && !bridgeProcess.killed) return
+  const entry = bridgeEntry()
+  bridgeProcess = spawn(process.execPath, [entry, "--backend", "omp", "--host", "127.0.0.1", "--port", "4097"], {
+    cwd: isDevelopment ? join(__dirname, "../../../../bridge") : process.resourcesPath,
+    env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" },
+    stdio: ["ignore", "pipe", "pipe"]
+  })
+  bridgeProcess.stdout?.on("data", (data) => log(`bridge: ${String(data).trim()}`))
+  bridgeProcess.stderr?.on("data", (data) => log(`bridge: ${String(data).trim()}`))
+  bridgeProcess.on("error", (error) => log(`bridge could not start: ${error.message}`))
+  bridgeProcess.on("exit", (code, signal) => {
+    log(`bridge exited (${code ?? "null"}${signal ? `/${signal}` : ""})`)
+    bridgeProcess = undefined
+  })
+}
+
+function stopLocalBridge(): void {
+  if (!bridgeProcess) return
+  bridgeProcess.kill("SIGTERM")
+  bridgeProcess = undefined
+}
 
 let mainWindow: BrowserWindow | undefined
 let registry: ProfileRegistry
@@ -71,13 +97,6 @@ function notificationText(value: unknown, maxLength: number): value is string {
   return typeof value === "string" && value.length > 0 && value.length <= maxLength && !/[\u0000-\u001f\u007f]/.test(value)
 }
 
-/**
- * Only macOS gets a platform menu. Its menu bar lives outside the window, so the app has to put
- * something there — and if it does not, Electron leaves its own untranslated default sitting next to
- * the app's own menu bar. Windows and Linux would draw a second menu bar inside the window frame,
- * directly beneath the one the renderer already draws, which is why they keep the in-window one
- * alone. The renderer is told which of the two it is dealing with through `platform.usesNativeMenu`.
- */
 function applyApplicationMenu(template: unknown): boolean {
   if (!isMac) return false
   const parsed = parseDesktopMenuTemplate(template)
@@ -93,8 +112,6 @@ function applyApplicationMenu(template: unknown): boolean {
     })))
     return true
   } catch {
-    // A template Electron refuses is not worth taking the window down for: keep whatever menu is
-    // already installed and carry on.
     log("application menu could not be built")
     return false
   }
@@ -105,8 +122,6 @@ function notifyCompletion(notification: DesktopCompletionNotification): void {
   if (!Notification.isSupported()) return
   new Notification({ title: notification.title, body: notification.body }).show()
   if (!isWindows) return
-  // A PNG, because nativeImage cannot decode SVG: the icon came back empty and the taskbar badge
-  // silently never appeared. Resized down because an overlay is drawn at 16x16.
   const icon = nativeImage.createFromPath(join(app.getAppPath(), "dist/app-icon.png")).resize({ width: 16, height: 16 })
   if (!icon.isEmpty()) mainWindow.setOverlayIcon(icon, notification.overlayDescription)
 }
@@ -128,8 +143,6 @@ function createWindow(): BrowserWindow {
       spellcheck: false
     }
   })
-  // Held separately because `closed` fires after the native window is gone, and reading
-  // window.webContents at that point throws "Object has been destroyed".
   const contents = window.webContents
   let stateTimer: NodeJS.Timeout | undefined
   const cancelWindowStateSave = () => {
@@ -162,8 +175,6 @@ function createWindow(): BrowserWindow {
     cancelWindowStateSave()
   })
   window.on("focus", () => {
-    // Guarded rather than left to fail quietly: setOverlayIcon is absent on macOS and Linux, not
-    // inert, so calling it there throws out of the focus handler.
     if (isWindows) window.setOverlayIcon(null, "")
   })
 
@@ -248,17 +259,13 @@ function installIPC(): void {
 }
 
 async function start(): Promise<void> {
-  app.setAppUserModelId("com.harnessremote.desktop")
-  app.setName("Harness Remote")
+  app.setAppUserModelId("ai.supru.desktop")
+  app.setName("Supru AI")
   registry = new ProfileRegistry(profileFile())
   await registry.load()
   eventTransport = new DesktopEventTransport(registry, IPC_CHANNELS)
   installIPC()
-  // macOS keeps its menu: the app menu is where Cmd+Q lives and the Edit menu is what binds
-  // Cmd+C/V/X, so stripping it there costs the user the shortcuts they expect rather than just
-  // hiding chrome. The renderer replaces Electron's untranslated default with the real one as soon
-  // as it mounts. Windows and Linux draw an in-window menu bar underneath the app's own, which is
-  // one menu bar too many.
+  startLocalBridge()
   if (!isDevelopment && !isMac) Menu.setApplicationMenu(null)
   session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false))
   mainWindow = createWindow()
@@ -269,9 +276,10 @@ app.whenReady().then(() => start()).catch((error: unknown) => {
   app.quit()
 })
 
-app.on("before-quit", () => eventTransport?.closeAll())
-// Closing the last window ends the app everywhere except macOS, where an app with no windows is
-// still running and is expected to reopen one from the dock — which is what "activate" below does.
+app.on("before-quit", () => {
+  eventTransport?.closeAll()
+  stopLocalBridge()
+})
 app.on("window-all-closed", () => {
   if (!isMac) app.quit()
 })
