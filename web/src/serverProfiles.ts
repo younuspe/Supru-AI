@@ -48,6 +48,10 @@ function bundledSupruBridgeProfile(): SavedServerProfile {
   }
 }
 
+function isUsableConfig(config: ServerConfig | null): config is ServerConfig {
+  return !!config && typeof config.host === "string" && config.host.trim().length > 0 && Number.isFinite(config.port) && config.port > 0
+}
+
 function isBackend(value: unknown): value is BackendKind {
   return value === "opencode" || value === "omp" || value === "pi" || value === "claude" || value === "codex"
 }
@@ -99,7 +103,7 @@ function legacyProfiles(): SavedServerProfile[] {
     if (!raw) continue
     try {
       const config = parseConfig(JSON.parse(raw), backend)
-      if (config) profiles.push({ id: profileID(), name: profileName(config.backend, profiles.length), config })
+      if (isUsableConfig(config)) profiles.push({ id: profileID(), name: profileName(config.backend, profiles.length), config })
     } catch {
       // Ignore malformed old storage and continue with the remaining saved servers.
     }
@@ -107,22 +111,31 @@ function legacyProfiles(): SavedServerProfile[] {
   if (profiles.length > 0) return profiles
   try {
     const legacy = parseConfig(JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY) ?? "null"), "opencode")
-    if (legacy) return [{ id: profileID(), name: profileName(legacy.backend, 0), config: legacy }]
+    if (isUsableConfig(legacy)) return [{ id: profileID(), name: profileName(legacy.backend, 0), config: legacy }]
   } catch {
-    // Start with the bundled Supru Bridge profile when legacy storage is malformed.
+    // Fall through to the bundled Supru Bridge profile.
   }
   const backend = localStorage.getItem(ACTIVE_BACKEND_STORAGE_KEY)
-  if (isBackend(backend)) return [{ id: profileID(), name: profileName(backend, 0), config: defaultConfig(backend) }]
+  if (isBackend(backend)) {
+    const config = defaultConfig(backend)
+    if (isUsableConfig(config)) return [{ id: profileID(), name: profileName(backend, 0), config }]
+  }
   return [bundledSupruBridgeProfile()]
 }
 
 export function loadServerProfiles(): SavedServerProfile[] {
-  return parseProfiles(localStorage.getItem(SERVER_PROFILES_STORAGE_KEY)) ?? legacyProfiles()
+  const parsed = parseProfiles(localStorage.getItem(SERVER_PROFILES_STORAGE_KEY))
+  if (parsed && parsed.length > 0) {
+    const usable = parsed.filter((profile) => isUsableConfig(profile.config))
+    if (usable.length > 0) return usable
+  }
+  return legacyProfiles()
 }
 
 export function loadActiveServerProfile(profiles: SavedServerProfile[]): SavedServerProfile {
+  const usable = profiles.filter((profile) => isUsableConfig(profile.config))
   const storedID = localStorage.getItem(ACTIVE_PROFILE_STORAGE_KEY)
-  return profiles.find((profile) => profile.id === storedID) ?? profiles[0]
+  return usable.find((profile) => profile.id === storedID) ?? usable.find((profile) => profile.id === "supru-local-bridge") ?? usable[0] ?? bundledSupruBridgeProfile()
 }
 
 export function persistServerProfiles(profiles: SavedServerProfile[], activeProfileID: string): void {
