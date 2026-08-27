@@ -27,13 +27,6 @@
 <body>
 <div id="root"></div>
 <div id="supru-welcome" data-state="waiting" aria-label="Supru-AI welcome screen"><div class="supru-welcome-inner"><div class="supru-eyes" aria-hidden="true"><span class="supru-eye"></span><span class="supru-eye"></span></div><h1 class="supru-welcome-title">Supru-AI</h1><p id="supru-status" class="supru-welcome-subtitle">Supru is waiting… curious.</p><button id="supru-connect" class="supru-action" type="button">Connect</button></div></div>
-<script>
-(()=>{const w=document.getElementById("supru-welcome"),c=document.getElementById("supru-connect"),status=document.getElementById("supru-status");let a=null,connected=false;
-const cry=()=>{try{a ||= new(window.AudioContext||window.webkitAudioContext)();const n=a.currentTime,o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.setValueAtTime(620,n);o.frequency.exponentialRampToValueAtTime(390,n+.32);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.035,n+.035);g.gain.exponentialRampToValueAtTime(.0001,n+.42);o.connect(g).connect(a.destination);o.start(n);o.stop(n+.44)}catch(_){}};
-const connect=async()=>{status.textContent="Connecting to Supru…";c.disabled=true;try{const [{api},{loadServerProfiles,loadActiveServerProfile}]=await Promise.all([import("./src/api.ts"),import("./src/serverProfiles.ts")]);const profiles=loadServerProfiles();const profile=loadActiveServerProfile(profiles);if(!profile||!profile.config.host.trim())throw new Error("No server or bridge is configured yet.");await api.health(profile.config);connected=true;document.documentElement.dataset.supruState="connected";w.classList.add("is-connected");status.textContent="Supru is awake.";c.textContent="Disconnect";c.disabled=false;window.dispatchEvent(new CustomEvent("supru:connected",{detail:{profileId:profile.id,backend:profile.config.backend}}));}catch(error){status.textContent=error instanceof Error?error.message:"Supru could not reach the bridge.";c.disabled=false;c.textContent="Connect";}};
-const disconnect=()=>{connected=false;document.documentElement.dataset.supruState="waiting";w.classList.remove("is-connected");status.textContent="Supru is waiting… curious.";c.textContent="Connect";window.dispatchEvent(new CustomEvent("supru:disconnected"));};
-c.addEventListener("click",()=>connected?disconnect():connect());window.addEventListener("pointerdown",()=>{try{a ||= new(window.AudioContext||window.webkitAudioContext)();cry()}catch(_){}},{once:true});})();
-</script>
 <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
