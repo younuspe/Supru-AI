@@ -5,34 +5,9 @@ import App from "./App"
 import { ErrorBoundary } from "./ErrorBoundary"
 import { SERVER_STORAGE_KEYS } from "./storageKeys"
 import { api } from "./api"
-import { createServerProfile, loadActiveServerProfile, loadServerProfiles, persistServerProfiles } from "./serverProfiles"
+import { loadActiveServerProfile, loadServerProfiles } from "./serverProfiles"
 import "./styles.css"
 import "./supru-theme.css"
-
-const ensureSupruBridgeProfile = () => {
-  const profiles = loadServerProfiles()
-  const active = loadActiveServerProfile(profiles)
-  if (active?.config.host.trim()) return
-
-  // Keep the bundled Supru Bridge target in renderer storage even when the preload API is not
-  // available at the exact moment this module evaluates. The desktop Bridge synchronization layer
-  // will pick up the saved profile once Electron exposes harnessDesktop.
-  const profile = createServerProfile("Supru local Bridge", "omp")
-  profile.config = {
-    ...profile.config,
-    host: "127.0.0.1",
-    port: 4097,
-    username: "",
-    password: ""
-  }
-  persistServerProfiles([profile], profile.id)
-}
-
-// The bundled Bridge profile must exist before App mounts. App synchronizes its saved profiles to
-// Electron during initialization, so creating the profile after the first render races that sync.
-// Do not gate this on desktopPlatform(): preload availability can lag module evaluation, while the
-// profile itself is harmless in renderer storage and is required by the Supru connection path.
-ensureSupruBridgeProfile()
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -54,7 +29,6 @@ const wireSupruWelcome = () => {
     status.textContent = "Connecting to Supru…"
     connectButton.setAttribute("disabled", "true")
     try {
-      ensureSupruBridgeProfile()
       const profiles = loadServerProfiles()
       const profile = loadActiveServerProfile(profiles)
       if (!profile || !profile.config.host.trim()) {
