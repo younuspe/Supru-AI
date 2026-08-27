@@ -37,18 +37,17 @@ export function createBridgeServer({ config, acp, serviceOptions, machineRegistr
   const service = new AcpService(acp, { ...serviceOptions, actionProviders: profile.actionProviders })
   return http.createServer(async (request, response) => {
     applyCorsHeaders(request, response, config)
-    if (request.method === "OPTIONS") { response.writeHead(allowedOrigin(request, config) ? 204 : 403); response.end(); return }
-    if (!matchesCredentials(request, config)) { response.writeHead(401, { "WWW-Authenticate": 'Basic realm="Supru-AI Bridge"' }); response.end(); return }
     const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`)
-    const directory = url.searchParams.get("directory") || undefined
-    if (request.method === "GET" && (url.pathname === "/v1/machine" || url.pathname === "/global/machine")) { if (!machineRegistry) { writeJSON(response, 503, { error: "Machine registry is not configured" }); return }; writeJSON(response, 200, machineRegistry.snapshot()); return }
-
-    // Health means only that this local HTTP bridge is alive and reachable. It must never start
-    // ACP or wait for model authentication; otherwise a missing login can make the UI spin forever.
+    // Health is a local liveness probe. It must work before credentials/ACP are ready,
+    // otherwise the desktop can remain stuck on "Connecting..." even when the HTTP server is alive.
     if (request.method === "GET" && (url.pathname === "/v1/health" || url.pathname === "/global/health")) {
       writeJSON(response, 200, { healthy: true, bridge: "supru-ai", backend })
       return
     }
+    if (request.method === "OPTIONS") { response.writeHead(allowedOrigin(request, config) ? 204 : 403); response.end(); return }
+    if (!matchesCredentials(request, config)) { response.writeHead(401, { "WWW-Authenticate": 'Basic realm="Supru-AI Bridge"' }); response.end(); return }
+    const directory = url.searchParams.get("directory") || undefined
+    if (request.method === "GET" && (url.pathname === "/v1/machine" || url.pathname === "/global/machine")) { if (!machineRegistry) { writeJSON(response, 503, { error: "Machine registry is not configured" }); return }; writeJSON(response, 200, machineRegistry.snapshot()); return }
     if (request.method === "GET" && url.pathname === "/v1/capabilities") { await acp.start(); writeJSON(response, 200, { ...profile.capabilities, attachments: Boolean(acp.promptCapabilities?.image) }); return }
     if (request.method === "GET" && url.pathname === "/v1/information/search") { const query = url.searchParams.get("q") ?? ""; const limit = url.searchParams.get("limit") ?? undefined; writeJSON(response, 200, await searchInformation(query, { limit })); return }
     if (request.method === "GET" && (url.pathname === "/v1/events" || url.pathname === "/global/event")) { response.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", Connection: "keep-alive" }); response.write(": connected\n\n"); const unsubscribe = service.subscribe((event) => writeSSE(response, event.type, event)); const heartbeat = setInterval(() => response.write(": ping\n\n"), config.heartbeatMs ?? 10_000); heartbeat.unref?.(); request.on("close", () => { clearInterval(heartbeat); unsubscribe() }); return }
