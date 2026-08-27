@@ -34,6 +34,20 @@ function defaultConfig(backend: BackendKind): ServerConfig {
   }
 }
 
+function bundledSupruBridgeProfile(): SavedServerProfile {
+  return {
+    id: "supru-local-bridge",
+    name: "Supru local Bridge",
+    config: {
+      backend: "omp",
+      host: "127.0.0.1",
+      port: 4097,
+      username: "",
+      password: ""
+    }
+  }
+}
+
 function isBackend(value: unknown): value is BackendKind {
   return value === "opencode" || value === "omp" || value === "pi" || value === "claude" || value === "codex"
 }
@@ -95,11 +109,11 @@ function legacyProfiles(): SavedServerProfile[] {
     const legacy = parseConfig(JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY) ?? "null"), "opencode")
     if (legacy) return [{ id: profileID(), name: profileName(legacy.backend, 0), config: legacy }]
   } catch {
-    // Start with a blank OpenCode profile when legacy storage is malformed.
+    // Start with the bundled Supru Bridge profile when legacy storage is malformed.
   }
   const backend = localStorage.getItem(ACTIVE_BACKEND_STORAGE_KEY)
-  const fallback = isBackend(backend) ? backend : "opencode"
-  return [{ id: profileID(), name: profileName(fallback, 0), config: defaultConfig(fallback) }]
+  if (isBackend(backend)) return [{ id: profileID(), name: profileName(backend, 0), config: defaultConfig(backend) }]
+  return [bundledSupruBridgeProfile()]
 }
 
 export function loadServerProfiles(): SavedServerProfile[] {
