@@ -10,14 +10,6 @@ import { desktopPlatform } from "./desktopBridge"
 import "./styles.css"
 import "./supru-theme.css"
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <ErrorBoundary resetKeys={SERVER_STORAGE_KEYS}>
-      <App />
-    </ErrorBoundary>
-  </React.StrictMode>
-)
-
 const ensureDesktopBridgeProfile = () => {
   if (!desktopPlatform()) return
   const profiles = loadServerProfiles()
@@ -34,6 +26,19 @@ const ensureDesktopBridgeProfile = () => {
   }
   persistServerProfiles([profile], profile.id)
 }
+
+// The bundled Bridge profile must exist before App mounts. App synchronizes its saved profiles to
+// Electron during initialization, so creating the profile after the first render races that sync.
+// Doing this first keeps the renderer and desktop Bridge on the same profile from the start.
+ensureDesktopBridgeProfile()
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <ErrorBoundary resetKeys={SERVER_STORAGE_KEYS}>
+      <App />
+    </ErrorBoundary>
+  </React.StrictMode>
+)
 
 const wireSupruWelcome = () => {
   const welcome = document.getElementById("supru-welcome")
