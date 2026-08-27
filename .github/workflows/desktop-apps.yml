@@ -37,26 +37,18 @@ jobs:
         run: npm ci
         working-directory: web
 
-      - name: Install OMP runtime for bundled Bridge
+      - name: Install OMP ARM64 binary for bundled Bridge
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p bridge/src/bin
-          npm view @oh-my-pi/pi-coding-agent version
-          npm pack @oh-my-pi/pi-coding-agent --pack-destination /tmp
-          OMP_TGZ="$(find /tmp -maxdepth 1 -type f -name 'pi-coding-agent-*.tgz' -print -quit)"
-          test -n "$OMP_TGZ"
-          mkdir -p /tmp/omp-package
-          tar -xzf "$OMP_TGZ" -C /tmp/omp-package
-          OMP_BIN="$(find /tmp/omp-package -type f -name 'omp' -perm -111 -print -quit)"
-          if [ -z "$OMP_BIN" ]; then
-            echo "No executable named omp was found in the OMP package."
-            find /tmp/omp-package -maxdepth 6 -type f | head -100
-            exit 1
-          fi
-          cp "$OMP_BIN" bridge/src/bin/omp
-          chmod 755 bridge/src/bin/omp
+          export PI_INSTALL_DIR="$PWD/bridge/src/bin"
+          curl -fsSL https://raw.githubusercontent.com/can1357/oh-my-pi/main/scripts/install.sh | sh -s -- --binary
+          test -x bridge/src/bin/omp
+          bridge/src/bin/omp --version
           file bridge/src/bin/omp
+          test "$(uname -m)" = "arm64"
+          file bridge/src/bin/omp | grep -Eiq 'arm64|aarch64'
 
       - name: Run desktop tests
         run: npm run test:desktop
@@ -101,6 +93,7 @@ jobs:
           test -f "$BUNDLED_OMP"
           test -x "$BUNDLED_OMP"
           file "$BUNDLED_OMP"
+          "$BUNDLED_OMP" --version
 
           echo "Checking the signature produced by electron-builder..."
           codesign --verify --deep --strict --verbose=2 "$APP"
