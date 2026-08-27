@@ -5,7 +5,8 @@ import App from "./App"
 import { ErrorBoundary } from "./ErrorBoundary"
 import { SERVER_STORAGE_KEYS } from "./storageKeys"
 import { api } from "./api"
-import { loadActiveServerProfile, loadServerProfiles } from "./serverProfiles"
+import { createServerProfile, loadActiveServerProfile, loadServerProfiles, persistServerProfiles } from "./serverProfiles"
+import { desktopPlatform } from "./desktopBridge"
 import "./styles.css"
 import "./supru-theme.css"
 
@@ -16,6 +17,23 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </ErrorBoundary>
   </React.StrictMode>
 )
+
+const ensureDesktopBridgeProfile = () => {
+  if (!desktopPlatform()) return
+  const profiles = loadServerProfiles()
+  const active = loadActiveServerProfile(profiles)
+  if (active?.config.host.trim()) return
+
+  const profile = createServerProfile("Supru local Bridge", "omp")
+  profile.config = {
+    ...profile.config,
+    host: "127.0.0.1",
+    port: 4097,
+    username: "",
+    password: ""
+  }
+  persistServerProfiles([profile], profile.id)
+}
 
 const wireSupruWelcome = () => {
   const welcome = document.getElementById("supru-welcome")
@@ -29,6 +47,7 @@ const wireSupruWelcome = () => {
     status.textContent = "Connecting to Supru…"
     connectButton.setAttribute("disabled", "true")
     try {
+      ensureDesktopBridgeProfile()
       const profiles = loadServerProfiles()
       const profile = loadActiveServerProfile(profiles)
       if (!profile || !profile.config.host.trim()) {
