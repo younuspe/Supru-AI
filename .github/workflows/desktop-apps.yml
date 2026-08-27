@@ -37,18 +37,21 @@ jobs:
         run: npm ci
         working-directory: web
 
-      - name: Install OMP ARM64 binary for bundled Bridge
+      - name: Install OMP ARM64 binary with Homebrew
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p bridge/src/bin
-          export PI_INSTALL_DIR="$PWD/bridge/src/bin"
-          curl -fsSL https://raw.githubusercontent.com/can1357/oh-my-pi/main/scripts/install.sh | sh -s -- --binary
-          test -x bridge/src/bin/omp
-          bridge/src/bin/omp --version
-          file bridge/src/bin/omp
+          brew update
+          brew install can1357/tap/omp
+          OMP_BIN="$(brew --prefix)/bin/omp"
+          test -x "$OMP_BIN"
+          "$OMP_BIN" --version
+          file "$OMP_BIN"
           test "$(uname -m)" = "arm64"
-          file bridge/src/bin/omp | grep -Eiq 'arm64|aarch64'
+          file "$OMP_BIN" | grep -Eiq 'arm64|aarch64'
+          cp "$OMP_BIN" bridge/src/bin/omp
+          chmod 755 bridge/src/bin/omp
 
       - name: Run desktop tests
         run: npm run test:desktop
