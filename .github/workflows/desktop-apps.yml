@@ -13,7 +13,7 @@ concurrency:
 jobs:
   macos-arm64:
     name: Supru-AI macOS ARM64
-    runs-on: macos-latest
+    runs-on: macos-14
     timeout-minutes: 30
 
     steps:
@@ -30,6 +30,27 @@ jobs:
       - name: Install web dependencies
         run: npm ci
         working-directory: web
+
+      - name: Install OMP runtime for bundled Bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bridge/src/bin
+          npm view @oh-my-pi/pi-coding-agent version
+          npm pack @oh-my-pi/pi-coding-agent --pack-destination /tmp
+          OMP_TGZ="$(find /tmp -maxdepth 1 -type f -name 'pi-coding-agent-*.tgz' -print -quit)"
+          test -n "$OMP_TGZ"
+          mkdir -p /tmp/omp-package
+          tar -xzf "$OMP_TGZ" -C /tmp/omp-package
+          OMP_BIN="$(find /tmp/omp-package -type f -name 'omp' -perm -111 -print -quit)"
+          if [ -z "$OMP_BIN" ]; then
+            echo "No executable named omp was found in the OMP package."
+            find /tmp/omp-package -maxdepth 6 -type f | head -100
+            exit 1
+          fi
+          cp "$OMP_BIN" bridge/src/bin/omp
+          chmod 755 bridge/src/bin/omp
+          file bridge/src/bin/omp
 
       - name: Run desktop tests
         run: npm run test:desktop
@@ -70,12 +91,17 @@ jobs:
             exit 1
           fi
 
+          BUNDLED_OMP="$APP/Contents/Resources/bridge/src/bin/omp"
+          test -f "$BUNDLED_OMP"
+          test -x "$BUNDLED_OMP"
+          file "$BUNDLED_OMP"
+
           echo "Checking the signature produced by electron-builder..."
           codesign --verify --deep --strict --verbose=2 "$APP"
           codesign --display --verbose=2 "$APP" 2>&1 || true
           spctl --assess --type execute --verbose=4 "$APP" || true
 
-          echo "Verified Supru-AI macOS ARM64 artifacts:"
+          echo "Verified Supru-AI macOS ARM64 artifacts and bundled OMP runtime:"
           find release -maxdepth 1 -type f \( -name '*-mac-arm64-adhoc.dmg' -o -name '*-mac-arm64-adhoc.zip' \) -print
         working-directory: web
 
