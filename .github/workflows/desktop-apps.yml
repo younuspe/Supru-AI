@@ -42,8 +42,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p bridge/src/bin
+          rm -rf /tmp/omp-package
+          mkdir -p /tmp/omp-package
           npm pack @oh-my-pi/pi-coding-agent@18.0.8 --pack-destination /tmp/omp-package
-          OMP_TGZ="$(find /tmp/omp-package -maxdepth 1 -type f -name '@oh-my-pi-pi-coding-agent-18.0.8.tgz' -print -quit)"
+          OMP_TGZ="$(find /tmp/omp-package -maxdepth 1 -type f -name '*pi-coding-agent-18.0.8.tgz' -print -quit)"
           test -n "$OMP_TGZ"
           rm -rf /tmp/omp-package/extracted
           mkdir -p /tmp/omp-package/extracted
@@ -52,11 +54,15 @@ jobs:
           test -f "$PACKAGE/package.json"
           echo "OMP package contents:"
           node -e "const p=require('$PACKAGE/package.json'); console.log(JSON.stringify({name:p.name,version:p.version,bin:p.bin},null,2))"
-          if [ -z "$(node -e "const p=require('$PACKAGE/package.json'); const b=p.bin; console.log(typeof b === 'string' ? b : b && Object.values(b).join('\\n') || '')")" ]; then
-            echo "OMP package does not expose a CLI binary."
-            exit 1
-          fi
-          cp -R "$PACKAGE" bridge/src/bin/omp-package
+          OMP_BIN="$(node -e "const p=require('$PACKAGE/package.json'); const b=p.bin; console.log(typeof b === 'string' ? b : b && (b.omp || Object.values(b)[0]) || '')")"
+          test -n "$OMP_BIN"
+          test -f "$PACKAGE/$OMP_BIN"
+          mkdir -p bridge/src/bin/omp-package
+          cp -R "$PACKAGE"/* bridge/src/bin/omp-package/
+          cp "$PACKAGE/$OMP_BIN" bridge/src/bin/omp-package/omp
+          chmod 755 bridge/src/bin/omp-package/omp
+          test -x bridge/src/bin/omp-package/omp
+          echo "Bundled OMP entrypoint: bridge/src/bin/omp-package/omp"
 
       - name: Run desktop tests
         run: npm run test:desktop
@@ -108,17 +114,18 @@ jobs:
             exit 1
           fi
 
-          BUNDLED_OMP="$APP/Contents/Resources/bridge/src/bin/omp-package"
-          test -d "$BUNDLED_OMP"
-          test -f "$BUNDLED_OMP/package.json"
-          node -e "const p=require(process.argv[1] + '/package.json'); console.log('Bundled OMP:',p.name,p.version,p.bin)" "$BUNDLED_OMP"
+          BUNDLED_OMP="$APP/Contents/Resources/bridge/src/bin/omp-package/omp"
+          test -f "$BUNDLED_OMP"
+          test -x "$BUNDLED_OMP"
+          file "$BUNDLED_OMP"
+          "$BUNDLED_OMP" --version
 
           echo "Checking the signature produced by electron-builder..."
           codesign --verify --deep --strict --verbose=2 "$APP"
           codesign --display --verbose=2 "$APP" 2>&1 || true
           spctl --assess --type execute --verbose=4 "$APP" || true
 
-          echo "Verified Supru-AI macOS ARM64 artifacts and bundled OMP package."
+          echo "Verified Supru-AI macOS ARM64 artifacts and bundled OMP runtime."
           find release -maxdepth 1 -type f \( -name '*-mac-arm64-adhoc.dmg' -o -name '*-mac-arm64-adhoc.zip' \) -print
         working-directory: web
 
