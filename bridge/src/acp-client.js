@@ -1,19 +1,10 @@
 import { spawn } from "node:child_process"
 import { EventEmitter } from "node:events"
 
-// An adapter launched through `npx` downloads itself on first use, which takes far longer
-// than a warm start. Ten seconds failed on a cold PI adapter while npm was still fetching.
 const START_TIMEOUT_MS = 90_000
 const REQUEST_TIMEOUT_MS = 30_000
-/** Kept so a failed handshake can report why the adapter died instead of just its exit code. */
 const STDERR_KEPT_CHARS = 600
 
-/**
- * JSON-RPC only promises a human-readable `message`, and Codex spends it on a bare "Internal
- * error", putting the part worth reading — "thread <id> already has an active writer" — in
- * `data.details`. Dropping that left the app showing `{"error":"Internal error"}` for a refusal it
- * could otherwise have explained.
- */
 function acpErrorMessage(error) {
   const message = error?.message ?? "ACP adapter request failed"
   const details = error?.data?.details
@@ -35,6 +26,7 @@ export class AcpClient extends EventEmitter {
   #promptCapabilities = {}
   #stderr = ""
   #stderrPartial = ""
+  #authentication = Promise.resolve()
 
   constructor({ command = "omp", args = ["acp"], permissionMode = "deny", preferredAuthMethod, spawnProcess = spawn } = {}) {
     super()
@@ -49,15 +41,10 @@ export class AcpClient extends EventEmitter {
     return this.#agentInfo
   }
 
-  /**
-   * What the agent says it accepts in a prompt. The bridge refuses an attachment the
-   * agent never advertised rather than sending a block it would reject mid-turn.
-   */
   get promptCapabilities() {
     return this.#promptCapabilities
   }
 
-  /** PID identifies extension runtime state published by this exact ACP process. */
   get processID() {
     return Number.isInteger(this.#child?.pid) ? this.#child.pid : undefined
   }
@@ -85,17 +72,14 @@ export class AcpClient extends EventEmitter {
       windowsHide: true
     })
     this.#child = child
-    // Each attempt reports its own stderr. Carrying the buffer across restarts made every exit
-    // message repeat the previous ones, so a single "pi-acp: not found" arrived three times over.
     this.#stderr = ""
     this.#stderrPartial = ""
+    this.#authentication = Promise.resolve()
     child.stdout.setEncoding("utf8")
     child.stderr.setEncoding("utf8")
     child.stdout.on("data", (chunk) => this.#consume(chunk))
     child.stderr.on("data", (chunk) => {
       this.#stderr = `${this.#stderr}${chunk}`.slice(-STDERR_KEPT_CHARS)
-      // Emit whole lines. A chunk boundary falls wherever the pipe happens to flush, so a listener
-      // that prefixes what it receives would otherwise print `[pi] sh: 1: [pi] pi-acp: not found`.
       const pending = `${this.#stderrPartial}${chunk}`.split(/\r?\n/)
       this.#stderrPartial = pending.pop() ?? ""
       for (const line of pending) this.emit("stderr", line)
@@ -116,16 +100,11 @@ export class AcpClient extends EventEmitter {
       const initialized = await this.request("initialize", {
         protocolVersion: 1,
         clientCapabilities: {},
-        clientInfo: { name: "harness-remote-bridge", version: "0.1.7" }
+        clientInfo: { name: "supru-ai-bridge", version: "0.1.7" }
       }, START_TIMEOUT_MS)
       this.#agentInfo = initialized.agentInfo
       this.#promptCapabilities = initialized.agentCapabilities?.promptCapabilities ?? {}
-      // The bridge always runs beside a harness the user already configured, so prefer a method
-      // that uses those credentials. PI's adapter offers `anthropic-api-key` first and
-      // `pi-stored-credentials` last: picking the first would claim an API key from an
-      // environment variable that is usually unset, and fail later at inference rather than here.
-      // Codex's adapter lists `api-key` first too, but its ChatGPT login method is what reads a
-      // `codex login` from disk, so a profile may name the method its harness expects.
+
       const authMethods = Array.isArray(initialized.authMethods) ? initialized.authMethods : []
       let authMethod = this.#preferredAuthMethod
         ? authMethods.find((method) => method?.id === this.#preferredAuthMethod)
@@ -133,7 +112,16 @@ export class AcpClient extends EventEmitter {
       authMethod ??= authMethods.find((method) => method?.id === "agent")
         ?? authMethods.find((method) => method?.id && method.type !== "env_var")
         ?? authMethods.find((method) => method?.id)
-      if (authMethod) await this.request("authenticate", { methodId: authMethod.id }, START_TIMEOUT_MS)
+
+      if (authMethod) {
+        // Authentication must not block the Bridge health check. The local Bridge is alive as soon
+        // as ACP has initialized. Requests that actually need the harness wait for this promise.
+        this.#authentication = this.request("authenticate", { methodId: authMethod.id }, START_TIMEOUT_MS)
+          .catch((error) => {
+            this.emit("authentication-error", error)
+            throw error
+          })
+      }
     } catch (error) {
       this.close()
       throw error
@@ -141,25 +129,31 @@ export class AcpClient extends EventEmitter {
   }
 
   request(method, params, timeoutMs = REQUEST_TIMEOUT_MS) {
-    if (!this.#child || this.#child.killed || !this.#child.stdin.writable) {
-      return Promise.reject(new Error("ACP adapter is not running"))
-    }
-    const id = this.#nextID++
-    const message = JSON.stringify({ jsonrpc: "2.0", id, method, params })
-    return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
-        this.#pending.delete(id)
-        reject(new Error(`ACP adapter request timed out: ${method}`))
-      }, timeoutMs)
-      this.#pending.set(id, { resolve, reject, timer })
-      this.#child.stdin.write(`${message}\n`, (error) => {
-        if (error) {
-          clearTimeout(timer)
+    const send = () => {
+      if (!this.#child || this.#child.killed || !this.#child.stdin.writable) {
+        return Promise.reject(new Error("ACP adapter is not running"))
+      }
+      const id = this.#nextID++
+      const message = JSON.stringify({ jsonrpc: "2.0", id, method, params })
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
           this.#pending.delete(id)
-          reject(error)
-        }
+          reject(new Error(`ACP adapter request timed out: ${method}`))
+        }, timeoutMs)
+        this.#pending.set(id, { resolve, reject, timer })
+        this.#child.stdin.write(`${message}\n`, (error) => {
+          if (error) {
+            clearTimeout(timer)
+            this.#pending.delete(id)
+            reject(error)
+          }
+        })
       })
-    })
+    }
+
+    // initialize/authenticate are part of startup and must not wait on authentication itself.
+    if (method === "initialize" || method === "authenticate") return send()
+    return this.#authentication.then(send)
   }
 
   notify(method, params) {
@@ -169,19 +163,18 @@ export class AcpClient extends EventEmitter {
     this.#child.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", method, params })}\n`)
   }
 
-
   async listSessions() {
     await this.start()
     const result = await this.request("session/list", {})
     return result.sessions ?? []
   }
 
-
   close() {
     const child = this.#child
     this.#child = undefined
     if (child && !child.killed) child.kill()
     this.#rejectPending(new Error("ACP adapter closed"))
+    this.#authentication = Promise.resolve()
   }
 
   #consume(chunk) {
@@ -203,9 +196,6 @@ export class AcpClient extends EventEmitter {
       this.emit("protocol-error", new Error("ACP adapter emitted invalid JSON"))
       return
     }
-    // A JSON-RPC message carrying both an id and a method is an agent-initiated
-    // request. An unanswered request would stall the agent until the prompt
-    // timeout, so always reply.
     if (message.id !== undefined && message.method) {
       this.emit("agent-request", message)
       if (message.method === "session/request_permission") this.#respondPermission(message.id, message.params)
@@ -224,13 +214,6 @@ export class AcpClient extends EventEmitter {
     if (message.method) this.emit("notification", message)
   }
 
-  /**
-   * A tool call stalls without an answer, and answering with an error silently stops the agent
-   * from doing any work — PI reported success while touching no file. Granting matches OMP,
-   * whose agent approves its own tool calls and never asks, and there is no way to prompt the
-   * user mid-turn on a phone. `allow_once` is preferred over `allow_always` so the grant covers
-   * this call rather than writing a lasting permission into the harness's own state.
-   */
   #respondPermission(id, params) {
     if (!this.#child?.stdin.writable) return
     const options = Array.isArray(params?.options) ? params.options : []
@@ -248,15 +231,10 @@ export class AcpClient extends EventEmitter {
 
   #respondUnsupported(id, method) {
     if (!this.#child?.stdin.writable) return
-    const error = { code: -32_601, message: `Harness Remote bridge does not implement ${method}` }
+    const error = { code: -32_601, message: `Supru-AI bridge does not implement ${method}` }
     this.#child.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", id, error })}\n`)
   }
 
-  /**
-   * The adapter explains a missing prerequisite on stderr; without this the caller only sees an
-   * exit code. Several lines are kept because a Windows shell error wraps the useful part —
-   * "'bun' is not recognized…" arrives split from the sentence that follows it.
-   */
   #stderrSummary() {
     const lines = this.#stderr.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)
     return lines.slice(-3).join(" ")
@@ -266,6 +244,8 @@ export class AcpClient extends EventEmitter {
     if (!this.#child) return
     this.#child = undefined
     this.#rejectPending(error)
+    this.#authentication = Promise.reject(error)
+    this.#authentication.catch(() => {})
     this.emit("exit", error)
   }
 
