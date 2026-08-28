@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "tsc -b && vite build",
-    "build:desktop-renderer": "tsc -p tsconfig.app.json && vite build --base=./",
+    "build:desktop-renderer": "tsc -p tsconfig.app.json && vite build --mode desktop",
     "build:electron": "tsc -p tsconfig.electron.json",
     "build:desktop": "npm run build:desktop-renderer && npm run build:electron",
     "electron:dev": "npm run build:desktop && electron .",
