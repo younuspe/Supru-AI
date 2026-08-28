@@ -12,24 +12,12 @@ const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024
 const MAX_ATTACHMENT_TOTAL_BYTES = 15 * 1024 * 1024
 function base64ByteLength(value) { const padding = value.endsWith("==") ? 2 : value.endsWith("=") ? 1 : 0; return Math.floor(value.length / 4) * 3 - padding }
 function attachmentPayload(url) { const match = typeof url === "string" ? /^data:[^;,]+;base64,(.+)$/s.exec(url) : null; if (!match) throw new Error("An attachment must be a base64 data URL"); return match[1] }
-function parseAttachments(parts) {
-  const files = (Array.isArray(parts) ? parts : []).filter((part) => part?.type === "file")
-  if (files.length > MAX_ATTACHMENTS) throw new Error(`At most ${MAX_ATTACHMENTS} attachments per prompt`)
-  let total = 0
-  return files.map((file) => {
-    const mime = typeof file.mime === "string" ? file.mime.toLowerCase() : ""
-    if (!ATTACHMENT_MIME_TYPES.has(mime)) throw new Error(`Unsupported attachment type ${mime || "unknown"}: accepted types are image/png, image/jpeg, image/webp and image/gif`)
-    const data = attachmentPayload(file.url); const size = base64ByteLength(data)
-    if (size > MAX_ATTACHMENT_BYTES) throw new Error("Each attachment must stay under 5MB")
-    total += size; if (total > MAX_ATTACHMENT_TOTAL_BYTES) throw new Error("Attachments must stay under 15MB in total")
-    return { mime, filename: typeof file.filename === "string" ? file.filename : "attachment", data }
-  })
-}
-async function readBody(request) { let body = ""; for await (const chunk of request) { body += chunk; if (body.length > 25_000_000) throw new Error("Request body is too large") }; return body ? JSON.parse(body) : {} }
+function parseAttachments(parts) { const files = (Array.isArray(parts) ? parts : []).filter((part) => part?.type === "file"); if (files.length > MAX_ATTACHMENTS) throw new Error(`At most ${MAX_ATTACHMENTS} attachments per prompt`); let total = 0; return files.map((file) => { const mime = typeof file.mime === "string" ? file.mime.toLowerCase() : ""; if (!ATTACHMENT_MIME_TYPES.has(mime)) throw new Error(`Unsupported attachment type ${mime || "unknown"}: accepted types are image/png, image/jpeg, image/webp and image/gif`); const data = attachmentPayload(file.url); const size = base64ByteLength(data); if (size > MAX_ATTACHMENT_BYTES) throw new Error("Each attachment must stay under 5MB"); total += size; if (total > MAX_ATTACHMENT_TOTAL_BYTES) throw new Error("Attachments must stay under 15MB in total"); return { mime, filename: typeof file.filename === "string" ? file.filename : "attachment", data } }) }
+async function readBody(request) { let body = ""; for await (const chunk of request) { body += chunk; if (body.length > 25_000_000) throw new Error("Request body is too large") } return body ? JSON.parse(body) : {} }
 function writeSSE(response, event, data) { response.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`) }
 async function allowedDirectory(candidate, config) { const resolved = await realpath(candidate); const roots = await Promise.all((config.roots.length ? config.roots : [process.cwd()]).map((root) => realpath(root))); if (!roots.some((root) => resolved === root || (!path.relative(root, resolved).startsWith(`..${path.sep}`) && path.relative(root, resolved) !== ".."))) throw new Error("Directory is outside the configured --root boundary"); return resolved }
 function modelWireName(model) { if (!model) return undefined; const modelID = model.modelID ?? model.id; return model.providerID && modelID ? `${model.providerID}/${modelID}` : undefined }
-function providersResponse(models, fallbackProviderID) { const providers = new Map(); const defaults = {}; for (const option of models) { const separator = option.value.indexOf("/"); const flat = separator <= 0; const providerID = flat ? fallbackProviderID : option.value.slice(0, separator); const modelID = flat ? option.value : option.value.slice(separator + 1); if (!providerID || !modelID) continue; const provider = providers.get(providerID) ?? { id: providerID, name: providerID, models: {} }; provider.models[modelID] = { id: modelID, name: option.name ?? modelID, description: option.description || undefined, status: "active" }; providers.set(providerID, provider); if (option.currentValue) defaults[providerID] = modelID }; return { providers: [...providers.values()], default: defaults } }
+function providersResponse(models, fallbackProviderID) { const providers = new Map(); const defaults = {}; for (const option of models) { const separator = option.value.indexOf("/"); const flat = separator <= 0; const providerID = flat ? fallbackProviderID : option.value.slice(0, separator); const modelID = flat ? option.value : option.value.slice(separator + 1); if (!providerID || !modelID) continue; const provider = providers.get(providerID) ?? { id: providerID, name: providerID, models: {} }; provider.models[modelID] = { id: modelID, name: option.name ?? modelID, description: option.description || undefined, status: "active" }; providers.set(providerID, provider); if (option.currentValue) defaults[providerID] = modelID } return { providers: [...providers.values()], default: defaults } }
 
 export function createBridgeServer({ config, acp, serviceOptions, machineRegistry }) {
   const backend = config.backend ?? "omp"
@@ -42,11 +30,7 @@ export function createBridgeServer({ config, acp, serviceOptions, machineRegistr
     const url = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`)
     const directory = url.searchParams.get("directory") || undefined
     try {
-      if (request.method === "GET" && (url.pathname === "/v1/health" || url.pathname === "/global/health")) {
-        await acp.start()
-        writeJSON(response, 200, { healthy: true, bridge: "supru-ai", backend, version: acp.agentInfo?.version ?? "unknown" })
-        return
-      }
+      if (request.method === "GET" && (url.pathname === "/v1/health" || url.pathname === "/global/health")) { await acp.start(); writeJSON(response, 200, { healthy: true, backend, version: acp.agentInfo?.version ?? "unknown" }); return }
       if (request.method === "GET" && (url.pathname === "/v1/machine" || url.pathname === "/global/machine")) { if (!machineRegistry) { writeJSON(response, 503, { error: "Machine registry is not configured" }); return }; writeJSON(response, 200, machineRegistry.snapshot()); return }
       if (request.method === "GET" && url.pathname === "/v1/capabilities") { await acp.start(); writeJSON(response, 200, { ...profile.capabilities, attachments: Boolean(acp.promptCapabilities?.image) }); return }
       if (request.method === "GET" && url.pathname === "/v1/information/search") { const query = url.searchParams.get("q") ?? ""; const limit = url.searchParams.get("limit") ?? undefined; writeJSON(response, 200, await searchInformation(query, { limit })); return }
