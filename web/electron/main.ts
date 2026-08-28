@@ -1,4 +1,5 @@
 import { app, BrowserWindow, Menu, Notification, nativeImage, screen, session, ipcMain, utilityProcess, type IpcMainInvokeEvent, type UtilityProcess } from "electron"
+import { execFileSync } from "node:child_process"
 import { readFileSync, writeFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
@@ -23,10 +24,23 @@ function windowStateFile(): string { return join(app.getPath("userData"), "windo
 function readWindowState(): SavedWindowState { try { const parsed = JSON.parse(readFileSync(windowStateFile(), "utf8")) as SavedWindowState; return parsed && typeof parsed === "object" ? parsed : {} } catch { return {} } }
 function restoredBounds(state: SavedWindowState) { return calculateRestoredBounds(state, screen.getAllDisplays()) }
 
+function bridgeEnvironment(): NodeJS.ProcessEnv {
+  const environment = { ...process.env }
+  if (!isMac) return environment
+  try {
+    const shell = environment.SHELL || "/bin/zsh"
+    const loginPath = execFileSync(shell, ["-ilc", "printf '%s' \"$PATH\""], { encoding: "utf8", timeout: 3_000 }).trim()
+    if (loginPath) environment.PATH = [loginPath, environment.PATH].filter(Boolean).join(":")
+  } catch (error) {
+    log(`could not load login-shell PATH: ${error instanceof Error ? error.message : String(error)}`)
+  }
+  return environment
+}
+
 function startLocalBridge(): void {
   if (bridgeProcess) return
   const entry = bridgeEntry()
-  bridgeProcess = utilityProcess.fork(entry, ["--backend", "omp", "--host", "127.0.0.1", "--port", "4097", "--cors", "null", "--cors", "https://younuspe.github.io", "--cors", "http://localhost:5173"], { cwd: isDevelopment ? join(__dirname, "../../../../bridge") : process.resourcesPath, env: process.env })
+  bridgeProcess = utilityProcess.fork(entry, ["--backend", "omp", "--host", "127.0.0.1", "--port", "4097", "--cors", "null", "--cors", "https://younuspe.github.io", "--cors", "http://localhost:5173"], { cwd: isDevelopment ? join(__dirname, "../../../../bridge") : process.resourcesPath, env: bridgeEnvironment() })
   bridgeProcess.on("spawn", () => log(`bridge started (${entry})`))
   bridgeProcess.on("message", (message) => log(`bridge: ${typeof message === "string" ? message : JSON.stringify(message)}`))
   bridgeProcess.on("error", (error) => log(`bridge process error: ${String(error)}`))
