@@ -76,7 +76,34 @@ jobs:
           fi
           echo '========== END BRIDGE TEST FAILURE REPORT =========='
 
-      - name: Build and package macOS ARM64
+      - name: Build desktop renderer
+        run: npm run build:desktop-renderer
+        working-directory: web
+
+      - name: Verify renderer bundle before packaging
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f dist/index.html
+          test -n "$(find dist/assets -type f -name '*.js' -print -quit)"
+          if grep -RInE '(^|["'"'"'(=/])([^"'"'"' ]*/)?src/|[A-Za-z0-9_-]+\.ts(["'"'"'?/#]|$)|\.tsx(["'"'"'?/#]|$))' dist/index.html dist/assets; then
+            echo 'ERROR: packaged renderer contains a TypeScript/source-module runtime reference.'
+            exit 1
+          fi
+          if grep -RInE 'from[[:space:]]+["'"'"']\./[^"'"'"']+\.(ts|tsx)["'"'"']|import\(["'"'"'][^"'"'"']+\.(ts|tsx)["'"'"']\)' dist/assets; then
+            echo 'ERROR: generated JavaScript contains a runtime TypeScript import.'
+            exit 1
+          fi
+          echo 'Renderer bundle verification passed.'
+          echo 'index.html:'
+          sed -n '1,120p' dist/index.html
+        working-directory: web
+
+      - name: Build Electron main process
+        run: npm run build:electron
+        working-directory: web
+
+      - name: Package macOS ARM64
         run: npm run package:mac -- --arm64
         working-directory: web
 
@@ -99,6 +126,17 @@ jobs:
           hdiutil attach "$DMG" -nobrowse -mountpoint "$MOUNT_POINT" -quiet
           APP="$(find "$MOUNT_POINT" -maxdepth 2 -type d -name '*.app' -print -quit)"
           test -n "$APP"
+
+          APP_ASAR="$APP/Contents/Resources/app.asar"
+          test -f "$APP_ASAR"
+          echo "Checking packaged app.asar..."
+          npx asar list "$APP_ASAR" > packaged-asar-list.txt
+          grep -q '^dist/index.html$' packaged-asar-list.txt
+          grep -q '^dist/assets/' packaged-asar-list.txt
+          if grep -E '\.(ts|tsx)$' packaged-asar-list.txt | grep -E '(^|/)dist/' ; then
+            echo 'ERROR: TypeScript source was packaged into the renderer dist tree.'
+            exit 1
+          fi
 
           echo "Checking the signature produced by electron-builder..."
           codesign --verify --deep --strict --verbose=2 "$APP"
