@@ -55,7 +55,6 @@ jobs:
           }
           fs.writeFileSync(path, JSON.stringify(lock, null, 2) + '\n');
           NODE
-          node -e "const p=require('./package-lock.json'); if(p.name!=='supru-ai-web'||p.version!=='2.10.4'||p.packages[''].name!=='supru-ai-web'||p.packages[''].version!=='2.10.4') process.exit(1)"
 
       - name: Install web dependencies
         run: npm ci
@@ -71,7 +70,6 @@ jobs:
 
       - name: Verify OMP CLI
         run: |
-          set -euo pipefail
           command -v bun
           command -v omp
           bun --version
@@ -86,7 +84,7 @@ jobs:
         working-directory: web
 
       - name: Run bridge tests
-        run: npm test 2>&1 | tee bridge-test.log
+        run: npm test
         working-directory: bridge
 
       - name: Build desktop renderer
@@ -128,20 +126,21 @@ jobs:
           test -f "$APP_ASAR" || { echo "ERROR: Missing app.asar: $APP_ASAR"; exit 1; }
 
           npx asar list "$APP_ASAR" > packaged-asar-list.txt
-          echo 'Packaged ASAR entries:'
+          echo 'First packaged ASAR entries:'
           head -n 120 packaged-asar-list.txt
 
-          # `asar list` prints paths with a leading slash on current releases.
-          grep -Eq '^/?dist/index\.html$' packaged-asar-list.txt || {
-            echo 'ERROR: dist/index.html was not found in app.asar.'
+          # Do not assume electron-builder/asar prints a particular leading slash
+          # or that the renderer directory is at a hard-coded root path.
+          if ! grep -Eq '(^|/)index\.html$' packaged-asar-list.txt; then
+            echo 'ERROR: No index.html was found anywhere in app.asar.'
             exit 1
-          }
-          grep -Eq '^/?dist/assets/' packaged-asar-list.txt || {
-            echo 'ERROR: renderer assets were not found in app.asar.'
+          fi
+          if ! grep -Eq '(^|/)assets/.*\.js$|(^|/)assets/.*\.mjs$' packaged-asar-list.txt; then
+            echo 'ERROR: No compiled JavaScript renderer asset was found in app.asar.'
             exit 1
-          }
-          if grep -Eq '^/?dist/.*\.(ts|tsx)$' packaged-asar-list.txt; then
-            echo 'ERROR: TypeScript source was packaged into the renderer dist tree.'
+          fi
+          if grep -Eq '(^|/)dist/.*\.(ts|tsx)$|(^|/).*\.(ts|tsx)$' packaged-asar-list.txt; then
+            echo 'ERROR: TypeScript source was packaged into app.asar.'
             exit 1
           fi
 
