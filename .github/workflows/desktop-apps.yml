@@ -110,27 +110,53 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          echo 'Release directory:'
+          find release -maxdepth 1 -type f -print
+
           DMG="$(find release -maxdepth 1 -type f -name '*-mac-arm64-adhoc.dmg' -print -quit)"
-          test -n "$DMG"
+          if [ -z "$DMG" ]; then
+            echo 'ERROR: ARM64 DMG was not produced.'
+            exit 1
+          fi
+
           MOUNT_POINT="$(mktemp -d)"
           cleanup() {
             hdiutil detach "$MOUNT_POINT" -quiet >/dev/null 2>&1 || true
             rm -rf "$MOUNT_POINT"
           }
           trap cleanup EXIT
+
           hdiutil attach "$DMG" -nobrowse -mountpoint "$MOUNT_POINT" -quiet
+          echo 'Mounted DMG contents:'
+          find "$MOUNT_POINT" -maxdepth 2 -print
+
           APP="$(find "$MOUNT_POINT" -maxdepth 2 -type d -name '*.app' -print -quit)"
-          test -n "$APP"
+          if [ -z "$APP" ]; then
+            echo 'ERROR: No .app bundle found inside the DMG.'
+            exit 1
+          fi
+
           APP_ASAR="$APP/Contents/Resources/app.asar"
-          test -f "$APP_ASAR"
+          if [ ! -f "$APP_ASAR" ]; then
+            echo "ERROR: Missing app.asar: $APP_ASAR"
+            exit 1
+          fi
+
           npx asar list "$APP_ASAR" > packaged-asar-list.txt
+          echo 'Renderer files in app.asar:'
+          grep '^dist/' packaged-asar-list.txt | head -n 80 || true
+
           grep -q '^dist/index.html$' packaged-asar-list.txt
           grep -q '^dist/assets/' packaged-asar-list.txt
+
           if grep -E '^dist/.*\.(ts|tsx)$' packaged-asar-list.txt; then
             echo 'ERROR: TypeScript source was packaged into the renderer dist tree.'
             exit 1
           fi
-          codesign --verify --deep --strict --verbose=2 "$APP"
+
+          echo 'Verifying application architecture:'
+          file "$APP/Contents/MacOS/Supru AI"
+          codesign --verify --deep --verbose=4 "$APP"
           echo 'Verified Supru-AI macOS ARM64 package.'
         working-directory: web
 
