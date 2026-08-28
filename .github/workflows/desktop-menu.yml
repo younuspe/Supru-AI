@@ -1,11 +1,6 @@
-name: Verify desktop application menu
+name: Verify Supru-AI desktop menu
 
-# The packaging workflow only runs on main and on tags, so a change to the menu would not be
-# exercised on macOS until after it was merged. macOS is the one platform that installs a native
-# menu, and it is the one platform most contributors cannot test on — so this runs there, on the
-# pull request, and does nothing else.
-
-"on":
+on:
   workflow_dispatch: {}
   pull_request:
     paths:
@@ -20,19 +15,20 @@ permissions:
   contents: read
 
 concurrency:
-  group: desktop-menu-${{ github.ref }}
+  group: supru-ai-menu-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   menu:
-    name: Application menu on macOS
-    runs-on: macos-latest
+    name: Supru-AI menu on macOS
+    runs-on: macos-14
+    timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -46,8 +42,6 @@ jobs:
         run: npm run test:desktop
         working-directory: web
 
-      # Boots Electron, installs the real menu and reads it back — the part the unit tests cannot
-      # reach, on the platform that actually shows it.
-      - name: Verify the application menu installs
+      - name: Verify the application menu
         run: npm run test:desktop:menu
         working-directory: web
