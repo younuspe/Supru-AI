@@ -1,6 +1,6 @@
 import { app, net, protocol } from "electron"
 import { promises as fs } from "node:fs"
-import { fileURLToPath, pathToFileURL } from "node:url"
+import { fileURLToPath } from "node:url"
 
 app.whenReady().then(async () => {
   protocol.handle("file", async (request) => {
@@ -15,8 +15,7 @@ app.whenReady().then(async () => {
             headers: { "content-type": "text/javascript; charset=utf-8" }
           })
         } catch {
-          // If the corresponding JavaScript asset is genuinely absent, fall through so
-          // Electron reports the real missing-file error instead of hiding it.
+          // Fall through when the corresponding JavaScript asset is absent.
         }
       }
     } catch {}
