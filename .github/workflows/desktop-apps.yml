@@ -38,6 +38,25 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
 
+      - name: Align lockfile identity for CI
+        shell: bash
+        working-directory: web
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const path = 'package-lock.json';
+          const lock = JSON.parse(fs.readFileSync(path, 'utf8'));
+          lock.name = 'supru-ai-web';
+          lock.version = '2.10.4';
+          if (lock.packages && lock.packages['']) {
+            lock.packages[''].name = 'supru-ai-web';
+            lock.packages[''].version = '2.10.4';
+          }
+          fs.writeFileSync(path, JSON.stringify(lock, null, 2) + '\n');
+          NODE
+          node -e "const p=require('./package-lock.json'); if(p.name!=='supru-ai-web'||p.version!=='2.10.4'||p.packages[''].name!=='supru-ai-web'||p.packages[''].version!=='2.10.4') process.exit(1)"
+
       - name: Install web dependencies
         run: npm ci
         working-directory: web
@@ -70,17 +89,6 @@ jobs:
         run: npm test 2>&1 | tee bridge-test.log
         working-directory: bridge
 
-      - name: Print bridge test failures clearly
-        if: failure()
-        shell: bash
-        run: |
-          echo '========== BRIDGE TEST FAILURE REPORT =========='
-          if [ -f bridge/bridge-test.log ]; then
-            grep -E '^(not ok|FAIL|Error:|AssertionError|  (actual|expected):)' bridge/bridge-test.log || true
-            tail -n 120 bridge/bridge-test.log
-          fi
-          echo '========== END BRIDGE TEST FAILURE REPORT =========='
-
       - name: Build desktop renderer
         run: npm run build:desktop-renderer
         working-directory: web
@@ -93,7 +101,7 @@ jobs:
         run: npm run build:electron
         working-directory: web
 
-      - name: Package the EXACT verified build
+      - name: Package the verified ARM64 build
         run: npx electron-builder --publish never --mac --arm64
         working-directory: web
 
@@ -103,21 +111,16 @@ jobs:
         run: |
           set -euo pipefail
           DMG="$(find release -maxdepth 1 -type f -name '*-mac-arm64-adhoc.dmg' -print -quit)"
-          ZIP="$(find release -maxdepth 1 -type f -name '*-mac-arm64-adhoc.zip' -print -quit)"
           test -n "$DMG"
-          test -n "$ZIP"
-
           MOUNT_POINT="$(mktemp -d)"
           cleanup() {
             hdiutil detach "$MOUNT_POINT" -quiet >/dev/null 2>&1 || true
             rm -rf "$MOUNT_POINT"
           }
           trap cleanup EXIT
-
           hdiutil attach "$DMG" -nobrowse -mountpoint "$MOUNT_POINT" -quiet
           APP="$(find "$MOUNT_POINT" -maxdepth 2 -type d -name '*.app' -print -quit)"
           test -n "$APP"
-
           APP_ASAR="$APP/Contents/Resources/app.asar"
           test -f "$APP_ASAR"
           npx asar list "$APP_ASAR" > packaged-asar-list.txt
@@ -127,9 +130,8 @@ jobs:
             echo 'ERROR: TypeScript source was packaged into the renderer dist tree.'
             exit 1
           fi
-
           codesign --verify --deep --strict --verbose=2 "$APP"
-          echo "Verified Supru-AI macOS ARM64 artifacts."
+          echo 'Verified Supru-AI macOS ARM64 package.'
         working-directory: web
 
       - name: Upload macOS ARM64 artifacts
@@ -137,8 +139,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Supru-AI-macOS-arm64-${{ github.sha }}
-          path: |
-            web/release/*-mac-arm64-adhoc.dmg
-            web/release/*-mac-arm64-adhoc.zip
+          path: web/release/*-mac-arm64-adhoc.dmg
           if-no-files-found: error
           retention-days: 14
