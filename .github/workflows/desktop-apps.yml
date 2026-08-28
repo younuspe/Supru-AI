@@ -80,31 +80,16 @@ jobs:
         run: npm run build:desktop-renderer
         working-directory: web
 
-      - name: Verify renderer bundle before packaging
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f dist/index.html
-          test -n "$(find dist/assets -type f -name '*.js' -print -quit)"
-          if grep -RInE '(^|["'"'"'(=/])([^"'"'"' ]*/)?src/|[A-Za-z0-9_-]+\.ts(["'"'"'?/#]|$)|\.tsx(["'"'"'?/#]|$))' dist/index.html dist/assets; then
-            echo 'ERROR: packaged renderer contains a TypeScript/source-module runtime reference.'
-            exit 1
-          fi
-          if grep -RInE 'from[[:space:]]+["'"'"']\./[^"'"'"']+\.(ts|tsx)["'"'"']|import\(["'"'"'][^"'"'"']+\.(ts|tsx)["'"'"']\)' dist/assets; then
-            echo 'ERROR: generated JavaScript contains a runtime TypeScript import.'
-            exit 1
-          fi
-          echo 'Renderer bundle verification passed.'
-          echo 'index.html:'
-          sed -n '1,120p' dist/index.html
+      - name: Verify renderer bundle
+        run: npm run verify:desktop-renderer
         working-directory: web
 
       - name: Build Electron main process
         run: npm run build:electron
         working-directory: web
 
-      - name: Package macOS ARM64
-        run: npm run package:mac -- --arm64
+      - name: Package the EXACT verified build
+        run: npx electron-builder --publish never --mac --arm64
         working-directory: web
 
       - name: Verify packaged macOS ARM64 app
@@ -133,7 +118,7 @@ jobs:
           npx asar list "$APP_ASAR" > packaged-asar-list.txt
           grep -q '^dist/index.html$' packaged-asar-list.txt
           grep -q '^dist/assets/' packaged-asar-list.txt
-          if grep -E '\.(ts|tsx)$' packaged-asar-list.txt | grep -E '(^|/)dist/' ; then
+          if grep -E '^dist/.*\.(ts|tsx)$' packaged-asar-list.txt; then
             echo 'ERROR: TypeScript source was packaged into the renderer dist tree.'
             exit 1
           fi
