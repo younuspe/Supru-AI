@@ -1,11 +1,11 @@
 {
   "name": "supru-ai-web",
   "private": true,
-  "version": "2.10.3",
+  "version": "2.10.4",
   "description": "Supru AI companion app for controlling coding-agent harnesses from phone or desktop",
   "homepage": "https://github.com/younuspe/Supru-AI",
   "type": "module",
-  "main": "dist-electron/electron/main.js",
+  "main": "dist-electron/electron/entry.js",
   "scripts": {
     "dev": "vite --host",
     "build": "tsc -b && vite build",
