@@ -8,12 +8,17 @@ on:
       - 'bridge/**'
       - 'web/**'
       - '.github/workflows/desktop-apps.yml'
+  pull_request:
+    paths:
+      - 'bridge/**'
+      - 'web/**'
+      - '.github/workflows/desktop-apps.yml'
 
 permissions:
   contents: read
 
 concurrency:
-  group: supru-ai-desktop-${{ github.ref }}
+  group: supru-ai-desktop-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -93,6 +98,7 @@ jobs:
         working-directory: web
 
       - name: Verify packaged macOS ARM64 app
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         shell: bash
         run: |
           set -euo pipefail
@@ -114,7 +120,6 @@ jobs:
 
           APP_ASAR="$APP/Contents/Resources/app.asar"
           test -f "$APP_ASAR"
-          echo "Checking packaged app.asar..."
           npx asar list "$APP_ASAR" > packaged-asar-list.txt
           grep -q '^dist/index.html$' packaged-asar-list.txt
           grep -q '^dist/assets/' packaged-asar-list.txt
@@ -123,16 +128,12 @@ jobs:
             exit 1
           fi
 
-          echo "Checking the signature produced by electron-builder..."
           codesign --verify --deep --strict --verbose=2 "$APP"
-          codesign --display --verbose=2 "$APP" 2>&1 || true
-          spctl --assess --type execute --verbose=4 "$APP" || true
-
           echo "Verified Supru-AI macOS ARM64 artifacts."
-          find release -maxdepth 1 -type f \( -name '*-mac-arm64-adhoc.dmg' -o -name '*-mac-arm64-adhoc.zip' \) -print
         working-directory: web
 
       - name: Upload macOS ARM64 artifacts
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
           name: Supru-AI-macOS-arm64-${{ github.sha }}
