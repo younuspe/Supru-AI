@@ -5,7 +5,12 @@ on:
   push:
     branches: [main]
     paths:
-      - 'web/**'
+      - 'web/src/**'
+      - 'web/public/**'
+      - 'web/index.html'
+      - 'web/package.json'
+      - 'web/package-lock.json'
+      - 'web/vite.config.*'
       - '.github/workflows/gh-pages.yml'
 
 permissions:
@@ -14,11 +19,12 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: supru-ai-pages
   cancel-in-progress: true
 
 jobs:
   build:
+    name: Build Supru-AI Web
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
