@@ -40,74 +40,16 @@
     "productName": "Supru AI",
     "executableName": "Supru AI",
     "asar": true,
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "dist/**/*",
-      "dist-electron/**/*",
-      "package.json",
-      "!node_modules/**/*",
-      "!**/*.map",
-      "!**/*.test.*"
-    ],
-    "extraResources": [
-      { "from": "../bridge/src", "to": "bridge/src" },
-      { "from": "../bridge/package.json", "to": "bridge/package.json" }
-    ],
-    "win": {
-      "target": [{"target": "nsis", "arch": ["x64"]}],
-      "icon": "public/app-icon.png",
-      "artifactName": "Supru AI-${version}-win-${arch}-unsigned.${ext}"
-    },
-    "mac": {
-      "target": [
-        {"target": "dmg", "arch": ["arm64", "x64"]},
-        {"target": "zip", "arch": ["arm64", "x64"]}
-      ],
-      "icon": "public/app-icon.png",
-      "category": "public.app-category.developer-tools",
-      "artifactName": "Supru AI-${version}-mac-${arch}-adhoc.${ext}",
-      "identity": "-",
-      "hardenedRuntime": false,
-      "gatekeeperAssess": false
-    },
-    "linux": {
-      "target": [
-        {"target": "AppImage", "arch": ["x64"]},
-        {"target": "deb", "arch": ["x64"]}
-      ],
-      "icon": "public/app-icon.png",
-      "category": "Development",
-      "artifactName": "Supru AI-${version}-linux-${arch}.${ext}"
-    },
-    "forceCodeSigning": false,
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "deleteAppDataOnUninstall": false
-    },
-    "publish": null
+    "directories": { "output": "release" },
+    "files": ["dist/**/*", "dist-electron/**/*", "package.json", "!node_modules/**/*", "!**/*.map", "!**/*.test.*"],
+    "extraResources": [{ "from": "../bridge/src", "to": "bridge/src" }, { "from": "../bridge/package.json", "to": "bridge/package.json" }],
+    "win": { "target": [{"target":"nsis","arch":["x64"]}], "icon":"public/app-icon.png", "artifactName":"Supru AI-${version}-win-${arch}-unsigned.${ext}" },
+    "mac": { "target":[{"target":"dmg","arch":["arm64","x64"]},{"target":"zip","arch":["arm64","x64"]}], "icon":"public/app-icon.png", "category":"public.app-category.developer-tools", "artifactName":"Supru AI-${version}-mac-${arch}-adhoc.${ext}", "identity":"-", "hardenedRuntime":false, "gatekeeperAssess":false },
+    "linux": { "target":[{"target":"AppImage","arch":["x64"]},{"target":"deb","arch":["x64"]}], "icon":"public/app-icon.png", "category":"Development", "artifactName":"Supru AI-${version}-linux-${arch}.${ext}" },
+    "forceCodeSigning":false,
+    "nsis":{"oneClick":false,"perMachine":false,"allowToChangeInstallationDirectory":true,"deleteAppDataOnUninstall":false},
+    "publish":null
   },
-  "dependencies": {
-    "@capacitor/android": "^8.3.4",
-    "@capacitor/app": "^8.1.1",
-    "@capacitor/cli": "^8.3.4",
-    "@capacitor/core": "^8.3.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^26.1.2",
-    "@types/react": "18.3.12",
-    "@types/react-dom": "18.3.1",
-    "@vitejs/plugin-react": "^6.0.2",
-    "electron": "^43.3.0",
-    "electron-builder": "^26.15.3",
-    "typescript": "5.6.3",
-    "vite": "^8.0.14"
-  }
+  "dependencies":{"@capacitor/android":"^8.3.4","@capacitor/app":"^8.1.1","@capacitor/cli":"^8.3.4","@capacitor/core":"^8.3.0","react":"18.3.1","react-dom":"18.3.1","react-markdown":"^10.1.0","remark-gfm":"^4.0.0"},
+  "devDependencies":{"@types/node":"^26.1.2","@types/react":"18.3.12","@types/react-dom":"18.3.1","@vitejs/plugin-react":"^6.0.2","electron":"^43.3.0","electron-builder":"^26.15.3","typescript":"5.6.3","vite":"^8.0.14"}
 }
