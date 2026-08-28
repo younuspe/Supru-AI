@@ -106,6 +106,7 @@ jobs:
       - name: Verify packaged macOS ARM64 app
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         shell: bash
+        working-directory: web
         run: |
           set -euo pipefail
           DMG="$(find release -maxdepth 1 -type f -name '*-mac-arm64-adhoc.dmg' -print -quit)"
@@ -129,8 +130,6 @@ jobs:
           echo 'First packaged ASAR entries:'
           head -n 120 packaged-asar-list.txt
 
-          # Do not assume electron-builder/asar prints a particular leading slash
-          # or that the renderer directory is at a hard-coded root path.
           if ! grep -Eq '(^|/)index\.html$' packaged-asar-list.txt; then
             echo 'ERROR: No index.html was found anywhere in app.asar.'
             exit 1
