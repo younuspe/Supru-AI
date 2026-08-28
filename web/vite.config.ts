@@ -1,14 +1,21 @@
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
-  // GitHub Pages serves this repository as /Supru-AI/.
-  base: "/Supru-AI/",
-  // Vite 8 exposes CSS minification under build.cssMinify.
-  // Keep the Supru theme bundle unminified until the Lightning CSS parser
-  // accepts the combined theme stylesheet reliably.
+  // GitHub Pages uses /Supru-AI/. The Electron renderer is loaded from
+  // file:// inside the packaged app, so it must use relative asset URLs.
+  base: mode === "desktop" ? "./" : "/Supru-AI/",
   build: {
-    cssMinify: false
+    cssMinify: false,
+    // Electron must never receive TypeScript source paths as runtime module
+    // URLs. Keep every generated JavaScript chunk explicitly .js.
+    rollupOptions: {
+      output: {
+        entryFileNames: "assets/[name]-[hash].js",
+        chunkFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash][extname]"
+      }
+    }
   }
-})
+}))
