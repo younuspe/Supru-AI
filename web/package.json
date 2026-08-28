@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "tsc -b && vite build",
-    "build:desktop-renderer": "tsc -p tsconfig.app.json && vite build --mode desktop",
+    "build:desktop-renderer": "tsc -p tsconfig.app.json && vite build --mode desktop && node scripts/normalize-desktop-runtime-imports.mjs",
     "verify:desktop-renderer": "node scripts/verify-desktop-renderer.mjs",
     "build:electron": "tsc -p tsconfig.electron.json",
     "build:desktop": "npm run build:desktop-renderer && npm run build:electron",
@@ -34,7 +34,7 @@
     "test:agent-runs": "node --experimental-strip-types src/agent-runs.test.mjs",
     "test:platform": "node src/platform-regression.test.mjs",
     "test:desktop": "npm run build:electron && node --test electron/*.test.mjs",
-    "test:desktop:menu": "npm run build:electron && electron scripts/menu-smoke.mjs"
+    "test:desktop:menu": "npm run build:desktop && electron scripts/menu-smoke.mjs"
   },
   "build": {
     "appId": "ai.supru.desktop",
