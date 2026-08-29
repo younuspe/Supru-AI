@@ -11,6 +11,7 @@
 <style>
 #supru-welcome{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 46%,#14120d 0%,#070706 34%,#020202 76%);color:#f1eadc;transition:opacity 900ms ease,background 900ms ease}
 #supru-welcome.is-connected{background:linear-gradient(135deg,#f7f3ea,#fffdf8 52%,#eee6d8);color:#211f1b}
+html[data-supru-state="connected"] #supru-welcome{opacity:0;pointer-events:none}
 .supru-welcome-inner{position:relative;z-index:1;width:min(92vw,760px);min-height:min(82vh,720px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;text-align:center}
 .supru-eyes{display:flex;align-items:center;justify-content:center;gap:clamp(42px,8vw,92px);height:92px;margin-bottom:10px}
 .supru-eye{position:relative;width:clamp(54px,8vw,76px);height:clamp(28px,4.2vw,40px);border-radius:50%;background:radial-gradient(circle,#fff2b2 0 8%,#f2b84b 18%,#c77b22 45%,#5a330e 70%,transparent 72%);box-shadow:0 0 18px rgba(242,184,75,.5),0 0 56px rgba(242,184,75,.2);animation:supru-blink 5.2s infinite}
