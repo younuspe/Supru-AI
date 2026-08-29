@@ -75,6 +75,17 @@ jobs:
           bun --version
           omp --version
 
+      - name: Bundle pinned OMP helper for Supru AI
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bridge/src/bin
+          curl -fsSL --retry 3 -o bridge/src/bin/omp \
+            "https://github.com/can1357/oh-my-pi/releases/download/v18.0.8/omp-darwin-arm64"
+          chmod +x bridge/src/bin/omp
+          ./bridge/src/bin/omp --version
+          file bridge/src/bin/omp
+
       - name: Run desktop tests
         run: npm run test:desktop
         working-directory: web
@@ -142,6 +153,11 @@ jobs:
             echo 'ERROR: TypeScript source was packaged into app.asar.'
             exit 1
           fi
+
+          OMP_PATH="$APP/Contents/Resources/bridge/src/bin/omp"
+          test -f "$OMP_PATH" || { echo "ERROR: Bundled OMP helper is missing: $OMP_PATH"; exit 1; }
+          test -x "$OMP_PATH" || { echo "ERROR: Bundled OMP helper is not executable: $OMP_PATH"; exit 1; }
+          file "$OMP_PATH"
 
           EXECUTABLE="$APP/Contents/MacOS/Supru AI"
           test -f "$EXECUTABLE" || { echo "ERROR: Missing executable: $EXECUTABLE"; exit 1; }
