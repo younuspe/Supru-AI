@@ -25,21 +25,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           git config user.name "Supru AI cleanup"
           git config user.email "actions@users.noreply.github.com"
           git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune
-
           branches="$(git for-each-ref --format='%(refname:strip=3)' refs/remotes/origin/ | grep -v '^$' | sort -u)"
 
           for branch in $branches; do
             echo "=== Cleaning $branch ==="
             git checkout -B "$branch" "refs/remotes/origin/$branch"
-
-            changed=0
-
-            # Replace legacy product branding while preserving generic technical uses of the word
-            # "harness" that are unrelated to the old application name.
             while IFS= read -r file; do
               [ -f "$file" ] || continue
               perl -0pi -e '
@@ -55,60 +48,37 @@ jobs:
                 s/harnessCapabilities/supruAICapabilities/g;
                 s/harnessAction/supruAIAction/g;
               ' "$file"
-              changed=1
             done < <(git grep -Il -E 'Harness Remote|harness-remote|HARNESS_REMOTE|HarnessCapabilities|HarnessAction|DEFAULT_HARNESS_CAPABILITIES|giuliastro/harness-remote' || true)
 
-            # Remove filenames that still carry the legacy product name.
             while IFS= read -r old; do
               [ -n "$old" ] || continue
               new="$(printf '%s' "$old" | sed -E 's/Harness Remote/Supru AI/g; s/harness-remote/supru-ai/g; s/Harness/Supru AI/g; s/harness/supru-ai/g')"
-              [ "$old" = "$new" ] && continue
-              if [ -e "$old" ]; then
-                mkdir -p "$(dirname "$new")"
-                git mv "$old" "$new"
-                changed=1
-              fi
+              [ "$old" = "$new" ] || git mv "$old" "$new"
             done < <(git ls-files | grep -iE 'harness|harness-remote' || true)
 
-            # Canonical runtime icon. Keep the actual PNG bytes and put the icon where Vite,
-            # Capacitor, Electron Builder and the PWA manifest can all serve it.
             if [ -f 'Supru AI - icon.png' ] && [ ! -f 'web/public/supru-ai-icon.png' ]; then
               mkdir -p web/public
               git mv 'Supru AI - icon.png' web/public/supru-ai-icon.png
-              changed=1
             fi
-
-            # Keep the remaining design screenshots organized rather than mixed into the repo root.
             mkdir -p docs/assets
-            if [ -f 'Supru AI UI.png' ]; then git mv 'Supru AI UI.png' docs/assets/supru-ai-ui.png; changed=1; fi
-            if [ -f 'Supru AI WEb.png' ]; then git mv 'Supru AI WEb.png' docs/assets/supru-ai-web.png; changed=1; fi
-            if [ -f 'Surpu Ai Mob.png' ]; then git mv 'Surpu Ai Mob.png' docs/assets/supru-ai-mobile.png; changed=1; fi
-            if [ -f 'Supru AI ico.png' ]; then git mv 'Supru AI ico.png' docs/assets/supru-ai-icon-reference.png; changed=1; fi
+            if [ -f 'Supru AI UI.png' ]; then git mv 'Supru AI UI.png' docs/assets/supru-ai-ui.png; fi
+            if [ -f 'Supru AI WEb.png' ]; then git mv 'Supru AI WEb.png' docs/assets/supru-ai-web.png; fi
+            if [ -f 'Surpu Ai Mob.png' ]; then git mv 'Surpu Ai Mob.png' docs/assets/supru-ai-mobile.png; fi
+            if [ -f 'Supru AI ico.png' ]; then git mv 'Supru AI ico.png' docs/assets/supru-ai-icon-reference.png; fi
+            if [ -f '.github/workflows/build-apk.yml' ]; then git rm '.github/workflows/build-apk.yml'; fi
 
-            # The incomplete legacy Android workflow duplicated the real Android build and had no
-            # actual build step. The maintained Android AAB workflow remains on main.
-            if [ -f '.github/workflows/build-apk.yml' ]; then
-              git rm '.github/workflows/build-apk.yml'
-              changed=1
+            if ! git diff --quiet || ! git diff --cached --quiet; then
+              git add -A
+              git commit -m "chore: finish Supru AI repository cleanup"
+              git push origin "HEAD:$branch"
             fi
-
-            # Keep the current main workflow set focused on the three maintained build/deploy jobs.
-            # Other branches may retain their platform-specific verification workflow until merged.
-
-            if git diff --quiet && git diff --cached --quiet; then
-              echo "No cleanup changes on $branch"
-              continue
-            fi
-
-            git add -A
-            git commit -m "chore: finish Supru AI repository cleanup"
-            git push origin "HEAD:$branch"
           done
 
-          # This workflow is one-shot. Remove it from main after all branch cleanup commits.
           git checkout -B main refs/remotes/origin/main
           if [ -f .github/workflows/repo-cleanup.yml ]; then
             git rm .github/workflows/repo-cleanup.yml
             git commit -m "chore: remove one-shot repository cleanup workflow"
             git push origin HEAD:main
           fi
+
+          echo "Supru AI branch cleanup completed"
