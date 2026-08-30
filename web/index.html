@@ -9,7 +9,8 @@
 <link rel="apple-touch-icon" href="Supru%20AI%20ico.png" />
 <meta name="theme-color" content="#050504" />
 <style>
-#supru-welcome{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 46%,#14120d 0%,#070706 34%,#020202 76%);color:#f1eadc;transition:opacity 900ms ease,background 900ms ease}
+#supru-welcome{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 46%,#14120d 0%,#070706 34%,#020202 76%);color:#f1eadc;transition:opacity 450ms ease,visibility 450ms ease}
+#supru-welcome.is-connected{opacity:0;visibility:hidden;pointer-events:none}
 .supru-welcome-inner{position:relative;z-index:1;width:min(92vw,760px);min-height:min(82vh,720px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;text-align:center}
 .supru-hero{width:clamp(190px,30vw,300px);height:clamp(190px,30vw,300px);object-fit:cover;border-radius:50%;background:#f0a51a;box-shadow:0 0 0 1px rgba(240,165,26,.25),0 18px 70px rgba(240,165,26,.16)}
 .supru-welcome-title{margin:0;font:600 clamp(28px,5vw,46px)/1.1 system-ui,-apple-system,sans-serif;letter-spacing:.04em}.supru-welcome-title strong{color:#f0a51a}.supru-welcome-subtitle{margin:-8px 0 14px;color:#a99f8d;font:400 clamp(14px,2vw,17px)/1.5 system-ui,-apple-system,sans-serif;max-width:min(90vw,620px)}
