@@ -73,7 +73,7 @@ if (document.readyState === "loading") {
   wireSupruWelcome()
 }
 
-if (import.meta.env.PROD && !Capacitor.isNativePlatform() && !window.harnessDesktop?.platform.isDesktop && "serviceWorker" in navigator) {
+if (import.meta.env.PROD && !Capacitor.isNativePlatform() && !window.supruDesktop?.platform.isDesktop && "serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     const base = import.meta.env.BASE_URL
     navigator.serviceWorker.register(`${base}sw.js`, { scope: base }).catch(() => {})
