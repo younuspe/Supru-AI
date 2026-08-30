@@ -11,8 +11,8 @@ on:
       - 'web/package.json'
       - 'web/package-lock.json'
       - 'web/vite.config.*'
-      - 'docs/assets/supru-ai-web.png'
-      - 'docs/assets/supru-ai-ui.png'
+      - 'Supru AI WEb.png'
+      - 'Supru AI UI.png'
       - '.github/workflows/gh-pages.yml'
 
 permissions:
