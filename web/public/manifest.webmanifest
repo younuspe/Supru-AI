@@ -1,6 +1,6 @@
 {
-  "name": "Harness Remote",
-  "short_name": "Harness Remote",
+  "name": "Supru AI",
+  "short_name": "Supru AI",
   "description": "Remote control for opencode coding agent sessions",
   "start_url": ".",
   "scope": ".",

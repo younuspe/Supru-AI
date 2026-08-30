@@ -24,10 +24,10 @@ export function parseDaemonOptions(args, environment = process.env, detect = res
   const bridgeArgs = []
   const options = {
     openCode: true,
-    openCodeCommand: environment.HARNESS_REMOTE_OPENCODE_COMMAND ?? "opencode",
-    openCodeHost: environment.HARNESS_REMOTE_OPENCODE_HOST ?? "127.0.0.1",
-    openCodePort: parsePort(environment.HARNESS_REMOTE_OPENCODE_PORT ?? "4096", "--opencode-port"),
-    openCodeTimeout: Number(environment.HARNESS_REMOTE_OPENCODE_TIMEOUT ?? "15000")
+    openCodeCommand: environment.SUPRU_AI_OPENCODE_COMMAND ?? "opencode",
+    openCodeHost: environment.SUPRU_AI_OPENCODE_HOST ?? "127.0.0.1",
+    openCodePort: parsePort(environment.SUPRU_AI_OPENCODE_PORT ?? "4096", "--opencode-port"),
+    openCodeTimeout: Number(environment.SUPRU_AI_OPENCODE_TIMEOUT ?? "15000")
   }
 
   for (let index = 0; index < args.length; index += 1) {
@@ -71,7 +71,7 @@ export function parseDaemonOptions(args, environment = process.env, detect = res
   // its primary agent and then failed with `spawn omp ENOENT`. Resolve from PATH the way the
   // launcher already does — it owns the ACP preference order — and let its message explain a
   // machine with nothing installed rather than starting up and failing later.
-  const named = bridgeArgs.includes("--backend") || environment.HARNESS_REMOTE_BACKEND || environment.OMP_BRIDGE_BACKEND
+  const named = bridgeArgs.includes("--backend") || environment.SUPRU_AI_BACKEND || environment.OMP_BRIDGE_BACKEND
   if (!named) bridgeArgs.push("--backend", detect(args).backend)
 
   return { config: parseConfig(bridgeArgs, environment), ...options }

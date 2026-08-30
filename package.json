@@ -1,11 +1,11 @@
 {
-  "name": "harness-remote",
+  "name": "supru-ai",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "bin": {
-    "harness-remote": "./bridge/src/launcher.js",
-    "harness-remote-daemon": "./bridge/src/daemon-cli.js"
+    "supru-ai": "./bridge/src/launcher.js",
+    "supru-ai-daemon": "./bridge/src/daemon-cli.js"
   },
   "scripts": {
     "start": "node bridge/src/launcher.js",

@@ -125,5 +125,5 @@ jobs:
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v7
         with:
-          name: harness-remote-aab-v${{ steps.version.outputs.app_version }}
+          name: supru-ai-aab-v${{ steps.version.outputs.app_version }}
           path: ${{ steps.aab.outputs.path }}

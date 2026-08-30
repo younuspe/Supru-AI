@@ -249,7 +249,7 @@ function installIPC(): void {
 
 async function start(): Promise<void> {
   app.setAppUserModelId("com.harnessremote.desktop")
-  app.setName("Harness Remote")
+  app.setName("Supru AI")
   registry = new ProfileRegistry(profileFile())
   await registry.load()
   eventTransport = new DesktopEventTransport(registry, IPC_CHANNELS)

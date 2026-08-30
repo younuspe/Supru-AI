@@ -114,7 +114,7 @@ jobs:
       - name: Upload ${{ matrix.platform }} artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: harness-remote-desktop-${{ matrix.platform }}-${{ github.sha }}
+          name: supru-ai-desktop-${{ matrix.platform }}-${{ github.sha }}
           path: ${{ matrix.artifacts }}
           if-no-files-found: error
           # These exist to hand the builds to the release job below, which runs minutes later. The
@@ -132,7 +132,7 @@ jobs:
       - name: Download desktop artifacts
         uses: actions/download-artifact@v8
         with:
-          pattern: harness-remote-desktop-*-${{ github.sha }}
+          pattern: supru-ai-desktop-*-${{ github.sha }}
           merge-multiple: true
           path: release
 

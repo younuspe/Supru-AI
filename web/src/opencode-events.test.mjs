@@ -14,11 +14,11 @@ const serverConnected = '{"id":"evt_f7b696456001nNtrSlcthY9fp2","type":"server.c
 const sessionCreated = '{"id":"evt_f7b697d14001eRcElcwwtqJe5M","type":"session.created","properties":{"sessionID":"ses_0849682ecffebuK36ytRJ4yFbK","info":{"id":"ses_0849682ecffebuK36ytRJ4yFbK","title":"SSE prototype probe"}}}'
 const serverHeartbeat = '{"id":"evt_f7b698b6f001csz0LF7XTKPuPw","type":"server.heartbeat","properties":{}}'
 const globalSessionCreated = JSON.stringify({
-  directory: '/home/giulio/Software/harness-remote',
+  directory: '/home/giulio/Software/supru-ai',
   payload: JSON.parse(sessionCreated)
 })
 const globalHeartbeat = JSON.stringify({
-  directory: '/home/giulio/Software/harness-remote',
+  directory: '/home/giulio/Software/supru-ai',
   payload: JSON.parse(serverHeartbeat)
 })
 

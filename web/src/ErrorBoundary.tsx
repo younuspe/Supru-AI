@@ -21,7 +21,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error("Harness Remote crashed", error, info.componentStack)
+    console.error("Supru AI crashed", error, info.componentStack)
   }
 
   #resetSettings = () => {
@@ -34,7 +34,7 @@ export class ErrorBoundary extends Component<Props, State> {
     if (!error) return this.props.children
     return (
       <div className="crash-screen" role="alert">
-        <h1>Harness Remote could not start</h1>
+        <h1>Supru AI could not start</h1>
         <p>
           Something went wrong while loading the app. Resetting the server settings clears the saved
           configuration and reloads; your language and theme are kept.

@@ -1,9 +1,9 @@
 {
-  "name": "harness-remote-web",
+  "name": "supru-ai-web",
   "private": true,
   "version": "2.10.3",
   "description": "Companion app for controlling coding-agent harnesses from phone or desktop",
-  "homepage": "https://github.com/giuliastro/harness-remote",
+  "homepage": "https://github.com/younuspe/Supru-AI",
   "author": {
     "name": "Giulio Ardoino",
     "email": "giuliaccio@gmail.com"
@@ -41,8 +41,8 @@
   },
   "build": {
     "appId": "com.harnessremote.desktop",
-    "productName": "Harness Remote",
-    "executableName": "Harness Remote",
+    "productName": "Supru AI",
+    "executableName": "Supru AI",
     "asar": true,
     "directories": {
       "output": "release"

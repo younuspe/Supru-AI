@@ -16,7 +16,7 @@ test("defaults to a loopback-only unauthenticated listener", () => {
     roots: [],
     corsOrigins: [],
     logRequests: false,
-    stateDirectory: path.join(homedir(), ".harness-remote")
+    stateDirectory: path.join(homedir(), ".supru-ai")
   })
 })
 
@@ -60,11 +60,11 @@ test("selects Codex defaults for the ACP backend", () => {
 
 test("prefers generic environment names while retaining OMP aliases", () => {
   const generic = parseConfig([], {
-    HARNESS_REMOTE_BACKEND: "pi",
-    HARNESS_REMOTE_HOST: "localhost",
-    HARNESS_REMOTE_PORT: "4901",
-    HARNESS_REMOTE_ACP_COMMAND: "custom-pi",
-    HARNESS_REMOTE_ACP_ARGS: "[\"serve\"]",
+    SUPRU_AI_BACKEND: "pi",
+    SUPRU_AI_HOST: "localhost",
+    SUPRU_AI_PORT: "4901",
+    SUPRU_AI_ACP_COMMAND: "custom-pi",
+    SUPRU_AI_ACP_ARGS: "[\"serve\"]",
     OMP_BRIDGE_BACKEND: "omp",
     OMP_BRIDGE_PORT: "4902"
   })
@@ -86,7 +86,7 @@ test("prefers generic environment names while retaining OMP aliases", () => {
 
 test("allows session snapshot storage to be relocated", () => {
   assert.equal(parseConfig(["--state-dir", "/tmp/harness-state"], {}).stateDirectory, "/tmp/harness-state")
-  assert.equal(parseConfig([], { HARNESS_REMOTE_STATE_DIR: "/tmp/env-state" }).stateDirectory, "/tmp/env-state")
+  assert.equal(parseConfig([], { SUPRU_AI_STATE_DIR: "/tmp/env-state" }).stateDirectory, "/tmp/env-state")
 })
 
 test("shares the bridge with browser origins only when asked", () => {

@@ -86,8 +86,8 @@ test("injects quick-start defaults but never places credentials or launcher-only
   assert.deepEqual(argv, ["--root", "/work", "--backend", "codex", "--host", "0.0.0.0", "--port", "4098"])
   assert.equal(argv.includes("secret"), false)
   const environment = bridgeEnvironment({ PATH: "/bin" }, "harness", "secret")
-  assert.equal(environment.HARNESS_REMOTE_USERNAME, "harness")
-  assert.equal(environment.HARNESS_REMOTE_PASSWORD, "secret")
+  assert.equal(environment.SUPRU_AI_USERNAME, "harness")
+  assert.equal(environment.SUPRU_AI_PASSWORD, "secret")
   assert.equal(environment.PATH, "/bin")
 })
 

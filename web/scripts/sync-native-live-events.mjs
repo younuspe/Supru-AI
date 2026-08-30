@@ -9,4 +9,4 @@ if (!existsSync(target)) throw new Error("Android project not found; run npx cap
 for (const file of ["MainActivity.java", "LiveEventsPlugin.java"]) {
   cpSync(resolve(source, file), resolve(target, file))
 }
-console.log("Synced Harness Remote live-events plugin")
+console.log("Synced Supru AI live-events plugin")

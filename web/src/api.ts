@@ -10,9 +10,9 @@ import type {
   FileStatusEntry,
   FileEntry,
   HealthResponse,
-  HarnessCapabilities,
-  HarnessAction,
-  HarnessActionResult,
+  SupruAICapabilities,
+  SupruAIAction,
+  SupruAIActionResult,
   MessageEnvelope,
   ModelOption,
   ModelSelection,
@@ -239,7 +239,7 @@ export const api = {
   },
 
   capabilities(config: ServerConfig) {
-    return request<HarnessCapabilities>(config, "/v1/capabilities")
+    return request<SupruAICapabilities>(config, "/v1/capabilities")
   },
 
   listSessions(config: ServerConfig, directory?: string) {
@@ -354,11 +354,11 @@ export const api = {
   },
 
   listActions(config: ServerConfig, sessionID: string, directory?: string) {
-    return request<HarnessAction[]>(config, withDirectory(`/session/${sessionID}/action`, directory))
+    return request<SupruAIAction[]>(config, withDirectory(`/session/${sessionID}/action`, directory))
   },
 
   invokeAction(config: ServerConfig, sessionID: string, actionID: string, directory?: string) {
-    return request<HarnessActionResult>(config, withDirectory(`/session/${sessionID}/action/${encodeURIComponent(actionID)}`, directory), {
+    return request<SupruAIActionResult>(config, withDirectory(`/session/${sessionID}/action/${encodeURIComponent(actionID)}`, directory), {
       method: "POST",
       body: {},
       readTimeout: 300_000

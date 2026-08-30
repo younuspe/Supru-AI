@@ -10,7 +10,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
 const SUFFIX = ".debug"
-const DEBUG_LABEL = "Harness Remote Debug"
+const DEBUG_LABEL = "Supru AI Debug"
 
 const gradleFiles = [
   "web/android/app/build.gradle",

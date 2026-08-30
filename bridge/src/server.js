@@ -115,7 +115,7 @@ export function createBridgeServer({ config, acp, serviceOptions, machineRegistr
       return
     }
     if (!matchesCredentials(request, config)) {
-      response.writeHead(401, { "WWW-Authenticate": 'Basic realm="Harness Remote Bridge"' })
+      response.writeHead(401, { "WWW-Authenticate": 'Basic realm="Supru AI Bridge"' })
       response.end()
       return
     }

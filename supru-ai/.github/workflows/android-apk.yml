@@ -122,7 +122,7 @@ jobs:
       - name: Upload test APK artifact
         uses: actions/upload-artifact@v7
         with:
-          name: harness-remote-debug-apk-v${{ steps.version.outputs.app_version }}
+          name: supru-ai-debug-apk-v${{ steps.version.outputs.app_version }}
           path: web/android/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Require signing secrets for tagged release
@@ -178,7 +178,7 @@ jobs:
       - name: Upload release APK artifact
         uses: actions/upload-artifact@v7
         with:
-          name: harness-remote-release-apk-v${{ steps.version.outputs.app_version }}
+          name: supru-ai-release-apk-v${{ steps.version.outputs.app_version }}
           path: ${{ steps.apk.outputs.path }}
 
       # The release summary and its credits come from the annotated tag message, written by hand when
@@ -205,7 +205,7 @@ jobs:
             echo 'body<<HARNESS_RELEASE_NOTES_EOF'
             echo '## Release'
             echo
-            echo "Stable release of Harness Remote \`${{ steps.version.outputs.app_version }}\`: the Android APK below, plus unsigned Windows, macOS and Linux desktop builds attached by the desktop workflow."
+            echo "Stable release of Supru AI \`${{ steps.version.outputs.app_version }}\`: the Android APK below, plus unsigned Windows, macOS and Linux desktop builds attached by the desktop workflow."
             echo
             echo "$SUMMARY"
             echo
@@ -225,7 +225,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
-          name: Harness Remote v${{ steps.version.outputs.app_version }}
+          name: Supru AI v${{ steps.version.outputs.app_version }}
           files: ${{ steps.apk.outputs.path }}
           generate_release_notes: false
           body: ${{ steps.notes.outputs.body }}

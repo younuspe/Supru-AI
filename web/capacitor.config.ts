@@ -2,7 +2,7 @@ import type { CapacitorConfig } from "@capacitor/cli"
 
 const config: CapacitorConfig = {
   appId: "ai.harness.remote",
-  appName: "Harness Remote",
+  appName: "Supru AI",
   webDir: "dist",
   server: {
     androidScheme: "http",

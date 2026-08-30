@@ -14,7 +14,7 @@ import {
   TrashIcon
 } from "../Icons"
 import type { Translator } from "../i18n"
-import type { HarnessCapabilities, SessionView } from "../types"
+import type { SupruAICapabilities, SessionView } from "../types"
 
 export function shortDirectory(directory: string): string {
   const segments = directory.split(/[\\/]+/).filter(Boolean)
@@ -71,7 +71,7 @@ export function SessionCard({
   selectedID: string | null
   rename: SessionRenameState
   renameInputRef: RefObject<HTMLInputElement>
-  capabilities: HarnessCapabilities
+  capabilities: SupruAICapabilities
   language: string
   t: Translator
   onOpen: (session: SessionView) => void

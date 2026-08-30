@@ -63,7 +63,7 @@ and an invocation `actionResult` with a unique `token`. Process and runtime IDs 
 concurrent OMP state from controlling the session. This contract works for both Git and non-Git
 workspaces.
 
-File restoration remains extension-owned. Harness Remote invokes the same action and reloads the
+File restoration remains extension-owned. Supru AI invokes the same action and reloads the
 authoritative active branch; with extension 1.2.0 or newer, successful non-Git actions restore
 supported workspace file changes as well as conversation state. No bridge package dependency or
 alternate action path is required.

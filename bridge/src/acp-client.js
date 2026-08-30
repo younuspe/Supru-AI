@@ -116,7 +116,7 @@ export class AcpClient extends EventEmitter {
       const initialized = await this.request("initialize", {
         protocolVersion: 1,
         clientCapabilities: {},
-        clientInfo: { name: "harness-remote-bridge", version: "0.1.7" }
+        clientInfo: { name: "supru-ai-bridge", version: "0.1.7" }
       }, START_TIMEOUT_MS)
       this.#agentInfo = initialized.agentInfo
       this.#promptCapabilities = initialized.agentCapabilities?.promptCapabilities ?? {}
@@ -248,7 +248,7 @@ export class AcpClient extends EventEmitter {
 
   #respondUnsupported(id, method) {
     if (!this.#child?.stdin.writable) return
-    const error = { code: -32_601, message: `Harness Remote bridge does not implement ${method}` }
+    const error = { code: -32_601, message: `Supru AI bridge does not implement ${method}` }
     this.#child.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", id, error })}\n`)
   }
 
