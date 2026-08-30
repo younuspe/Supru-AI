@@ -38,26 +38,8 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
 
-      - name: Align lockfile identity for CI
-        shell: bash
-        working-directory: web
-        run: |
-          set -euo pipefail
-          node <<'NODE'
-          const fs = require('fs');
-          const path = 'package-lock.json';
-          const lock = JSON.parse(fs.readFileSync(path, 'utf8'));
-          lock.name = 'supru-ai-web';
-          lock.version = '2.10.4';
-          if (lock.packages && lock.packages['']) {
-            lock.packages[''].name = 'supru-ai-web';
-            lock.packages[''].version = '2.10.4';
-          }
-          fs.writeFileSync(path, JSON.stringify(lock, null, 2) + '\n');
-          NODE
-
       - name: Install web dependencies
-        run: npm ci
+        run: npm install --ignore-scripts
         working-directory: web
 
       - name: Setup Bun for OMP compatibility checks
