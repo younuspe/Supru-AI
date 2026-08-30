@@ -26,7 +26,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build Supru-AI Web
+    name: Build Supru AI Web
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -46,9 +46,9 @@ jobs:
       - name: Prepare Supru UI assets
         run: |
           set -euo pipefail
-          mkdir -p web/public/assets
+          mkdir -p web/assets
           cp docs/assets/supru-ai-web.png web/public/assets/supru-ai-web.png
-          cp docs/assets/supru-ai-ui.png web/public/assets/supru-ai-ui.png
+          cp docs/assets/supru-ai-web.png web/public/assets/supru-ai-ui.png
           test -s web/public/assets/supru-ai-web.png
           test -s web/public/assets/supru-ai-ui.png
 
