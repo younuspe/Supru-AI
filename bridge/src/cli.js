@@ -2,7 +2,7 @@
 import path from "node:path"
 import { AcpClient } from "./acp-client.js"
 import { parseConfig, usage } from "./config.js"
-import { harnessProfile } from "./harness-profiles.js"
+import { supruAiProfile } from "./supru-ai-profiles.js"
 import { loadMachineIdentity, MachineRegistry, trackAgentHostLifecycle } from "./machine-registry.js"
 import { createBridgeServer } from "./server.js"
 
@@ -20,7 +20,7 @@ if (config?.help) {
 }
 
 if (config) {
-  const profile = harnessProfile(config.backend)
+  const profile = supruAiProfile(config.backend)
   const machineIdentity = await loadMachineIdentity(config.stateDirectory)
   const machineRegistry = new MachineRegistry(machineIdentity)
   machineRegistry.registerHost({
@@ -51,15 +51,9 @@ if (config) {
   let shuttingDown = false
 
   acp.on("stderr", (line) => process.stderr.write(`[${config.backend}] ${line}\n`))
-  acp.on("permission", ({ optionId }) => {
-    process.stderr.write(`[${config.backend}] granted tool permission (${optionId ?? "none offered"})\n`)
-  })
-  acp.on("agent-request", (message) => {
-    process.stderr.write(`[${config.backend}] handled agent request: ${message.method}\n`)
-  })
-  acp.on("exit", (error) => {
-    if (!shuttingDown) process.stderr.write(`[${config.backend}] ${error.message}\n`)
-  })
+  acp.on("permission", ({ optionId }) => process.stderr.write(`[${config.backend}] granted tool permission (${optionId ?? "none offered"})\n`))
+  acp.on("agent-request", (message) => process.stderr.write(`[${config.backend}] handled agent request: ${message.method}\n`))
+  acp.on("exit", (error) => { if (!shuttingDown) process.stderr.write(`[${config.backend}] ${error.message}\n`) })
 
   server.listen(config.port, config.host, () => {
     process.stdout.write(`${config.backend.toUpperCase()} bridge listening on http://${config.host}:${config.port}\n`)
