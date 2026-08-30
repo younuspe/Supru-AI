@@ -11,6 +11,8 @@ on:
       - 'web/package.json'
       - 'web/package-lock.json'
       - 'web/vite.config.*'
+      - 'docs/assets/supru-ai-web.png'
+      - 'docs/assets/supru-ai-ui.png'
       - '.github/workflows/gh-pages.yml'
 
 permissions:
@@ -41,9 +43,24 @@ jobs:
         run: npm install --ignore-scripts
         working-directory: web
 
+      - name: Prepare Supru UI assets
+        run: |
+          set -euo pipefail
+          mkdir -p web/public/assets
+          cp docs/assets/supru-ai-web.png web/public/assets/supru-ai-web.png
+          cp docs/assets/supru-ai-ui.png web/public/assets/supru-ai-ui.png
+          test -s web/public/assets/supru-ai-web.png
+          test -s web/public/assets/supru-ai-ui.png
+
       - name: Build web app
         run: npm run build
         working-directory: web
+
+      - name: Verify Supru UI assets
+        run: |
+          set -euo pipefail
+          test -s web/dist/assets/supru-ai-web.png
+          test -s web/dist/assets/supru-ai-ui.png
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
