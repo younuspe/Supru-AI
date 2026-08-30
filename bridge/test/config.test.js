@@ -53,35 +53,26 @@ test("selects Codex defaults for the ACP backend", () => {
   assert.match(parseConfig(["--backend", "codex"], {}).acpArgs[1], /@\d+\.\d+\.\d+$/, "the adapter version must stay pinned")
 })
 
-test("prefers generic environment names while retaining OMP aliases", () => {
-  const generic = parseConfig([], {
-    HARNESS_REMOTE_BACKEND: "pi",
-    HARNESS_REMOTE_HOST: "localhost",
-    HARNESS_REMOTE_PORT: "4901",
-    HARNESS_REMOTE_ACP_COMMAND: "custom-pi",
-    HARNESS_REMOTE_ACP_ARGS: "[\"serve\"]",
+test("prefers Supru AI environment names", () => {
+  const config = parseConfig([], {
+    SUPRU_AI_BACKEND: "pi",
+    SUPRU_AI_HOST: "localhost",
+    SUPRU_AI_PORT: "4901",
+    SUPRU_AI_ACP_COMMAND: "custom-pi",
+    SUPRU_AI_ACP_ARGS: "[\"serve\"]",
     OMP_BRIDGE_BACKEND: "omp",
     OMP_BRIDGE_PORT: "4902"
   })
-  assert.equal(generic.backend, "pi")
-  assert.equal(generic.host, "localhost")
-  assert.equal(generic.port, 4901)
-  assert.equal(generic.acpCommand, "custom-pi")
-  assert.deepEqual(generic.acpArgs, ["serve"])
-
-  const legacy = parseConfig([], {
-    OMP_BRIDGE_BACKEND: "pi",
-    OMP_BRIDGE_HOST: "localhost",
-    OMP_BRIDGE_PORT: "4902"
-  })
-  assert.equal(legacy.backend, "pi")
-  assert.equal(legacy.host, "localhost")
-  assert.equal(legacy.port, 4902)
+  assert.equal(config.backend, "pi")
+  assert.equal(config.host, "localhost")
+  assert.equal(config.port, 4901)
+  assert.equal(config.acpCommand, "custom-pi")
+  assert.deepEqual(config.acpArgs, ["serve"])
 })
 
 test("allows session snapshot storage to be relocated", () => {
-  assert.equal(parseConfig(["--state-dir", "/tmp/harness-state"], {}).stateDirectory, "/tmp/harness-state")
-  assert.equal(parseConfig([], { HARNESS_REMOTE_STATE_DIR: "/tmp/env-state" }).stateDirectory, "/tmp/env-state")
+  assert.equal(parseConfig(["--state-dir", "/tmp/supru-state"], {}).stateDirectory, "/tmp/supru-state")
+  assert.equal(parseConfig([], { SUPRU_AI_STATE_DIR: "/tmp/env-state" }).stateDirectory, "/tmp/env-state")
 })
 
 test("shares the bridge with browser origins only when asked", () => {
