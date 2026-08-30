@@ -32,7 +32,7 @@ const wireSupruWelcome = () => {
       const profiles = loadServerProfiles()
       const profile = loadActiveServerProfile(profiles)
       if (!profile || !profile.config.host.trim()) {
-        throw new Error("No server or bridge is configured yet.")
+        throw new Error("No Supru server is configured. Open Settings and add your bridge address first.")
       }
 
       await api.health(profile.config)
@@ -46,7 +46,10 @@ const wireSupruWelcome = () => {
         detail: { profileId: profile.id, backend: profile.config.backend }
       }))
     } catch (error) {
-      status.textContent = error instanceof Error ? error.message : "Supru could not reach the bridge."
+      const message = error instanceof Error ? error.message : "Supru could not reach the server."
+      const isBrowser = !Capacitor.isNativePlatform() && !window.supruDesktop?.platform.isDesktop
+      const target = profileTargetMessage(profilesForMessage(), isBrowser)
+      status.textContent = `${message}${target}`
       connectButton.removeAttribute("disabled")
       connectButton.textContent = "Connect"
     }
@@ -58,13 +61,25 @@ const wireSupruWelcome = () => {
     welcome.classList.remove("is-connected")
     status.textContent = "Supru is waiting… curious."
     connectButton.textContent = "Connect"
-    window.dispatchEvent(new CustomEvent("supru:disconnected"))
   }
 
   connectButton.addEventListener("click", () => {
     if (connected) disconnect()
     else void connect()
   })
+}
+
+function profilesForMessage() {
+  try { return loadServerProfiles() } catch { return [] }
+}
+
+function profileTargetMessage(profiles: ReturnType<typeof profilesForMessage>, isBrowser: boolean): string {
+  if (!isBrowser || profiles.length === 0) return ""
+  const profile = loadActiveServerProfile(profiles)
+  if (profile.config.host === "127.0.0.1" || profile.config.host === "localhost" || profile.config.host === "::1") {
+    return " Start Supru Bridge on this computer (port 4097), then press Connect again."
+  }
+  return " Check that the Supru Bridge is running and that this address allows browser access."
 }
 
 if (document.readyState === "loading") {
