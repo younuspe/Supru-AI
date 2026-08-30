@@ -2,12 +2,8 @@
   "name": "supru-ai-web",
   "private": true,
   "version": "2.10.3",
-  "description": "Companion app for controlling coding-agent harnesses from phone or desktop",
+  "description": "Supru AI companion app for controlling coding agents from phone or desktop",
   "homepage": "https://github.com/younuspe/Supru-AI",
-  "author": {
-    "name": "Giulio Ardoino",
-    "email": "giuliaccio@gmail.com"
-  },
   "type": "module",
   "main": "dist-electron/electron/main.js",
   "scripts": {
@@ -40,13 +36,11 @@
     "test:desktop:menu": "npm run build:electron && electron scripts/menu-smoke.mjs"
   },
   "build": {
-    "appId": "com.harnessremote.desktop",
+    "appId": "ai.supru.app",
     "productName": "Supru AI",
     "executableName": "Supru AI",
     "asar": true,
-    "directories": {
-      "output": "release"
-    },
+    "directories": { "output": "release" },
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
@@ -56,46 +50,28 @@
       "!**/*.test.*"
     ],
     "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": ["x64"]
-        }
-      ],
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
       "icon": "public/app-icon.png",
-      "artifactName": "Harness-Remote-${version}-win-${arch}-unsigned.${ext}"
+      "artifactName": "Supru-Ai-${version}-win-${arch}-unsigned.${ext}"
     },
     "mac": {
       "target": [
-        {
-          "target": "dmg",
-          "arch": ["arm64", "x64"]
-        },
-        {
-          "target": "zip",
-          "arch": ["arm64", "x64"]
-        }
+        { "target": "dmg", "arch": ["arm64", "x64"] },
+        { "target": "zip", "arch": ["arm64", "x64"] }
       ],
       "icon": "public/app-icon.png",
       "category": "public.app-category.developer-tools",
-      "artifactName": "Harness-Remote-${version}-mac-${arch}-unsigned.${ext}",
+      "artifactName": "Supru-Ai-${version}-mac-${arch}-unsigned.${ext}",
       "identity": null
     },
     "linux": {
       "target": [
-        {
-          "target": "AppImage",
-          "arch": ["x64"]
-        },
-        {
-          "target": "deb",
-          "arch": ["x64"]
-        }
+        { "target": "AppImage", "arch": ["x64"] },
+        { "target": "deb", "arch": ["x64"] }
       ],
       "icon": "public/app-icon.png",
       "category": "Development",
-      "maintainer": "Giulio Ardoino <giuliaccio@gmail.com>",
-      "artifactName": "Harness-Remote-${version}-linux-${arch}.${ext}"
+      "artifactName": "Supru-Ai-${version}-linux-${arch}.${ext}"
     },
     "forceCodeSigning": false,
     "nsis": {
