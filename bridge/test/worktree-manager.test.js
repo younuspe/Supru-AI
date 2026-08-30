@@ -16,7 +16,7 @@ function draft(overrides = {}) {
 }
 
 test("prepares a deterministic isolated worktree without mutating the primary checkout", async () => {
-  const stateDirectory = await mkdtemp(path.join(os.tmpdir(), "harness-worktree-"))
+  const stateDirectory = await mkdtemp(path.join(os.tmpdir(), "supru-ai-worktree-"))
   const calls = []
   try {
     const manager = new WorktreeManager({ stateDirectory, runGit: async (args) => { calls.push(args); return { stdout: "/repo\n" } } })
@@ -56,7 +56,7 @@ test("rollback removes only a just-prepared worktree and its branch", async () =
 })
 
 test("prepare uses a resettable task branch so rollback leftovers do not wedge retries", async () => {
-  const stateDirectory = await mkdtemp(path.join(os.tmpdir(), "harness-worktree-retry-"))
+  const stateDirectory = await mkdtemp(path.join(os.tmpdir(), "supru-ai-worktree-retry-"))
   const calls = []
   try {
     const manager = new WorktreeManager({ stateDirectory, runGit: async (args) => { calls.push(args); return { stdout: "/repo\n" } } })
@@ -68,7 +68,7 @@ test("prepare uses a resettable task branch so rollback leftovers do not wedge r
 })
 
 test("inspect reports dirty work without changing it", async () => {
-  const stateDirectory = await mkdtemp(path.join(os.tmpdir(), "harness-worktree-inspect-"))
+  const stateDirectory = await mkdtemp(path.join(os.tmpdir(), "supru-ai-worktree-inspect-"))
   const worktreePath = path.join(stateDirectory, "worktrees", "abc")
   try {
     await mkdir(worktreePath, { recursive: true })
@@ -86,7 +86,7 @@ test("inspect reports dirty work without changing it", async () => {
 })
 
 test("cleanup refuses dirty worktrees before removal", async () => {
-  const stateDirectory = await mkdtemp(path.join(os.tmpdir(), "harness-worktree-dirty-"))
+  const stateDirectory = await mkdtemp(path.join(os.tmpdir(), "supru-ai-worktree-dirty-"))
   const worktreePath = path.join(stateDirectory, "worktrees", "abc")
   try {
     await mkdir(worktreePath, { recursive: true })
@@ -103,7 +103,7 @@ test("cleanup refuses dirty worktrees before removal", async () => {
 })
 
 test("cleanup removes a clean worktree without force and preserves an unmerged branch", async () => {
-  const stateDirectory = await mkdtemp(path.join(os.tmpdir(), "harness-worktree-clean-"))
+  const stateDirectory = await mkdtemp(path.join(os.tmpdir(), "supru-ai-worktree-clean-"))
   const worktreePath = path.join(stateDirectory, "worktrees", "abc")
   try {
     await mkdir(worktreePath, { recursive: true })
@@ -124,7 +124,7 @@ test("cleanup removes a clean worktree without force and preserves an unmerged b
 })
 
 test("inspect rejects a workspace outside the daemon state directory", async () => {
-  const stateDirectory = await mkdtemp(path.join(os.tmpdir(), "harness-worktree-boundary-"))
+  const stateDirectory = await mkdtemp(path.join(os.tmpdir(), "supru-ai-worktree-boundary-"))
   try {
     const manager = new WorktreeManager({ stateDirectory, runGit: async () => { throw new Error("should not run") } })
     await assert.rejects(
