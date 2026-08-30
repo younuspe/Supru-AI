@@ -64,7 +64,7 @@ assert.ok(app.includes('message-attachment'), 'an attached image needs its own t
 const styles = readFileSync(new URL('./styles.css', import.meta.url), 'utf8')
 assert.match(styles, /\.message-attachment\s*\{[^}]*max-width:/, 'a thumbnail must be bounded so a photo cannot widen the page')
 
-// The bridge refuses attachments a harness never advertised. Offering the control anyway means the
+// The bridge refuses attachments a backend never advertised. Offering the control anyway means the
 // only way to discover that is a failed send, which is the confusing path this gate removes. The
 // gate spans two modules now, and losing either half re-opens the control: `App.tsx` reads the
 // reported capability into the prop, the composer renders nothing without it.
