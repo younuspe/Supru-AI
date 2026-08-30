@@ -7,7 +7,7 @@ function requireValue(args, index, option) { const value = args[index + 1]; if (
 function parsePort(value) { const port = Number(value); if (!Number.isInteger(port) || port < 1 || port > 65_535) throw new Error("--port must be an integer between 1 and 65535"); return port }
 function parseArgumentList(value, fallback) { if (value === undefined) return [...fallback]; let parsed; try { parsed = JSON.parse(value) } catch { throw new Error("ACP arguments must be a JSON array") }; if (!Array.isArray(parsed) || parsed.some((argument) => typeof argument !== "string")) throw new Error("ACP arguments must be a JSON array of strings"); return parsed }
 function parseBackend(value) { return backendProfile(value).id }
-function environmentValue(environment, name) { return environment[`SUPRU_AI_${name}`] ?? environment[`OMP_BRIDGE_${name}`] }
+function environmentValue(environment, name) { return environment[name] ?? environment[`SUPRU_AI_${name}`] ?? environment[`OMP_BRIDGE_${name}`] }
 export function parseConfig(args, environment = process.env) {
   const backend = parseBackend(environmentValue(environment, "BACKEND") ?? "omp")
   const profile = backendProfile(backend); const launch = resolveAcpLaunch(profile)
