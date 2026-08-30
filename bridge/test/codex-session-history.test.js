@@ -8,7 +8,7 @@ import { createCodexHistoryLoader } from "../src/codex-session-history.js"
 const sessionID = "019fdb8d-c519-7cf3-8226-ae4a312d7b45"
 
 async function writeRollout(records) {
-  const root = await mkdtemp(path.join(tmpdir(), "harness-remote-codex-history-"))
+  const root = await mkdtemp(path.join(tmpdir(), "supru-ai-codex-history-"))
   const nested = path.join(root, "2026", "08", "07")
   await mkdir(nested, { recursive: true })
   await writeFile(
@@ -74,7 +74,7 @@ test("keeps message ids stable as a Codex rollout grows", async () => {
 })
 
 test("reports no history rather than failing when a rollout is absent", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "harness-remote-codex-history-"))
+  const root = await mkdtemp(path.join(tmpdir(), "supru-ai-codex-history-"))
   try {
     const loadHistory = createCodexHistoryLoader(root)
     assert.deepEqual(await loadHistory(sessionID), [])
