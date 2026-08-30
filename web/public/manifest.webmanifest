@@ -8,7 +8,7 @@
   "background_color": "#050504",
   "theme_color": "#050504",
   "icons": [
-    {"src": "Supru%20AI%20ico.png", "sizes": "any", "type": "image/png", "purpose": "any"},
-    {"src": "Supru%20AI%20-%20icon.png", "sizes": "any", "type": "image/png", "purpose": "any maskable"}
+    {"src": "supru-ai-icon.png", "sizes": "any", "type": "image/png", "purpose": "any"},
+    {"src": "supru-ai-icon.png", "sizes": "any", "type": "image/png", "purpose": "maskable"}
   ]
 }
