@@ -21,20 +21,9 @@ test("defaults to a loopback-only unauthenticated listener", () => {
 })
 
 test("configures a non-OMP ACP adapter command and arguments", () => {
-  assert.deepEqual(parseConfig([
-    "--acp-command", "npx",
-    "--acp-arg", "-y",
-    "--acp-arg", "@victor-software-house/pi-acp"
-  ], {}).acpCommand, "npx")
-  assert.deepEqual(parseConfig([
-    "--acp-command", "npx",
-    "--acp-arg", "-y",
-    "--acp-arg", "@victor-software-house/pi-acp"
-  ], {}).acpArgs, ["-y", "@victor-software-house/pi-acp"])
-  assert.deepEqual(parseConfig([], {
-    OMP_BRIDGE_ACP_COMMAND: "pi-acp",
-    OMP_BRIDGE_ACP_ARGS: "[]"
-  }).acpArgs, [])
+  assert.deepEqual(parseConfig(["--acp-command", "npx", "--acp-arg", "-y", "--acp-arg", "@victor-software-house/pi-acp"], {}).acpCommand, "npx")
+  assert.deepEqual(parseConfig(["--acp-command", "npx", "--acp-arg", "-y", "--acp-arg", "@victor-software-house/pi-acp"], {}).acpArgs, ["-y", "@victor-software-house/pi-acp"])
+  assert.deepEqual(parseConfig([], { OMP_BRIDGE_ACP_COMMAND: "pi-acp", OMP_BRIDGE_ACP_ARGS: "[]" }).acpArgs, [])
 })
 
 test("selects PI defaults for the ACP backend", () => {
@@ -53,13 +42,13 @@ test("selects Codex defaults for the ACP backend", () => {
   assert.match(parseConfig(["--backend", "codex"], {}).acpArgs[1], /@\d+\.\d+\.\d+$/, "the adapter version must stay pinned")
 })
 
-test("prefers Supru AI environment names", () => {
+test("prefers generic environment names while retaining OMP aliases", () => {
   const config = parseConfig([], {
-    SUPRU_AI_BACKEND: "pi",
-    SUPRU_AI_HOST: "localhost",
-    SUPRU_AI_PORT: "4901",
-    SUPRU_AI_ACP_COMMAND: "custom-pi",
-    SUPRU_AI_ACP_ARGS: "[\"serve\"]",
+    BACKEND: "pi",
+    HOST: "localhost",
+    PORT: "4901",
+    ACP_COMMAND: "custom-pi",
+    ACP_ARGS: "[\"serve\"]",
     OMP_BRIDGE_BACKEND: "omp",
     OMP_BRIDGE_PORT: "4902"
   })
@@ -68,6 +57,16 @@ test("prefers Supru AI environment names", () => {
   assert.equal(config.port, 4901)
   assert.equal(config.acpCommand, "custom-pi")
   assert.deepEqual(config.acpArgs, ["serve"])
+  assert.equal(parseConfig([], { OMP_BRIDGE_PORT: "4902" }).port, 4902)
+})
+
+test("prefers Supru AI environment names over generic and OMP aliases", () => {
+  const config = parseConfig([], {
+    SUPRU_AI_BACKEND: "codex",
+    BACKEND: "pi",
+    OMP_BRIDGE_BACKEND: "omp"
+  })
+  assert.equal(config.backend, "codex")
 })
 
 test("allows session snapshot storage to be relocated", () => {
@@ -87,14 +86,7 @@ test("requires credentials outside loopback", () => {
 })
 
 test("accepts authenticated LAN configuration and repeated roots", () => {
-  const config = parseConfig([
-    "--host", "0.0.0.0",
-    "--port", "4900",
-    "--username", "omp",
-    "--password", "secret",
-    "--root", "/work/a",
-    "--root", "/work/b"
-  ], {})
+  const config = parseConfig(["--host", "0.0.0.0", "--port", "4900", "--username", "omp", "--password", "secret", "--root", "/work/a", "--root", "/work/b"], {})
   assert.equal(config.port, 4900)
   assert.deepEqual(config.roots, ["/work/a", "/work/b"])
 })
