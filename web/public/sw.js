@@ -1,4 +1,4 @@
-const CACHE_NAME = "supru-ai-v2"
+const CACHE_NAME = "supru-ai-v3"
 
 self.addEventListener("install", (event) => {
   const scope = self.registration.scope
@@ -7,22 +7,16 @@ self.addEventListener("install", (event) => {
     `${scope}manifest.webmanifest`,
     `${scope}Supru%20AI%20ico.png`,
     `${scope}Supru%20AI%20-%20icon.png`,
-    `${scope}Supru%20AI%20WEb.png`,
-    `${scope}Surpu%20Ai%20Mob.png`
+    `${scope}Supru%20AI%20WEb.png`
   ]
   event.waitUntil(
-    caches
-      .open(CACHE_NAME)
-      .then((cache) => cache.addAll(appShell))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(appShell)).then(() => self.skipWaiting())
   )
 })
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+    caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   )
 })
@@ -41,24 +35,20 @@ self.addEventListener("fetch", (event) => {
   if (request.mode === "navigate") {
     const scope = self.registration.scope
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          storeInCache(event, scope, response)
-          return response
-        })
-        .catch(() => caches.match(scope))
+      fetch(request).then((response) => {
+        storeInCache(event, scope, response)
+        return response
+      }).catch(() => caches.match(scope))
     )
     return
   }
 
   event.respondWith(
     caches.match(request).then((cached) => {
-      const network = fetch(request)
-        .then((response) => {
-          if (response.ok) storeInCache(event, request, response)
-          return response
-        })
-        .catch(() => cached)
+      const network = fetch(request).then((response) => {
+        if (response.ok) storeInCache(event, request, response)
+        return response
+      }).catch(() => cached)
       return cached || network
     })
   )
