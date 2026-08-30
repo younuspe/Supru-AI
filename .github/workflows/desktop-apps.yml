@@ -7,11 +7,15 @@ on:
     paths:
       - 'bridge/**'
       - 'web/**'
+      - 'docs/assets/supru-ai-web.png'
+      - 'docs/assets/supru-ai-ui.png'
       - '.github/workflows/desktop-apps.yml'
   pull_request:
     paths:
       - 'bridge/**'
       - 'web/**'
+      - 'docs/assets/supru-ai-web.png'
+      - 'docs/assets/supru-ai-ui.png'
       - '.github/workflows/desktop-apps.yml'
 
 permissions:
@@ -41,6 +45,15 @@ jobs:
       - name: Install web dependencies
         run: npm install --ignore-scripts
         working-directory: web
+
+      - name: Prepare Supru UI assets
+        run: |
+          set -euo pipefail
+          mkdir -p web/public/assets
+          cp docs/assets/supru-ai-web.png web/public/assets/supru-ai-web.png
+          cp docs/assets/supru-ai-ui.png web/public/assets/supru-ai-ui.png
+          test -s web/public/assets/supru-ai-web.png
+          test -s web/public/assets/supru-ai-ui.png
 
       - name: Setup Bun for OMP compatibility checks
         uses: oven-sh/setup-bun@v2
@@ -133,6 +146,14 @@ jobs:
           fi
           if grep -Eq '(^|/)dist/.*\.(ts|tsx)$|(^|/).*\.(ts|tsx)$' packaged-asar-list.txt; then
             echo 'ERROR: TypeScript source was packaged into app.asar.'
+            exit 1
+          fi
+          if ! grep -Eq '(^|/)assets/supru-ai-web\.png$' packaged-asar-list.txt; then
+            echo 'ERROR: Supru Connect image is missing from app.asar.'
+            exit 1
+          fi
+          if ! grep -Eq '(^|/)assets/supru-ai-ui\.png$' packaged-asar-list.txt; then
+            echo 'ERROR: Supru UI image is missing from app.asar.'
             exit 1
           fi
 
