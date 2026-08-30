@@ -22,7 +22,7 @@ async function preserveCorruptIdentity(machineFile, warn) {
     if (error?.code === "ENOENT") return undefined
     throw error
   }
-  warn(`Invalid Harness machine identity moved to ${corruptFile}; generating a new identity.`)
+  warn(`Invalid Supru machine identity moved to ${corruptFile}; generating a new identity.`)
   return corruptFile
 }
 
@@ -30,16 +30,13 @@ async function installIdentity(machineFile, identity) {
   const temporary = `${machineFile}.${process.pid}.${randomUUID()}.tmp`
   await writeFile(temporary, `${JSON.stringify(identity, null, 2)}\n`, { mode: 0o600 })
   try {
-    // Hard-linking the complete temp file is an atomic "create if absent" operation. If
-    // another daemon wins the race, use its identity rather than returning two identities
-    // for the same state directory.
     await link(temporary, machineFile)
     return identity
   } catch (error) {
     if (error?.code !== "EEXIST") throw error
     const existing = await readIdentity(machineFile)
     if (existing) return existing
-    throw new Error("Concurrent Harness daemon created an invalid machine identity")
+    throw new Error("Concurrent Supru daemon created an invalid machine identity")
   } finally {
     await unlink(temporary).catch(() => {})
   }
