@@ -1,8 +1,15 @@
-const CACHE_NAME = "harness-remote-v1"
+const CACHE_NAME = "supru-ai-v2"
 
 self.addEventListener("install", (event) => {
   const scope = self.registration.scope
-  const appShell = [scope, `${scope}manifest.webmanifest`, `${scope}icon-192.png`, `${scope}icon-512.png`]
+  const appShell = [
+    scope,
+    `${scope}manifest.webmanifest`,
+    `${scope}Supru%20AI%20ico.png`,
+    `${scope}Supru%20AI%20-%20icon.png`,
+    `${scope}Supru%20AI%20WEb.png`,
+    `${scope}Surpu%20Ai%20Mob.png`
+  ]
   event.waitUntil(
     caches
       .open(CACHE_NAME)
@@ -20,10 +27,6 @@ self.addEventListener("activate", (event) => {
   )
 })
 
-/**
- * A worker may be killed as soon as it has answered, so a cache write started inside the
- * response chain is not guaranteed to finish: it has to be kept alive by the event itself.
- */
 function storeInCache(event, key, response) {
   const copy = response.clone()
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.put(key, copy)))
