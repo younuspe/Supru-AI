@@ -95,7 +95,6 @@ export function resolveLaunchPlan(args, detected = detectBackends()) {
   }
 
   if (detected.length === 1) return { mode: "single", backend: explicit ?? detected[0], detected }
-
   if (explicit === "opencode") return { mode: "single", backend: explicit, detected }
   if (explicit && !ACP_BACKENDS.includes(explicit)) {
     throw new Error(`Unsupported ACP backend '${explicit}' for machine-daemon startup.`)
@@ -103,17 +102,12 @@ export function resolveLaunchPlan(args, detected = detectBackends()) {
 
   const primary = explicit ?? ACP_BACKENDS.find((backend) => detected.includes(backend))
   if (!primary) return { mode: "single", backend: detected[0], detected }
-  return {
-    mode: "daemon",
-    backend: primary,
-    detected,
-    openCode: detected.includes("opencode")
-  }
+  return { mode: "daemon", backend: primary, detected, openCode: detected.includes("opencode") }
 }
 
 export function generateCredentials() {
   return {
-    username: "harness",
+    username: "supru",
     password: randomBytes(18).toString("base64url")
   }
 }
@@ -146,9 +140,7 @@ export function buildBridgeArgs(args, { backend, host, port }) {
 
 export function buildDaemonArgs(args, { backend, host, port, openCode, openCodePort }) {
   const result = buildBridgeArgs(args, { backend, host, port })
-  if (openCode && openCodePort && !hasOption(result, "--opencode-port")) {
-    result.push("--opencode-port", String(openCodePort))
-  }
+  if (openCode && openCodePort && !hasOption(result, "--opencode-port")) result.push("--opencode-port", String(openCodePort))
   if (!openCode && !hasOption(result, "--no-opencode")) result.push("--no-opencode")
   return result
 }
@@ -156,8 +148,8 @@ export function buildDaemonArgs(args, { backend, host, port, openCode, openCodeP
 export function bridgeEnvironment(environment, username, password) {
   return {
     ...environment,
-    HARNESS_REMOTE_USERNAME: username,
-    HARNESS_REMOTE_PASSWORD: password
+    SUPRU_AI_USERNAME: username,
+    SUPRU_AI_PASSWORD: password
   }
 }
 
@@ -193,7 +185,7 @@ export function lanAddresses(interfaces = networkInterfaces()) {
 }
 
 export function launcherUsage() {
-  return `Usage: harness-remote [options]\n\nQuick start options:\n  --backend <name>       Select omp, pi, claude, codex, or opencode (on multi-agent machines, selects the daemon primary)\n  --single               Force the legacy single-backend path instead of the machine daemon\n  --host <host>          Bind host (quick-start default: 0.0.0.0)\n  --port <port>          Preferred port (OpenCode single-host default: 4096; daemon/ACP default: 4097)\n  --username <username>  Override generated Basic Auth username\n  --password <password>  Override generated Basic Auth password\n  --help                 Show this help\n\nWith one detected agent, Harness starts the existing single-backend path. With multiple detected agents and at least one ACP backend, it starts the machine daemon automatically; OpenCode is included when installed and receives a free loopback port automatically.`
+  return `Usage: supru-ai [options]\n\nQuick start options:\n  --backend <name>       Select omp, pi, claude, codex, or opencode (on multi-agent machines, selects the daemon primary)\n  --single               Force the single-backend path instead of the machine daemon\n  --host <host>          Bind host (quick-start default: 0.0.0.0)\n  --port <port>          Preferred port (OpenCode single-host default: 4096; daemon/ACP default: 4097)\n  --username <username>  Override generated Basic Auth username\n  --password <password>  Override generated Basic Auth password\n  --help                 Show this help\n\nWith one detected agent, Supru AI starts the existing single-backend path. With multiple detected agents and at least one ACP backend, it starts the machine daemon automatically; OpenCode is included when installed and receives a free loopback port automatically.`
 }
 
 export async function startManagedOpenCode({ host, port, username, password, command = "opencode", Host = ManagedOpenCodeHost } = {}) {
@@ -224,7 +216,7 @@ function spawnNodeEntrypoint(entrypoint, args, username, password) {
     env: bridgeEnvironment(process.env, username, password)
   })
   child.once("error", (error) => {
-    process.stderr.write(`Failed to start Harness runtime: ${error.message}\n`)
+    process.stderr.write(`Failed to start Supru AI runtime: ${error.message}\n`)
     process.exitCode = 1
   })
   child.once("exit", (code, signal) => {
@@ -246,15 +238,11 @@ async function main() {
   const host = optionValue(args, "--host") ?? "0.0.0.0"
   const defaultPort = plan.mode === "daemon" ? 4097 : backend === "opencode" ? 4096 : 4097
   const requestedPort = Number(optionValue(args, "--port") ?? defaultPort)
-  if (!Number.isInteger(requestedPort) || requestedPort < 1 || requestedPort > 65_535) {
-    throw new Error("--port must be an integer between 1 and 65535")
-  }
+  if (!Number.isInteger(requestedPort) || requestedPort < 1 || requestedPort > 65_535) throw new Error("--port must be an integer between 1 and 65535")
 
   let port
   if (hasOption(args, "--port")) {
-    if (!(await canListen(requestedPort, host))) {
-      throw new Error(`Port ${requestedPort} is not available on ${host}. Choose another port or omit --port for automatic selection.`)
-    }
+    if (!(await canListen(requestedPort, host))) throw new Error(`Port ${requestedPort} is not available on ${host}. Choose another port or omit --port for automatic selection.`)
     port = requestedPort
   } else {
     port = await findAvailablePort(requestedPort, host)
@@ -265,12 +253,8 @@ async function main() {
     const explicitOpenCodePort = optionValue(args, "--opencode-port")
     if (explicitOpenCodePort) {
       openCodePort = Number(explicitOpenCodePort)
-      if (!Number.isInteger(openCodePort) || openCodePort < 1 || openCodePort > 65_535) {
-        throw new Error("--opencode-port must be an integer between 1 and 65535")
-      }
-      if (openCodePort === port || !(await canListen(openCodePort, "127.0.0.1"))) {
-        throw new Error(`OpenCode port ${openCodePort} is not available. Choose another --opencode-port or omit it for automatic selection.`)
-      }
+      if (!Number.isInteger(openCodePort) || openCodePort < 1 || openCodePort > 65_535) throw new Error("--opencode-port must be an integer between 1 and 65535")
+      if (openCodePort === port || !(await canListen(openCodePort, "127.0.0.1"))) throw new Error(`OpenCode port ${openCodePort} is not available. Choose another --opencode-port or omit it for automatic selection.`)
     } else {
       openCodePort = await findAvailablePort(4096, "127.0.0.1", 20, [port])
     }
@@ -278,14 +262,12 @@ async function main() {
 
   let username = optionValue(args, "--username")
   let password = optionValue(args, "--password")
-  if (Boolean(username) !== Boolean(password)) {
-    throw new Error("--username and --password must be supplied together")
-  }
+  if (Boolean(username) !== Boolean(password)) throw new Error("--username and --password must be supplied together")
   if (!username) ({ username, password } = generateCredentials())
 
   const addresses = host === "0.0.0.0" ? lanAddresses() : [host]
 
-  process.stdout.write("Harness Remote quick start\n\n")
+  process.stdout.write("Supru AI quick start\n\n")
   process.stdout.write("Enter this in the app:\n")
   if (addresses.length) {
     for (const address of addresses) process.stdout.write(`  Address   http://${address}:${port}\n`)
@@ -299,9 +281,8 @@ async function main() {
     process.stdout.write("\nThat one connection serves every agent on this machine:\n")
     for (const agent of plan.detected) {
       if (agent === backend) process.stdout.write(`  ${agent} — primary agent\n`)
-      else if (agent === "opencode" && openCodePort) {
-        process.stdout.write(`  ${agent} — managed by the daemon on 127.0.0.1:${openCodePort}, internal only\n`)
-      } else process.stdout.write(`  ${agent} — detected\n`)
+      else if (agent === "opencode" && openCodePort) process.stdout.write(`  ${agent} — managed by the daemon on 127.0.0.1:${openCodePort}, internal only\n`)
+      else process.stdout.write(`  ${agent} — detected\n`)
     }
     process.stdout.write("There is nothing else to configure: no second address, no second password.\n")
   } else {
@@ -319,7 +300,7 @@ async function main() {
   if (backend === "opencode") {
     process.stdout.write("\nStarting managed OpenCode host...\n")
     const managed = await startManagedOpenCode({ host, port, username, password })
-    process.stdout.write(`OpenCode is ready on ${host}:${port}. Keep this process running while Harness Remote is connected.\n`)
+    process.stdout.write(`OpenCode is ready on ${host}:${port}. Keep this process running while Supru AI is connected.\n`)
 
     let shuttingDown = false
     const shutdown = createManagedShutdown(managed)
@@ -339,8 +320,7 @@ async function main() {
   }
 
   const bridgeArgs = buildBridgeArgs(args, { backend, host, port })
-  process.stdout.write("\nStarting existing bridge...\n")
-
+  process.stdout.write("\nStarting bridge...\n")
   const cliPath = fileURLToPath(new URL("./cli.js", import.meta.url))
   spawnNodeEntrypoint(cliPath, bridgeArgs, username, password)
 }
