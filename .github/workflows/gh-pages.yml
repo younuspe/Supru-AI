@@ -47,10 +47,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p web/assets
-          cp docs/assets/supru-ai-web.png web/public/assets/supru-ai-web.png
-          cp docs/assets/supru-ai-web.png web/public/assets/supru-ai-ui.png
-          test -s web/public/assets/supru-ai-web.png
-          test -s web/public/assets/supru-ai-ui.png
+          cp Supru AI WEb.png Supru AI WEb.png
+          cp Supru AI UI.png Supru AI UI.png
+          test -s Supru AI WEb.png
+          test -s Supru AI UI.png
 
       - name: Build web app
         run: npm run build
