@@ -21,25 +21,30 @@ test("defaults to a loopback-only unauthenticated listener", () => {
 })
 
 test("configures a non-OMP ACP adapter command and arguments", () => {
-  assert.deepEqual(parseConfig(["--acp-command", "npx", "--acp-arg", "-y", "--acp-arg", "@victor-software-house/pi-acp"], {}).acpCommand, "npx")
-  assert.deepEqual(parseConfig(["--acp-command", "npx", "--acp-arg", "-y", "--acp-arg", "@victor-software-house/pi-acp"], {}).acpArgs, ["-y", "@victor-software-house/pi-acp"])
+  const config = parseConfig(["--acp-command", "npx", "--acp-arg", "-y", "--acp-arg", "@victor-software-house/pi-acp"], {})
+  assert.equal(config.acpCommand, "npx")
+  assert.deepEqual(config.acpArgs, ["-y", "@victor-software-house/pi-acp"])
   assert.deepEqual(parseConfig([], { OMP_BRIDGE_ACP_COMMAND: "pi-acp", OMP_BRIDGE_ACP_ARGS: "[]" }).acpArgs, [])
 })
 
 test("selects PI defaults for the ACP backend", () => {
-  assert.deepEqual(parseConfig(["--backend", "pi"], {}).backend, "pi")
-  assert.equal(parseConfig(["--backend", "pi"], {}).acpCommand, process.platform === "win32" ? "npx.cmd" : "npx")
-  assert.deepEqual(parseConfig(["--backend", "pi"], {}).acpArgs, ["-y", "@automatalabs/pi-acp@0.2.5"])
-  assert.deepEqual(parseConfig([], { OMP_BRIDGE_BACKEND: "pi" }).acpArgs, ["-y", "@automatalabs/pi-acp@0.2.5"])
-  assert.match(parseConfig(["--backend", "pi"], {}).acpArgs[1], /@\d+\.\d+\.\d+$/, "the adapter version must stay pinned")
+  const config = parseConfig(["--backend", "pi"], { PATH: "/empty" })
+  assert.equal(config.backend, "pi")
+  assert.equal(config.acpCommand, process.platform === "win32" ? "npx.cmd" : "npx")
+  assert.deepEqual(config.acpArgs, ["-y", "@automatalabs/pi-acp@0.2.5"])
+  const fromEnvironment = parseConfig([], { OMP_BRIDGE_BACKEND: "pi", PATH: "/empty" })
+  assert.deepEqual(fromEnvironment.acpArgs, ["-y", "@automatalabs/pi-acp@0.2.5"])
+  assert.match(fromEnvironment.acpArgs[1], /@\d+\.\d+\.\d+$/, "the adapter version must stay pinned")
 })
 
 test("selects Codex defaults for the ACP backend", () => {
-  assert.deepEqual(parseConfig(["--backend", "codex"], {}).backend, "codex")
-  assert.equal(parseConfig(["--backend", "codex"], {}).acpCommand, process.platform === "win32" ? "npx.cmd" : "npx")
-  assert.deepEqual(parseConfig(["--backend", "codex"], {}).acpArgs, ["-y", "@agentclientprotocol/codex-acp@1.1.14"])
-  assert.deepEqual(parseConfig([], { OMP_BRIDGE_BACKEND: "codex" }).acpArgs, ["-y", "@agentclientprotocol/codex-acp@1.1.14"])
-  assert.match(parseConfig(["--backend", "codex"], {}).acpArgs[1], /@\d+\.\d+\.\d+$/, "the adapter version must stay pinned")
+  const config = parseConfig(["--backend", "codex"], { PATH: "/empty" })
+  assert.equal(config.backend, "codex")
+  assert.equal(config.acpCommand, process.platform === "win32" ? "npx.cmd" : "npx")
+  assert.deepEqual(config.acpArgs, ["-y", "@agentclientprotocol/codex-acp@1.1.14"])
+  const fromEnvironment = parseConfig([], { OMP_BRIDGE_BACKEND: "codex", PATH: "/empty" })
+  assert.deepEqual(fromEnvironment.acpArgs, ["-y", "@agentclientprotocol/codex-acp@1.1.14"])
+  assert.match(fromEnvironment.acpArgs[1], /@\d+\.\d+\.\d+$/, "the adapter version must stay pinned")
 })
 
 test("prefers generic environment names while retaining OMP aliases", () => {
@@ -64,7 +69,8 @@ test("prefers Supru AI environment names over generic and OMP aliases", () => {
   const config = parseConfig([], {
     SUPRU_AI_BACKEND: "codex",
     BACKEND: "pi",
-    OMP_BRIDGE_BACKEND: "omp"
+    OMP_BRIDGE_BACKEND: "omp",
+    PATH: "/empty"
   })
   assert.equal(config.backend, "codex")
 })
