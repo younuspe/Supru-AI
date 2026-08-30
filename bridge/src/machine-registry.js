@@ -116,10 +116,6 @@ export class MachineRegistry {
   }
 }
 
-/**
- * ACP starts lazily, so lifecycle tracking has to wrap every start attempt rather than only
- * initial daemon boot. A successful restart restores availability after a prior process exit.
- */
 export function trackAgentHostLifecycle(agent, registry, hostID) {
   const start = agent.start.bind(agent)
   agent.start = async (...args) => {
