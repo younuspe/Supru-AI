@@ -33,7 +33,7 @@ export type DesktopBridgeAPI = {
 }
 declare global {
   interface Window {
-    readonly harnessDesktop?: DesktopBridgeAPI
+    readonly supruDesktop?: DesktopBridgeAPI
   }
 }
 
@@ -46,8 +46,8 @@ let nextRevision = 0
 
 export type DesktopSubscription = { close(): void }
 
-function bridge(): Window["harnessDesktop"] | undefined {
-  return typeof window !== "undefined" ? window.harnessDesktop : undefined
+function bridge(): Window["supruDesktop"] | undefined {
+  return typeof window !== "undefined" ? window.supruDesktop : undefined
 }
 
 function emptySyncResult(): DesktopProfileSyncResult {
