@@ -33,6 +33,7 @@ jobs:
           for branch in $branches; do
             echo "=== Cleaning $branch ==="
             git checkout -B "$branch" "refs/remotes/origin/$branch"
+
             while IFS= read -r file; do
               [ -f "$file" ] || continue
               perl -0pi -e '
@@ -73,12 +74,5 @@ jobs:
               git push origin "HEAD:$branch"
             fi
           done
-
-          git checkout -B main refs/remotes/origin/main
-          if [ -f .github/workflows/repo-cleanup.yml ]; then
-            git rm .github/workflows/repo-cleanup.yml
-            git commit -m "chore: remove one-shot repository cleanup workflow"
-            git push origin HEAD:main
-          fi
 
           echo "Supru AI branch cleanup completed"
