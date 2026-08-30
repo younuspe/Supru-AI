@@ -8,7 +8,7 @@ import { createInterface } from "node:readline"
  * Codex allows a single writer per thread and takes the lock for the whole time a client holds the
  * thread open, so `session/load` answers "thread <id> already has an active writer" for every
  * session the Codex desktop app or a `codex` CLI is sitting on — which is precisely the sessions a
- * user wants to look at from their phone. Reading the rollout the harness already wrote takes no
+ * user wants to look at from their phone. Reading the rollout the bridge already wrote takes no
  * lock, so those sessions can be shown even while Codex itself owns them.
  *
  * The transcript comes from the `event_msg` records rather than the `response_item` ones: only the
