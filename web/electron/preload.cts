@@ -43,10 +43,7 @@ ipcRenderer.on(IPC_CHANNELS.menuCommand, (_event: Electron.IpcRendererEvent, com
   for (const callback of menuCallbacks) callback(command)
 })
 
-const harnessDesktop = Object.freeze({
-  // `usesNativeMenu` is what tells the renderer to stop drawing its own menu bar and stop binding
-  // its own accelerators: on the platform that has a real menu, both would be duplicates, and a
-  // shortcut handled twice toggles a panel back to where it started.
+const supruDesktop = Object.freeze({
   platform: Object.freeze({ isDesktop: true, os: process.platform, usesNativeMenu: process.platform === "darwin" }),
   replaceProfiles(profiles: DesktopProfile[], revision: number): Promise<DesktopProfileSyncResult> {
     return ipcRenderer.invoke(IPC_CHANNELS.replaceProfiles, profiles, revision)
@@ -80,4 +77,4 @@ const harnessDesktop = Object.freeze({
   }
 })
 
-contextBridge.exposeInMainWorld("harnessDesktop", harnessDesktop)
+contextBridge.exposeInMainWorld("supruDesktop", supruDesktop)
