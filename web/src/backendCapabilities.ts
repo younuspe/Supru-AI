@@ -1,6 +1,6 @@
-import type { BackendKind, HarnessCapabilities } from "./types"
+import type { BackendKind, SupruAICapabilities } from "./types"
 
-export const DEFAULT_HARNESS_CAPABILITIES: Record<BackendKind, HarnessCapabilities> = {
+export const DEFAULT_SUPRU_AI_CAPABILITIES: Record<BackendKind, SupruAICapabilities> = {
   opencode: {
     sessions: true,
     prompt: true,

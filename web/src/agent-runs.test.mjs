@@ -4,7 +4,7 @@ import { normalizeAgentRunStatus, toAgentRun } from './agentRuns.ts'
 const session = (overrides = {}) => ({
   id: 'session-1',
   title: 'Fix issue #131',
-  directory: '/work/harness-remote',
+  directory: '/work/supru-ai',
   updated: 1_723_456_789_000,
   status: 'idle',
   files: 0,
@@ -39,14 +39,14 @@ assert.deepEqual(openCodeRun, {
   backend: 'opencode',
   sessionId: 'session-1',
   title: 'Fix issue #131',
-  directory: '/work/harness-remote',
+  directory: '/work/supru-ai',
   status: 'working',
   updatedAt: 1_723_456_789_000
 })
 
 const codexRun = toAgentRun(session({ id: 'codex-session', status: 'waiting' }), 'codex', {
   machineId: 'workstation',
-  projectId: 'harness-remote',
+  projectId: 'supru-ai',
   startedAt: 1_723_456_000_000
 })
 assert.equal(codexRun.backend, 'codex')
@@ -54,7 +54,7 @@ assert.equal(codexRun.sessionId, 'codex-session')
 assert.equal(codexRun.status, 'waiting')
 assert.equal(codexRun.attention, undefined, 'waiting on agent/subagent work is not user attention')
 assert.equal(codexRun.machineId, 'workstation')
-assert.equal(codexRun.projectId, 'harness-remote')
+assert.equal(codexRun.projectId, 'supru-ai')
 assert.equal(codexRun.startedAt, 1_723_456_000_000)
 
 const questionRun = toAgentRun(session(), 'opencode', {

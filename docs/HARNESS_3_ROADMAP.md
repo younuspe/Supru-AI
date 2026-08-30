@@ -2,11 +2,11 @@
 
 > **Status:** product direction, not a promise that every item below will ship exactly as written.
 >
-> Execution is tracked in [roadmap issue #133](https://github.com/giuliastro/harness-remote/issues/133). Issues and PRs are canonical for implementation scope; this document is canonical for product direction and sequencing rationale.
+> Execution is tracked in [roadmap issue #133](https://github.com/younuspe/Supru-AI/issues/133). Issues and PRs are canonical for implementation scope; this document is canonical for product direction and sequencing rationale.
 
 ## 1. Vision
 
-Harness Remote started as a companion for controlling coding agents away from the primary workstation. Remote control remains useful, but it is no longer a sufficient product identity.
+Supru AI started as a companion for controlling coding agents away from the primary workstation. Remote control remains useful, but it is no longer a sufficient product identity.
 
 Harness should evolve into a **local-first control plane for running AI coding work across the user's machines**.
 

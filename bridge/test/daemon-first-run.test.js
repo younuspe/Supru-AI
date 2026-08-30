@@ -15,7 +15,7 @@ test("a daemon started without --backend resolves one from PATH", () => {
 test("an explicit backend and the environment both outrank detection", () => {
   const never = () => { throw new Error("detection must not run when the backend is named") }
   assert.equal(parseDaemonOptions(["--backend", "claude"], {}, never).config.backend, "claude")
-  assert.equal(parseDaemonOptions([], { HARNESS_REMOTE_BACKEND: "codex" }, never).config.backend, "codex")
+  assert.equal(parseDaemonOptions([], { SUPRU_AI_BACKEND: "codex" }, never).config.backend, "codex")
   assert.equal(parseDaemonOptions([], { OMP_BRIDGE_BACKEND: "codex" }, never).config.backend, "codex")
 })
 
@@ -32,7 +32,7 @@ test("a machine with no supported agent is refused rather than defaulted", () =>
 test("the managed OpenCode readiness timeout can be raised", () => {
   assert.equal(parseDaemonOptions([], {}, detect()).openCodeTimeout, 15000)
   assert.equal(parseDaemonOptions(["--opencode-timeout", "60000"], {}, detect()).openCodeTimeout, 60000)
-  assert.equal(parseDaemonOptions([], { HARNESS_REMOTE_OPENCODE_TIMEOUT: "45000" }, detect()).openCodeTimeout, 45000)
+  assert.equal(parseDaemonOptions([], { SUPRU_AI_OPENCODE_TIMEOUT: "45000" }, detect()).openCodeTimeout, 45000)
   assert.throws(() => parseDaemonOptions(["--opencode-timeout", "5"], {}, detect()), /at least 1000/)
 })
 

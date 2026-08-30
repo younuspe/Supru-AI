@@ -70,7 +70,7 @@ app.whenReady().then(() => {
   let installed
   try {
     Menu.setApplicationMenu(Menu.buildFromTemplate(buildApplicationMenu(parsed, {
-      appName: "Harness Remote",
+      appName: "Supru AI",
       isMac,
       onCommand: () => {}
     })))
@@ -90,7 +90,7 @@ app.whenReady().then(() => {
   // Electron fills these in from the role, so their exact wording is the platform's business — that
   // there are two more menus than the app supplied is what matters.
   check(installed.items.length === (isMac ? 7 : 6), `expected the app menus plus Edit and Window, got ${JSON.stringify(labels)}`)
-  if (isMac) check(labels[0] === "Harness Remote", `the macOS app menu must come first and carry the app name, got ${JSON.stringify(labels[0])}`)
+  if (isMac) check(labels[0] === "Supru AI", `the macOS app menu must come first and carry the app name, got ${JSON.stringify(labels[0])}`)
 
   const file = installed.items.find((item) => item.label === "File")?.submenu
   check(Boolean(file), "the File menu has no submenu")

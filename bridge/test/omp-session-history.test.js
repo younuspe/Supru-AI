@@ -6,7 +6,7 @@ import test from "node:test"
 import { createOmpHistoryLoader } from "../src/omp-session-history.js"
 
 test("reads only the authoritative branch from an OMP session transcript", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "harness-remote-omp-history-"))
+  const root = await mkdtemp(path.join(tmpdir(), "supru-ai-omp-history-"))
   const nested = path.join(root, "workspace")
   await mkdir(nested)
   const sessionID = "session-1"
@@ -40,7 +40,7 @@ test("reads only the authoritative branch from an OMP session transcript", async
 })
 
 test("replays a persisted image so an attachment survives reopening the session", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "harness-remote-omp-image-"))
+  const root = await mkdtemp(path.join(tmpdir(), "supru-ai-omp-image-"))
   const sessionID = "session-image"
   // OMP re-encodes what it receives and stores no filename, so the mime must come from the
   // record rather than from what the app originally uploaded.
@@ -82,7 +82,7 @@ test("replays a persisted image so an attachment survives reopening the session"
 })
 
 test("ignores an image record carrying no payload", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "harness-remote-omp-image-empty-"))
+  const root = await mkdtemp(path.join(tmpdir(), "supru-ai-omp-image-empty-"))
   const sessionID = "session-empty-image"
   const records = [
     {

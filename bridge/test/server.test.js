@@ -624,7 +624,7 @@ test("requires Basic Auth before exposing bridge endpoints", async () => {
   try {
     const response = await fetch(`${bridge.baseURL}/global/health`)
     assert.equal(response.status, 401)
-    assert.equal(response.headers.get("www-authenticate"), 'Basic realm="Harness Remote Bridge"')
+    assert.equal(response.headers.get("www-authenticate"), 'Basic realm="Supru AI Bridge"')
   } finally {
     await bridge.close()
   }
@@ -868,7 +868,7 @@ test("renames and hides ACP sessions through OpenCode-compatible endpoints", asy
 })
 
 test("persists renamed and deleted sessions across bridge restarts", async () => {
-  const snapshotDirectory = await mkdtemp(path.join(tmpdir(), "harness-remote-session-state-"))
+  const snapshotDirectory = await mkdtemp(path.join(tmpdir(), "supru-ai-session-state-"))
   try {
     const renamed = new AcpService(new FakeAcp(), { snapshotDirectory })
     await renamed.renameSession("session-1", "Persistent title")
@@ -1196,7 +1196,7 @@ test("restores messages from disk when ACP replay is empty or partial after rest
     notify() {}
   }
 
-  const snapshotDirectory = await mkdtemp(path.join(tmpdir(), "harness-remote-snapshots-"))
+  const snapshotDirectory = await mkdtemp(path.join(tmpdir(), "supru-ai-snapshots-"))
   try {
     const expectedMessages = ["First", "Second", "Third"]
     const first = new AcpService(new SnapshotReplayAcp(expectedMessages, "Old todo"), { snapshotDirectory })
@@ -1378,7 +1378,7 @@ test("merges bridge-only legacy prompts into native external history by timestam
     envelope("native-first", "user", "First", 1_000),
     envelope("native-last", "assistant", "Last", 3_000)
   ]
-  const snapshotDirectory = await mkdtemp(path.join(tmpdir(), "harness-remote-external-"))
+  const snapshotDirectory = await mkdtemp(path.join(tmpdir(), "supru-ai-external-"))
   const snapshotPath = path.join(snapshotDirectory, `${Buffer.from("external-1").toString("base64url")}.json`)
   await writeFile(snapshotPath, JSON.stringify({
     version: 1,
@@ -1439,7 +1439,7 @@ test("continues sessions created by another OMP client and reacquires them after
     info: { id: `${sessionID}-history-${created}`, role: "assistant", sessionID, time: { created } },
     parts: [{ id: `${sessionID}-history-${created}:text`, type: "text", text }]
   })
-  const snapshotDirectory = await mkdtemp(path.join(tmpdir(), "harness-remote-ownership-"))
+  const snapshotDirectory = await mkdtemp(path.join(tmpdir(), "supru-ai-ownership-"))
   const acp = new OwnershipAcp()
   const nativeHistory = new Map()
   const historyLoader = async (sessionID) => nativeHistory.get(sessionID) ?? [persistedMessage(sessionID)]

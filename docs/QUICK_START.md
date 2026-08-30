@@ -1,9 +1,9 @@
-# Harness Remote quick start
+# Supru AI quick start
 
-The shortest setup path uses the `harness-remote` launcher.
+The shortest setup path uses the `supru-ai` launcher.
 
 ```bash
-npx github:giuliastro/harness-remote
+npx github:younuspe/Supru-AI
 ```
 
 From a local checkout the equivalent path is:
@@ -16,7 +16,7 @@ npm start
 When installed as a repository/package binary, the command is:
 
 ```bash
-harness-remote
+supru-ai
 ```
 
 The root package intentionally remains private for now: this documents a real GitHub/repository launch path without claiming that an npm package has already been published.
@@ -39,7 +39,7 @@ The supported CLI names are `omp`, `pi`, `claude`, `codex`, and `opencode`.
 For example, on a workstation with Codex, Claude Code and OpenCode installed, the plain command:
 
 ```bash
-harness-remote
+supru-ai
 ```
 
 starts one machine daemon instead of failing and asking you to choose a backend. The launcher reports the CLIs it detected, selects an ACP primary, finds a free loopback port for managed OpenCode, and exposes the machine through one authenticated daemon connection.
@@ -59,25 +59,25 @@ Other detected ACP CLIs are reported by discovery but are not all instantiated c
 On a multi-agent machine, choose the daemon's ACP primary with:
 
 ```bash
-harness-remote --backend codex --root ~/dev
+supru-ai --backend codex --root ~/dev
 ```
 
 To deliberately use the old single-agent runtime instead:
 
 ```bash
-harness-remote --single --backend codex --root ~/dev
+supru-ai --single --backend codex --root ~/dev
 ```
 
 For loopback-only single-agent use:
 
 ```bash
-harness-remote --single --backend omp --host 127.0.0.1
+supru-ai --single --backend omp --host 127.0.0.1
 ```
 
 For a fixed LAN port and your own credentials:
 
 ```bash
-harness-remote \
+supru-ai \
   --backend claude \
   --port 4900 \
   --username harness \
@@ -88,10 +88,10 @@ If OpenCode is present on a multi-agent machine, an existing process already usi
 
 ## OpenCode
 
-When OpenCode is the only selected backend, Harness Remote starts `opencode serve` itself, passes credentials through `OPENCODE_SERVER_USERNAME` and `OPENCODE_SERVER_PASSWORD`, verifies the authenticated health endpoint, prints connection details, and supervises the child process until shutdown.
+When OpenCode is the only selected backend, Supru AI starts `opencode serve` itself, passes credentials through `OPENCODE_SERVER_USERNAME` and `OPENCODE_SERVER_PASSWORD`, verifies the authenticated health endpoint, prints connection details, and supervises the child process until shutdown.
 
 ```bash
-harness-remote --backend opencode
+supru-ai --backend opencode
 ```
 
 When the automatic machine daemon path is selected, OpenCode instead stays on its managed loopback listener and the client reaches it through the daemon's agent-scoped proxy. The phone/web/desktop client therefore does not need direct access to the internal OpenCode port.
@@ -107,7 +107,7 @@ npm run daemon -- --backend codex --host 127.0.0.1
 or:
 
 ```bash
-harness-remote-daemon --backend codex --host 127.0.0.1
+supru-ai-daemon --backend codex --host 127.0.0.1
 ```
 
 `GET /v1/machine` and `GET /global/machine` expose the shared machine registry and stable machine identity. Host lifecycle is isolated: an unavailable managed host does not make the machine disappear.
@@ -126,16 +126,16 @@ The selected primary ACP agent is routed through the normalized bridge API. Mana
 Managed OpenCode binds to `127.0.0.1` by default even when the daemon binds to `0.0.0.0`. Wider exposure is explicit:
 
 ```bash
-harness-remote-daemon --backend codex --opencode-host 0.0.0.0
+supru-ai-daemon --backend codex --opencode-host 0.0.0.0
 ```
 
 Useful daemon options:
 
 ```bash
-harness-remote-daemon --backend claude --opencode-port 4901
-harness-remote-daemon --backend codex --opencode-command /custom/opencode
-harness-remote-daemon --backend codex --opencode-host 127.0.0.2
-harness-remote-daemon --backend omp --no-opencode
+supru-ai-daemon --backend claude --opencode-port 4901
+supru-ai-daemon --backend codex --opencode-command /custom/opencode
+supru-ai-daemon --backend codex --opencode-host 127.0.0.2
+supru-ai-daemon --backend omp --no-opencode
 ```
 
 For non-loopback daemon binding, the existing security rule still applies: username and password are required. The managed OpenCode listener remains loopback-only unless `--opencode-host` is supplied explicitly.

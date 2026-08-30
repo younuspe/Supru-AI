@@ -25,7 +25,7 @@ import {
 } from "./opencode-events"
 import { createTranslator, languageOptions, normalizeLanguage, type LanguageCode } from "./i18n"
 import { stripMarkdownDirectives } from "./markdownDirectives"
-import { DEFAULT_HARNESS_CAPABILITIES } from "./backendCapabilities"
+import { DEFAULT_SUPRU_AI_CAPABILITIES } from "./backendCapabilities"
 import { BACKEND_CLIENTS } from "./backendClient"
 import { copyToClipboard } from "./clipboard"
 import { backendDisplayName, isBridgeBackend } from "./backendSetup"
@@ -36,7 +36,7 @@ import { SessionComposer } from "./components/session-composer"
 import { SessionSidebar, SessionsPanel, formatTime, projectLabel, shortDirectory, type SessionRenameState } from "./components/session-list"
 import { createServerProfile, loadActiveServerProfile, loadServerProfiles, persistServerProfiles, type SavedServerProfile } from "./serverProfiles"
 import type { DesktopMenuCommand, DesktopMenuTemplate } from "../electron/ipc-contract"
-import type { AgentOption, CommandInfo, DiffFile, FileEntry, FileStatusEntry, HarnessAction, HarnessCapabilities, MessageEnvelope, MessagePart, ModelOption, ModelSelection, PathInfo, PermissionRequest, ProjectDashboard, QuestionInfo, QuestionRequest, ServerConfig, Session, SessionStatus, SessionView, TodoItem } from "./types"
+import type { AgentOption, CommandInfo, DiffFile, FileEntry, FileStatusEntry, SupruAIAction, SupruAICapabilities, MessageEnvelope, MessagePart, ModelOption, ModelSelection, PathInfo, PermissionRequest, ProjectDashboard, QuestionInfo, QuestionRequest, ServerConfig, Session, SessionStatus, SessionView, TodoItem } from "./types"
 import {
   SettingsIcon,
   ArrowLeftIcon,
@@ -2083,10 +2083,10 @@ function App() {
   const t = useMemo(() => createTranslator(language), [language])
 
   const [draftConfig, setDraftConfig] = useState<ServerConfig>(config)
-  const [capabilities, setCapabilities] = useState<HarnessCapabilities>(() => DEFAULT_HARNESS_CAPABILITIES[config.backend])
+  const [capabilities, setCapabilities] = useState<SupruAICapabilities>(() => DEFAULT_SUPRU_AI_CAPABILITIES[config.backend])
   const [connectedVersion, setConnectedVersion] = useState<string>("")
   const [commands, setCommands] = useState<CommandInfo[]>([])
-  const [extensionActions, setExtensionActions] = useState<HarnessAction[]>([])
+  const [extensionActions, setExtensionActions] = useState<SupruAIAction[]>([])
   const [commandFilter, setCommandFilter] = useState<"all" | "skill">("all")
   const [agentOptions, setAgentOptions] = useState<AgentOption[]>([])
   const [agentLoadError, setAgentLoadError] = useState<string | null>(null)
@@ -3438,7 +3438,7 @@ function App() {
   }, [capabilities.agents, capabilities.models, config.backend, config.host, config.port, config.username, config.password, selectedSession?.id, selectedNewSessionDirectory])
 
   useEffect(() => {
-    const fallback = DEFAULT_HARNESS_CAPABILITIES[config.backend]
+    const fallback = DEFAULT_SUPRU_AI_CAPABILITIES[config.backend]
     // A staged image belongs to the connection it was staged on, and the next server may not accept
     // images at all: dropping it here keeps the chips from outliving the control that made them.
     setAttachments([])
@@ -4982,7 +4982,7 @@ function App() {
             <div className="help-content fade-in">
               <h3>{isBridgeBackend(config.backend) ? `${backendDisplayName(config.backend)} bridge` : "OpenCode server"}</h3>
               <p>
-                This page keeps setup brief. Full, versioned backend guides live in the Harness Remote repository so new
+                This page keeps setup brief. Full, versioned backend guides live in the Supru AI repository so new
                 backends do not make the app help unwieldy.
               </p>
               <div className="code-blocks">
@@ -5017,7 +5017,7 @@ function App() {
               </div>
               <p>
                 <a
-                  href={`https://github.com/giuliastro/harness-remote#${config.backend === "opencode" ? "opencode-server-setup" : config.backend === "pi" ? "pi-bridge-setup" : config.backend === "claude" ? "claude-code-bridge-setup" : config.backend === "codex" ? "codex-bridge-setup" : "oh-my-pi-bridge-setup"}`}
+                  href={`https://github.com/younuspe/Supru-AI#${config.backend === "opencode" ? "opencode-server-setup" : config.backend === "pi" ? "pi-bridge-setup" : config.backend === "claude" ? "claude-code-bridge-setup" : config.backend === "codex" ? "codex-bridge-setup" : "oh-my-pi-bridge-setup"}`}
                   target="_blank"
                   rel="noreferrer"
                 >

@@ -88,7 +88,7 @@ test('validated registry rejects unsafe targets and persists approved profiles',
   assert.throws(() => validateDesktopProfile({ ...localProfile, host: 'example.com:123' }), /port/)
   assert.throws(() => validateDesktopProfile({ ...localProfile, id: '' }), /ID/)
 
-  const directory = await mkdtemp(join(tmpdir(), 'harness-remote-'))
+  const directory = await mkdtemp(join(tmpdir(), 'supru-ai-'))
   const file = join(directory, 'profiles.json')
   const registry = new ProfileRegistry(file)
   await registry.replace([localProfile])
@@ -102,7 +102,7 @@ test('validated registry rejects unsafe targets and persists approved profiles',
   await rm(directory, { recursive: true, force: true })
 })
 test('registry applies a reloaded renderer snapshot with a restarted client revision', async () => {
-  const directory = await mkdtemp(join(tmpdir(), 'harness-remote-revisions-'))
+  const directory = await mkdtemp(join(tmpdir(), 'supru-ai-revisions-'))
   const registry = new ProfileRegistry(join(directory, 'profiles.json'))
   const empty = await registry.replace([], 1)
   assert.deepEqual(registry.ids(), [])

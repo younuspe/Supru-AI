@@ -1,4 +1,4 @@
-const CACHE_NAME = "harness-remote-v1"
+const CACHE_NAME = "supru-ai-v1"
 
 self.addEventListener("install", (event) => {
   const scope = self.registration.scope

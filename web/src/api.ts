@@ -3,7 +3,7 @@ import { desktopRequest, isDesktopPlatform } from "./desktopBridge"
 import { streamURL } from "./opencode-events"
 import { authHeader, baseUrl, hasCredentials, isValidServerConfig } from "./serverConfig"
 import type { AttachmentPart } from "./attachments"
-import type { AgentOption, CommandInfo, DiffFile, FileStatusEntry, FileEntry, HealthResponse, HarnessCapabilities, HarnessAction, HarnessActionResult, MessageEnvelope, ModelOption, ModelSelection, ProjectCurrent, PathInfo, QuestionRequest, PermissionRequest, ServerConfig, Session, SessionStatus, TodoItem, VcsStatus } from "./types"
+import type { AgentOption, CommandInfo, DiffFile, FileStatusEntry, FileEntry, HealthResponse, SupruAICapabilities, SupruAIAction, SupruAIActionResult, MessageEnvelope, ModelOption, ModelSelection, ProjectCurrent, PathInfo, QuestionRequest, PermissionRequest, ServerConfig, Session, SessionStatus, TodoItem, VcsStatus } from "./types"
 
 export { baseUrl, isValidServerConfig }
 
@@ -81,7 +81,7 @@ function modelWireName(model?: ModelSelection) { if (!model) return undefined; r
 export const api = {
   eventStream(config: ServerConfig) { const headers: Record<string, string> = {}; if (hasCredentials(config)) headers.Authorization = authHeader(config); return { url: streamURL(baseUrl(config), "global"), headers } },
   health(config: ServerConfig) { return request<HealthResponse>(config, "/global/health") },
-  capabilities(config: ServerConfig) { return request<HarnessCapabilities>(config, "/v1/capabilities") },
+  capabilities(config: ServerConfig) { return request<SupruAICapabilities>(config, "/v1/capabilities") },
   informationSearch(config: ServerConfig, query: string, limit = 6) { return request<InformationSearchResponse>(config, `/v1/information/search?q=${encodeURIComponent(query)}&limit=${encodeURIComponent(String(limit))}`) },
   listSessions(config: ServerConfig, directory?: string) { return request<Session[]>(config, withDirectory("/session", directory)) },
   async listGlobalSessions(config: ServerConfig) { const sessions: Session[] = []; let cursor: string | undefined; do { const path = cursor ? `/experimental/session?cursor=${encodeURIComponent(cursor)}` : "/experimental/session"; const response = await requestWithHeaders<Session[]>(config, path); sessions.push(...response.data); cursor = response.headers["x-next-cursor"] } while (cursor); return sessions },
@@ -130,8 +130,8 @@ export const api = {
   loadProjectCurrent(config: ServerConfig, directory?: string) { return request<ProjectCurrent>(config, withDirectory("/project/current", directory)) },
   loadVcs(config: ServerConfig, directory?: string) { return request<VcsStatus>(config, withDirectory("/vcs", directory)) },
   loadFileStatus(config: ServerConfig, directory?: string) { return request<FileStatusEntry[] | Record<string, FileStatusEntry>>(config, withDirectory("/file/status", directory)) },
-  listActions(config: ServerConfig, sessionID: string, directory?: string) { return request<HarnessAction[]>(config, withDirectory(`/session/${sessionID}/action`, directory)) },
-  invokeAction(config: ServerConfig, sessionID: string, actionID: string, directory?: string) { return request<HarnessActionResult>(config, withDirectory(`/session/${sessionID}/action/${encodeURIComponent(actionID)}`, directory), { method: "POST", body: {}, readTimeout: 300_000 }) },
+  listActions(config: ServerConfig, sessionID: string, directory?: string) { return request<SupruAIAction[]>(config, withDirectory(`/session/${sessionID}/action`, directory)) },
+  invokeAction(config: ServerConfig, sessionID: string, actionID: string, directory?: string) { return request<SupruAIActionResult>(config, withDirectory(`/session/${sessionID}/action/${encodeURIComponent(actionID)}`, directory), { method: "POST", body: {}, readTimeout: 300_000 }) },
   sendPrompt(config: ServerConfig, sessionID: string, text: string, directory?: string, model?: ModelSelection, agentID?: string, attachments: AttachmentPart[] = []) { return request<boolean>(config, withDirectory(`/session/${sessionID}/prompt_async`, directory), { method: "POST", body: { parts: [{ type: "text", text }, ...attachments], model: toModelBody(model), agent: agentID, variant: model?.variant || undefined } }) },
   sendCommand(config: ServerConfig, sessionID: string, command: string, argumentsText: string, directory?: string, model?: ModelSelection, agentID?: string) { return request<MessageEnvelope>(config, withDirectory(`/session/${sessionID}/command`, directory), { method: "POST", body: { command, arguments: argumentsText, agent: agentID, model: modelWireName(model), variant: model?.variant || undefined }, readTimeout: 300_000 }) },
   revertMessage(config: ServerConfig, sessionID: string, messageID: string, directory?: string) { return request<Session>(config, withDirectory(`/session/${sessionID}/revert`, directory), { method: "POST", body: { messageID } }) },

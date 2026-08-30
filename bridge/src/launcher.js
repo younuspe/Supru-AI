@@ -156,8 +156,8 @@ export function buildDaemonArgs(args, { backend, host, port, openCode, openCodeP
 export function bridgeEnvironment(environment, username, password) {
   return {
     ...environment,
-    HARNESS_REMOTE_USERNAME: username,
-    HARNESS_REMOTE_PASSWORD: password
+    SUPRU_AI_USERNAME: username,
+    SUPRU_AI_PASSWORD: password
   }
 }
 
@@ -193,7 +193,7 @@ export function lanAddresses(interfaces = networkInterfaces()) {
 }
 
 export function launcherUsage() {
-  return `Usage: harness-remote [options]\n\nQuick start options:\n  --backend <name>       Select omp, pi, claude, codex, or opencode (on multi-agent machines, selects the daemon primary)\n  --single               Force the legacy single-backend path instead of the machine daemon\n  --host <host>          Bind host (quick-start default: 0.0.0.0)\n  --port <port>          Preferred port (OpenCode single-host default: 4096; daemon/ACP default: 4097)\n  --username <username>  Override generated Basic Auth username\n  --password <password>  Override generated Basic Auth password\n  --help                 Show this help\n\nWith one detected agent, Harness starts the existing single-backend path. With multiple detected agents and at least one ACP backend, it starts the machine daemon automatically; OpenCode is included when installed and receives a free loopback port automatically.`
+  return `Usage: supru-ai [options]\n\nQuick start options:\n  --backend <name>       Select omp, pi, claude, codex, or opencode (on multi-agent machines, selects the daemon primary)\n  --single               Force the legacy single-backend path instead of the machine daemon\n  --host <host>          Bind host (quick-start default: 0.0.0.0)\n  --port <port>          Preferred port (OpenCode single-host default: 4096; daemon/ACP default: 4097)\n  --username <username>  Override generated Basic Auth username\n  --password <password>  Override generated Basic Auth password\n  --help                 Show this help\n\nWith one detected agent, Harness starts the existing single-backend path. With multiple detected agents and at least one ACP backend, it starts the machine daemon automatically; OpenCode is included when installed and receives a free loopback port automatically.`
 }
 
 export async function startManagedOpenCode({ host, port, username, password, command = "opencode", Host = ManagedOpenCodeHost } = {}) {
@@ -285,7 +285,7 @@ async function main() {
 
   const addresses = host === "0.0.0.0" ? lanAddresses() : [host]
 
-  process.stdout.write("Harness Remote quick start\n\n")
+  process.stdout.write("Supru AI quick start\n\n")
   process.stdout.write("Enter this in the app:\n")
   if (addresses.length) {
     for (const address of addresses) process.stdout.write(`  Address   http://${address}:${port}\n`)
@@ -319,7 +319,7 @@ async function main() {
   if (backend === "opencode") {
     process.stdout.write("\nStarting managed OpenCode host...\n")
     const managed = await startManagedOpenCode({ host, port, username, password })
-    process.stdout.write(`OpenCode is ready on ${host}:${port}. Keep this process running while Harness Remote is connected.\n`)
+    process.stdout.write(`OpenCode is ready on ${host}:${port}. Keep this process running while Supru AI is connected.\n`)
 
     let shuttingDown = false
     const shutdown = createManagedShutdown(managed)

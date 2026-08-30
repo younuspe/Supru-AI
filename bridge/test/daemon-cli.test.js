@@ -3,8 +3,8 @@ import test from "node:test"
 import { ensureOpenCodePortAvailable, parseDaemonOptions } from "../src/daemon-cli.js"
 
 const loopbackEnv = {
-  HARNESS_REMOTE_HOST: "127.0.0.1",
-  HARNESS_REMOTE_BACKEND: "codex"
+  SUPRU_AI_HOST: "127.0.0.1",
+  SUPRU_AI_BACKEND: "codex"
 }
 
 test("daemon defaults to one ACP primary plus loopback managed OpenCode", () => {
@@ -19,9 +19,9 @@ test("daemon defaults to one ACP primary plus loopback managed OpenCode", () => 
 
 test("daemon does not inherit a LAN daemon bind for managed OpenCode", () => {
   const parsed = parseDaemonOptions(["--host", "0.0.0.0"], {
-    HARNESS_REMOTE_BACKEND: "codex",
-    HARNESS_REMOTE_USERNAME: "harness",
-    HARNESS_REMOTE_PASSWORD: "secret"
+    SUPRU_AI_BACKEND: "codex",
+    SUPRU_AI_USERNAME: "harness",
+    SUPRU_AI_PASSWORD: "secret"
   })
   assert.equal(parsed.config.host, "0.0.0.0")
   assert.equal(parsed.openCodeHost, "127.0.0.1")

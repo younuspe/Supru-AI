@@ -10,7 +10,7 @@ export type ServerConfig = {
   agentId?: string
 }
 
-export type HarnessCapabilities = {
+export type SupruAICapabilities = {
   sessions: boolean
   prompt: boolean
   abort: boolean
@@ -36,7 +36,7 @@ export type MachineAgentHost = {
   transport: string
   managed: boolean
   state: "configured" | "available" | "unavailable" | string
-  capabilities: Partial<HarnessCapabilities> & Record<string, unknown>
+  capabilities: Partial<SupruAICapabilities> & Record<string, unknown>
   processID?: number
 }
 
@@ -271,15 +271,15 @@ export type CommandInfo = {
   source?: "command" | "mcp" | "skill"
 }
 
-export type HarnessAction = {
+export type SupruAIAction = {
   id: string
   source?: string
   enabled: boolean
 }
 
-export type HarnessActionResult = {
+export type SupruAIActionResult = {
   action: string
   applied: boolean | null
-  actions: HarnessAction[]
+  actions: SupruAIAction[]
   sessionRevision?: string
 }

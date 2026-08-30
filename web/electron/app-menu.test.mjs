@@ -30,9 +30,9 @@ const template = [
 const labelsOf = (menu) => menu.map((entry) => entry.label ?? entry.role)
 
 test('macOS menu keeps the app, Edit and Window menus in platform order', () => {
-  const menu = buildApplicationMenu(template, { appName: 'Harness Remote', isMac: true, onCommand: () => {} })
+  const menu = buildApplicationMenu(template, { appName: 'Supru AI', isMac: true, onCommand: () => {} })
   // Edit has to sit right after File or Cmd+C/V/X land in a menu nobody looks in, and Help is last.
-  assert.deepEqual(labelsOf(menu), ['Harness Remote', 'File', 'editMenu', 'View', 'windowMenu', 'Help'])
+  assert.deepEqual(labelsOf(menu), ['Supru AI', 'File', 'editMenu', 'View', 'windowMenu', 'Help'])
 })
 
 test('a renderer menu the platform does not name is still placed, not dropped', () => {

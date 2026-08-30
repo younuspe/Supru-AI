@@ -25,12 +25,12 @@ assert.ok(i18n.includes("'settings.testedNotSaved'"), 'Test success should remai
 assert.ok(app.includes('function canTestConfig'), 'Settings should have a central testability check for required connection fields')
 assert.ok(app.includes('disabled={testingConnection || !canTestDraft || testAlreadyPassedForDraft}'), 'Test button should be disabled when fields are missing, testing is active, or the unchanged configuration already passed')
 assert.ok(app.includes('connection-help'), 'Settings should explain whether the current configuration can be tested')
-assert.ok(app.includes('Full, versioned backend guides live in the Harness Remote repository'), 'Help should link out instead of duplicating every backend guide')
+assert.ok(app.includes('Full, versioned backend guides live in the Supru AI repository'), 'Help should link out instead of duplicating every backend guide')
 assert.ok(app.includes('"oh-my-pi-bridge-setup"') && app.includes('"pi-bridge-setup"') && app.includes('"opencode-server-setup"') && app.includes('"codex-bridge-setup"'), 'Help should select the repository guide for the active backend')
 assert.ok(app.includes('<option value="pi">PI (ACP bridge)</option>'), 'Settings should expose the PI backend')
 assert.ok(app.includes('<option value="codex">Codex CLI (ACP bridge)</option>'), 'Settings should expose the Codex backend')
 assert.ok(app.includes('health.backend && health.backend !== configToTest.backend'), 'Connection tests should reject a bridge for the wrong backend')
-assert.ok(app.includes('https://github.com/giuliastro/harness-remote#'), 'Help should link to the canonical repository')
+assert.ok(app.includes('https://github.com/younuspe/Supru-AI#'), 'Help should link to the canonical repository')
 assert.equal(app.includes('https://github.com/gervaso-assistant/opencode-remote-android#'), false, 'Help must not link to the obsolete repository owner')
 
 // A daemon-backed connection discovers the machine before falling back to the backend-specific

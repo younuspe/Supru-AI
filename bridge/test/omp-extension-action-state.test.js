@@ -10,7 +10,7 @@ const sessionID = "session-1"
 const sessionHash = createHash("sha256").update(sessionID).digest("hex")
 
 test("normalizes the omp-undo-redo navigation store into authoritative action state", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "harness-remote-omp-actions-"))
+  const root = await mkdtemp(path.join(tmpdir(), "supru-ai-omp-actions-"))
   const historyDirectory = path.join(root, "omp-undo-redo", "history")
   const statePath = path.join(historyDirectory, `${sessionHash}.json`)
   await mkdir(historyDirectory, { recursive: true })
@@ -55,7 +55,7 @@ test("returns no authoritative state outside Git instead of synthesizing action 
 })
 
 test("loads authoritative runtime state for a non-Git ACP process", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "harness-remote-omp-runtime-"))
+  const root = await mkdtemp(path.join(tmpdir(), "supru-ai-omp-runtime-"))
   const processID = 4242
   const runtimeDirectory = path.join(root, String(processID))
   const sessionsDirectory = path.join(runtimeDirectory, "sessions")
@@ -96,7 +96,7 @@ test("loads authoritative runtime state for a non-Git ACP process", async () => 
 })
 
 test("rejects runtime state from a different ACP process or runtime", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "harness-remote-omp-runtime-"))
+  const root = await mkdtemp(path.join(tmpdir(), "supru-ai-omp-runtime-"))
   const runtimeDirectory = path.join(root, "4242")
   await mkdir(path.join(runtimeDirectory, "sessions"), { recursive: true })
   await writeFile(path.join(runtimeDirectory, "runtime.json"), JSON.stringify({
@@ -129,7 +129,7 @@ test("rejects runtime state from a different ACP process or runtime", async () =
 })
 
 test("rejects normalized action state without an authoritative active leaf", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "harness-remote-omp-actions-"))
+  const root = await mkdtemp(path.join(tmpdir(), "supru-ai-omp-actions-"))
   const historyDirectory = path.join(root, "omp-undo-redo", "history")
   await mkdir(historyDirectory, { recursive: true })
   await writeFile(path.join(historyDirectory, `${sessionHash}.json`), JSON.stringify({
@@ -146,7 +146,7 @@ test("rejects normalized action state without an authoritative active leaf", asy
 })
 
 test("accepts the normalized optional action protocol with an explicit invocation result", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "harness-remote-omp-actions-"))
+  const root = await mkdtemp(path.join(tmpdir(), "supru-ai-omp-actions-"))
   const historyDirectory = path.join(root, "omp-undo-redo", "history")
   await mkdir(historyDirectory, { recursive: true })
   await writeFile(path.join(historyDirectory, `${sessionHash}.json`), JSON.stringify({
