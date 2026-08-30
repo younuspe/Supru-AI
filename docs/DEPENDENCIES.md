@@ -1,12 +1,12 @@
 # External dependencies and the assumptions behind them
 
 This app is a client for other people's software. Almost everything that has broken it broke
-because a harness behaved differently from what the code assumed — not because of a logic error.
+because a backend behaved differently from what the code assumed — not because of a logic error.
 This file records what we depend on, what we assume from it, and what to check when it changes.
 
 Keep it current. An assumption that is not written down is one nobody will re-check.
 
-## Harness surfaces
+## Backend surfaces
 
 ### OpenCode — HTTP API
 
@@ -38,7 +38,7 @@ First-party command, no third party in the path. The bridge uses `session/new`, 
 
 | Assumption | What breaks if it changes |
 |---|---|
-| `initialize` advertises `agentCapabilities.promptCapabilities.image` | the composer hides its attachment picker and the bridge refuses attachments; a harness that dropped the flag would lose the feature rather than fail a prompt |
+| `initialize` advertises `agentCapabilities.promptCapabilities.image` | the composer hides its attachment picker and the bridge refuses attachments; a backend that dropped the flag would lose the feature rather than fail a prompt |
 | A prompt may carry `{type:"image", mimeType, data}` blocks alongside text, and an image with no text is accepted | sending a bare screenshot would need a synthetic caption |
 | No `audio` prompt capability is advertised | voice would have to be transcribed before it reaches a prompt |
 | `session/load` replays a stored image as `user_message_chunk` with `content: {type:"image", data, mimeType}`, sharing the `messageId` of the text chunk in that turn | the thumbnail stops reappearing when a session is reopened, or lands in a message of its own |
@@ -63,7 +63,7 @@ and an invocation `actionResult` with a unique `token`. Process and runtime IDs 
 concurrent OMP state from controlling the session. This contract works for both Git and non-Git
 workspaces.
 
-File restoration remains extension-owned. Harness Remote invokes the same action and reloads the
+File restoration remains extension-owned. Supru AI invokes the same action and reloads the
 authoritative active branch; with extension 1.2.0 or newer, successful non-Git actions restore
 supported workspace file changes as well as conversation state. No bridge package dependency or
 alternate action path is required.
@@ -85,7 +85,7 @@ This is the only dependency that is neither ours nor first-party, and the one to
 - **Adapter:** [`@automatalabs/pi-acp`](https://www.npmjs.com/package/@automatalabs/pi-acp),
   Apache-2.0, in [`VikashLoomba/agentprism-workflows`](https://github.com/VikashLoomba/agentprism-workflows)
   under `packages/pi-acp`. Single maintainer (`automatalabsteam`).
-- **Pinned to `0.2.5`** in `bridge/src/harness-profiles.js`.
+- **Pinned to `0.2.5`** in `bridge/src/supru-profiles.js`.
 - **It is young and moves fast:** first published 2026-07-16, eleven versions in the following ten
   days. Treat a bump as a change worth testing, not a routine refresh.
 
@@ -144,7 +144,7 @@ party entirely.
 
 - **Adapter:** [`@agentclientprotocol/claude-agent-acp`](https://www.npmjs.com/package/@agentclientprotocol/claude-agent-acp),
   which wraps the Claude Agent SDK and speaks ACP over stdio. **Pinned to `0.63.0`** in
-  `bridge/src/harness-profiles.js`.
+  `bridge/src/supru-profiles.js`.
 - **Authentication:** the host must already have `claude login` credentials or
   `ANTHROPIC_API_KEY` available to the adapter. The bridge does not manage Claude credentials.
 - **Runtime:** Node.js 22 or newer. The first start downloads the pinned adapter through `npx`.
@@ -153,7 +153,7 @@ party entirely.
 
 | Assumption | What breaks if it changes |
 |---|---|
-| The adapter is an `npx`-installable ACP process and accepts the standard ACP handshake | the default command in `harness-profiles.js` no longer starts or authenticates |
+| The adapter is an `npx`-installable ACP process and accepts the standard ACP handshake | the default command in `supru-profiles.js` no longer starts or authenticates |
 | `session/list`, `session/load`, `session/prompt` and `session/cancel` expose the session surface used by the generic bridge | session browsing, history replay, prompting or cancellation stops working |
 | The `model` config option uses bare ids such as `sonnet` and `opus[1m]` | the model picker can no longer map the adapter's values back to the bridge |
 | Plan/todo updates arrive through the ACP notifications already handled by `AcpService` | the Claude Code todo panel stops updating |
@@ -174,7 +174,7 @@ expose agent selection, server slash commands or VCS/diff for this backend.
 
 - **Adapter:** [`@agentclientprotocol/codex-acp`](https://www.npmjs.com/package/@agentclientprotocol/codex-acp),
   published by the Agent Client Protocol project, MIT. **Pinned to `1.1.14`** in
-  `bridge/src/harness-profiles.js`.
+  `bridge/src/supru-profiles.js`.
 - **The adapter embeds `@openai/codex`**, so no separate Codex installation is needed on the host —
   but credentials still come from `codex login` (ChatGPT account) or an `OPENAI_API_KEY` in the
   bridge process environment.
@@ -240,19 +240,19 @@ rollout record shape, and any new `sessionUpdate` / notification shape.
 - Saved profiles are validated and persisted by main process under Electron `userData`; request and
   stream calls carry profile IDs plus relative operations, never complete target URLs.
 
-## When a harness changes
+## When a backend changes
 
 Unit tests will not catch this. Every quirk in the tables above was found by running a real agent,
 and the fakes in `bridge/test/` only lock in what was already learned.
 
-1. Run the harness for real: create a session, send a prompt, watch the reply stream, run a prompt
+1. Run the backend for real: create a session, send a prompt, watch the reply stream, run a prompt
    that uses a **tool**, and stop a run.
 2. Check whether a tool call actually did something. "Reported success and changed nothing" is the
    signature failure here.
 3. Reopen a session and confirm the history is intact and in order.
 4. Compare what you see against this file's tables, and update them in the same commit as the fix.
-5. Update the capability matrix in `bridge/src/harness-profiles.js` if the harness gained or lost
+5. Update the capability matrix in `bridge/src/supru-profiles.js` if the backend gained or lost
    something.
 
-For a version bump of the PI adapter specifically, the pin in `harness-profiles.js` is deliberate:
+For a version bump of the PI adapter specifically, the pin in `supru-profiles.js` is deliberate:
 change it consciously, run the checks above, then commit the new pin.
