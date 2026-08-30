@@ -23,9 +23,9 @@ test("detects OpenCode as a managed direct-HTTP backend", () => {
 test("delegates OpenCode startup to the managed host", async () => {
   let options
   class FakeHost { constructor(value) { options = value } async start() { this.started = true } }
-  const managed = await startManagedOpenCode({ host: "0.0.0.0", port: 4096, username: "harness", password: "secret", command: "/tools/opencode", Host: FakeHost })
+  const managed = await startManagedOpenCode({ host: "0.0.0.0", port: 4096, username: "supru", password: "secret", command: "/tools/opencode", Host: FakeHost })
   assert.equal(managed.started, true)
-  assert.deepEqual(options, { command: "/tools/opencode", host: "0.0.0.0", port: 4096, username: "harness", password: "secret" })
+  assert.deepEqual(options, { command: "/tools/opencode", host: "0.0.0.0", port: 4096, username: "supru", password: "secret" })
 })
 
 test("escalates a second shutdown signal from SIGTERM to SIGKILL", () => {
@@ -82,12 +82,12 @@ test("requires an installed or explicit backend when discovery finds none", () =
 })
 
 test("injects quick-start defaults but never places credentials or launcher-only flags on child argv", () => {
-  const argv = buildBridgeArgs(["--root", "/work", "--single", "--username", "harness", "--password", "secret"], { backend: "codex", host: "0.0.0.0", port: 4098 })
+  const argv = buildBridgeArgs(["--root", "/work", "--single", "--username", "supru", "--password", "secret"], { backend: "codex", host: "0.0.0.0", port: 4098 })
   assert.deepEqual(argv, ["--root", "/work", "--backend", "codex", "--host", "0.0.0.0", "--port", "4098"])
   assert.equal(argv.includes("secret"), false)
-  const environment = bridgeEnvironment({ PATH: "/bin" }, "harness", "secret")
-  assert.equal(environment.HARNESS_REMOTE_USERNAME, "harness")
-  assert.equal(environment.HARNESS_REMOTE_PASSWORD, "secret")
+  const environment = bridgeEnvironment({ PATH: "/bin" }, "supru", "secret")
+  assert.equal(environment.SUPRU_AI_USERNAME, "supru")
+  assert.equal(environment.SUPRU_AI_PASSWORD, "secret")
   assert.equal(environment.PATH, "/bin")
 })
 
