@@ -44,7 +44,7 @@ export function authenticateDaemonRequest(request, response, config) {
     return false
   }
   if (!matchesCredentials(request, config)) {
-    response.writeHead(401, { "WWW-Authenticate": 'Basic realm="Harness Remote Daemon"' })
+    response.writeHead(401, { "WWW-Authenticate": 'Basic realm="Supru Ai Bridge"' })
     response.end()
     return false
   }
