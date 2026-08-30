@@ -127,7 +127,7 @@ export function isDesktopMenuCommand(value: unknown): value is DesktopMenuComman
 
 /**
  * The renderer owns what the menu says and when each item applies — it is the side that knows the
- * language, the connected harness and the selected session. Main renders whatever it is handed and
+ * language, the connected backend and the selected session. Main renders whatever it is handed and
  * echoes clicks back as command ids, so the platform menu and the in-app one stay one implementation
  * rather than two that drift.
  */
