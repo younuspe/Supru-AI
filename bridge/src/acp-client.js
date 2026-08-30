@@ -37,40 +37,22 @@ export class AcpClient extends EventEmitter {
     this.#spawn = spawnProcess
   }
 
-  get agentInfo() {
-    return this.#agentInfo
-  }
-
-  get promptCapabilities() {
-    return this.#promptCapabilities
-  }
-
-  get processID() {
-    return Number.isInteger(this.#child?.pid) ? this.#child.pid : undefined
-  }
+  get agentInfo() { return this.#agentInfo }
+  get promptCapabilities() { return this.#promptCapabilities }
+  get processID() { return Number.isInteger(this.#child?.pid) ? this.#child.pid : undefined }
 
   async start() {
     if (this.#child) return
     if (this.#starting) return this.#starting
     this.#starting = this.#start()
-    try {
-      await this.#starting
-    } finally {
-      this.#starting = undefined
-    }
+    try { await this.#starting } finally { this.#starting = undefined }
   }
 
   async #start() {
     const windowsCommand = process.platform === "win32" && this.#spawn === spawn && /\.(cmd|bat)$/i.test(this.#command)
-      ? process.env.ComSpec ?? "cmd.exe"
-      : this.#command
-    const windowsArgs = windowsCommand === this.#command
-      ? this.#args
-      : ["/d", "/s", "/c", this.#command, ...this.#args]
-    const child = this.#spawn(windowsCommand, windowsArgs, {
-      stdio: ["pipe", "pipe", "pipe"],
-      windowsHide: true
-    })
+      ? process.env.ComSpec ?? "cmd.exe" : this.#command
+    const windowsArgs = windowsCommand === this.#command ? this.#args : ["/d", "/s", "/c", this.#command, ...this.#args]
+    const child = this.#spawn(windowsCommand, windowsArgs, { stdio: ["pipe", "pipe", "pipe"], windowsHide: true })
     this.#child = child
     this.#stderr = ""
     this.#stderrPartial = ""
@@ -86,14 +68,9 @@ export class AcpClient extends EventEmitter {
     })
     child.on("error", (error) => this.#handleExit(error))
     child.on("exit", (code, signal) => {
-      if (this.#stderrPartial) {
-        this.emit("stderr", this.#stderrPartial)
-        this.#stderrPartial = ""
-      }
+      if (this.#stderrPartial) { this.emit("stderr", this.#stderrPartial); this.#stderrPartial = "" }
       const reason = this.#stderrSummary()
-      this.#handleExit(new Error(
-        `ACP adapter exited (${code ?? "unknown"}${signal ? `, ${signal}` : ""})${reason ? `: ${reason}` : ""}`
-      ))
+      this.#handleExit(new Error(`ACP adapter exited (${code ?? "unknown"}${signal ? `, ${signal}` : ""})${reason ? `: ${reason}` : ""}`))
     })
 
     try {
@@ -104,70 +81,43 @@ export class AcpClient extends EventEmitter {
       }, START_TIMEOUT_MS)
       this.#agentInfo = initialized.agentInfo
       this.#promptCapabilities = initialized.agentCapabilities?.promptCapabilities ?? {}
-
       const authMethods = Array.isArray(initialized.authMethods) ? initialized.authMethods : []
-      let authMethod = this.#preferredAuthMethod
-        ? authMethods.find((method) => method?.id === this.#preferredAuthMethod)
-        : undefined
+      let authMethod = this.#preferredAuthMethod ? authMethods.find((method) => method?.id === this.#preferredAuthMethod) : undefined
       authMethod ??= authMethods.find((method) => method?.id === "agent")
         ?? authMethods.find((method) => method?.id && method.type !== "env_var")
         ?? authMethods.find((method) => method?.id)
-
       if (authMethod) {
-        // Authentication must not block the Bridge health check. The local Bridge is alive as soon
-        // as ACP has initialized. Requests that actually need the harness wait for this promise.
+        // Authentication must not block the Supru AI Bridge health check. The local Bridge is alive as soon
+        // as ACP has initialized. Requests that actually need the backend wait for this promise.
         this.#authentication = this.request("authenticate", { methodId: authMethod.id }, START_TIMEOUT_MS)
-          .catch((error) => {
-            this.emit("authentication-error", error)
-            throw error
-          })
+          .catch((error) => { this.emit("authentication-error", error); throw error })
       }
-    } catch (error) {
-      this.close()
-      throw error
-    }
+    } catch (error) { this.close(); throw error }
   }
 
   request(method, params, timeoutMs = REQUEST_TIMEOUT_MS) {
     const send = () => {
-      if (!this.#child || this.#child.killed || !this.#child.stdin.writable) {
-        return Promise.reject(new Error("ACP adapter is not running"))
-      }
+      if (!this.#child || this.#child.killed || !this.#child.stdin.writable) return Promise.reject(new Error("ACP adapter is not running"))
       const id = this.#nextID++
       const message = JSON.stringify({ jsonrpc: "2.0", id, method, params })
       return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => {
-          this.#pending.delete(id)
-          reject(new Error(`ACP adapter request timed out: ${method}`))
-        }, timeoutMs)
+        const timer = setTimeout(() => { this.#pending.delete(id); reject(new Error(`ACP adapter request timed out: ${method}`)) }, timeoutMs)
         this.#pending.set(id, { resolve, reject, timer })
         this.#child.stdin.write(`${message}\n`, (error) => {
-          if (error) {
-            clearTimeout(timer)
-            this.#pending.delete(id)
-            reject(error)
-          }
+          if (error) { clearTimeout(timer); this.#pending.delete(id); reject(error) }
         })
       })
     }
-
-    // initialize/authenticate are part of startup and must not wait on authentication itself.
     if (method === "initialize" || method === "authenticate") return send()
     return this.#authentication.then(send)
   }
 
   notify(method, params) {
-    if (!this.#child || this.#child.killed || !this.#child.stdin.writable) {
-      throw new Error("ACP adapter is not running")
-    }
+    if (!this.#child || this.#child.killed || !this.#child.stdin.writable) throw new Error("ACP adapter is not running")
     this.#child.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", method, params })}\n`)
   }
 
-  async listSessions() {
-    await this.start()
-    const result = await this.request("session/list", {})
-    return result.sessions ?? []
-  }
+  async listSessions() { await this.start(); const result = await this.request("session/list", {}); return result.sessions ?? [] }
 
   close() {
     const child = this.#child
@@ -190,12 +140,7 @@ export class AcpClient extends EventEmitter {
 
   #consumeMessage(line) {
     let message
-    try {
-      message = JSON.parse(line)
-    } catch {
-      this.emit("protocol-error", new Error("ACP adapter emitted invalid JSON"))
-      return
-    }
+    try { message = JSON.parse(line) } catch { this.emit("protocol-error", new Error("ACP adapter emitted invalid JSON")); return }
     if (message.id !== undefined && message.method) {
       this.emit("agent-request", message)
       if (message.method === "session/request_permission") this.#respondPermission(message.id, message.params)
@@ -218,13 +163,9 @@ export class AcpClient extends EventEmitter {
     if (!this.#child?.stdin.writable) return
     const options = Array.isArray(params?.options) ? params.options : []
     const allowed = this.#permissionMode === "allow"
-      ? options.find((option) => option.kind === "allow_once")
-        ?? options.find((option) => option.kind === "allow_always")
-        ?? options.find((option) => typeof option.kind === "string" && option.kind.startsWith("allow"))
+      ? options.find((option) => option.kind === "allow_once") ?? options.find((option) => option.kind === "allow_always") ?? options.find((option) => typeof option.kind === "string" && option.kind.startsWith("allow"))
       : undefined
-    const outcome = allowed?.optionId
-      ? { outcome: "selected", optionId: allowed.optionId }
-      : { outcome: "cancelled" }
+    const outcome = allowed?.optionId ? { outcome: "selected", optionId: allowed.optionId } : { outcome: "cancelled" }
     this.emit("permission", { optionId: allowed?.optionId })
     this.#child.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", id, result: { outcome } })}\n`)
   }
@@ -235,10 +176,7 @@ export class AcpClient extends EventEmitter {
     this.#child.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", id, error })}\n`)
   }
 
-  #stderrSummary() {
-    const lines = this.#stderr.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)
-    return lines.slice(-3).join(" ")
-  }
+  #stderrSummary() { return this.#stderr.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(-3).join(" ") }
 
   #handleExit(error) {
     if (!this.#child) return
@@ -250,10 +188,7 @@ export class AcpClient extends EventEmitter {
   }
 
   #rejectPending(error) {
-    for (const pending of this.#pending.values()) {
-      clearTimeout(pending.timer)
-      pending.reject(error)
-    }
+    for (const pending of this.#pending.values()) { clearTimeout(pending.timer); pending.reject(error) }
     this.#pending.clear()
   }
 }
