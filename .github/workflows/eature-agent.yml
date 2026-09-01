@@ -1,0 +1,26 @@
+name: From-Scratch Feature Agent
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  analyze_feature:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Review Layout and Requirements
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueBody = context.payload.issue.body;
+            let replyMessage = "🎯 **Agent Active:** I see you are designing a new feature from scratch!\n\n";
+            replyMessage += "⚠️ **Important Reminder:** Remember what happened last time! Do not just submit the main page. Ensure that you ask your AI assistant for *all* sub-pages and background files connected to this feature.\n\n";
+            replyMessage += "👉 **Next Step:** Copy the prompt from your issue description, paste it into your free AI tool (like ChatGPT or Claude), and bring the code files back here!";
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: replyMessage
+            });
