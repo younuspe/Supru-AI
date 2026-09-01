@@ -3,82 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supru-AI Dashboard</title>
+    <title>Supru AI Dashboard</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0d1117; color: #c9d1d9; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Sidebar layout */
-        .sidebar { width: 260px; background: #161b22; border-right: 1px solid #30363d; display: flex; flex-direction: column; padding: 20px; }
-        .logo { font-size: 20px; font-weight: bold; color: #58a6ff; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
-        .agent-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-        .agent-item { padding: 10px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 14px; transition: 0.2s; }
-        .agent-item:hover { background: #21262d; color: #58a6ff; }
-        .agent-item.active { background: #1f6feb; color: #ffffff; font-weight: 500; }
-        .agent-badge { font-size: 11px; padding: 2px 6px; border-radius: 10px; background: #30363d; margin-left: auto; color: #8b949e; }
+        /* Modern Reset and Cyberpunk Base Variables */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background: radial-gradient(circle at center, #0f131a 0%, #07090e 100%); color: #e1e7f0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* Main Workspace layout */
-        .main-content { flex: 1; display: flex; flex-direction: column; background: #0d1117; }
-        .header { height: 60px; border-bottom: 1px solid #30363d; display: flex; align-items: center; padding: 0 30px; background: #161b22; }
-        .header h2 { font-size: 16px; font-weight: 600; }
+        /* Modern Tinted Glass Sidebar Layout */
+        .sidebar { width: 280px; background: rgba(17, 22, 32, 0.75); backdrop-filter: blur(16px); border-right: 1px solid rgba(212, 175, 55, 0.15); display: flex; flex-direction: column; padding: 24px; justify-content: space-between; }
+        .sidebar-top { display: flex; flex-direction: column; gap: 20px; }
+        .bridge-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 14px; display: flex; align-items: center; justify-content: space-between; }
+        .bridge-info { display: flex; flex-direction: column; gap: 4px; }
+        .bridge-title { font-size: 14px; font-weight: 600; color: #ffffff; }
+        .status-indicator { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #4ade80; font-weight: 500; }
+        .status-dot { width: 6px; height: 6px; background-color: #4ade80; border-radius: 50%; box-shadow: 0 0 8px #4ade80; }
         
-        /* Chat History Box */
-        .chat-history { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-        .message { max-width: 70%; padding: 12px 16px; border-radius: 12px; font-size: 15px; line-height: 1.5; }
-        .message.system { background: #161b22; border: 1px solid #30363d; align-self: flex-start; }
-        .message.user { background: #1f6feb; color: white; align-self: flex-end; }
+        /* Sidebar Action Button */
+        .new-session-btn { background: linear-gradient(135deg, #d4af37 0%, #aa8416 100%); color: #07090e; border: none; border-radius: 8px; padding: 12px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2); transition: 0.3s; }
+        .new-session-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(212, 175, 55, 0.35); }
+        
+        /* Empty Session State Box */
+        .empty-state { background: rgba(255, 255, 255, 0.01); border: 1px dashed rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 30px 20px; text-align: center; margin-top: 10px; }
+        .empty-state p { font-size: 13px; color: #8a94a6; line-height: 1.5; }
+        .empty-state .highlight { color: #d4af37; font-weight: 500; display: block; margin-bottom: 4px; }
 
-        /* Chat Input Area */
-        .input-area { padding: 20px 30px 30px 30px; background: #0d1117; }
-        .input-container { background: #161b22; border: 1px solid #30363d; border-radius: 8px; display: flex; padding: 10px 15px; align-items: center; }
-        .input-container:focus-within { border-color: #58a6ff; }
-        input { flex: 1; background: transparent; border: none; color: #c9d1d9; font-size: 15px; outline: none; padding-right: 10px; }
-        button { background: #238636; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 14px; }
-        button:hover { background: #2ea043; }
+        /* Sidebar Bottom Identity Block */
+        .sidebar-bottom { display: flex; flex-direction: column; gap: 16px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 16px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; color: #a0aec0; font-size: 13px; padding: 8px 4px; cursor: pointer; transition: 0.2s; }
+        .nav-item:hover { color: #ffffff; }
+        .profile-section { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.02); padding: 10px; border-radius: 10px; }
+        .profile-avatar { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #d4af37; background: #111620; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .profile-info h4 { font-size: 13px; color: #ffffff; font-weight: 600; }
+        .profile-info p { font-size: 11px; color: #718096; }
+
+        /* Main Workspace Section */
+        .main-workspace { flex: 1; display: flex; flex-direction: column; position: relative; }
+        
+        /* Top Navigation Header bar */
+        .top-bar { height: 56px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); display: flex; align-items: center; justify-content: flex-end; padding: 0 24px; background: rgba(7, 9, 14, 0.4); }
+        .top-status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #a0aec0; }
+        .top-status-dot { width: 8px; height: 8px; background-color: #4ade80; border-radius: 50%; box-shadow: 0 0 10px #4ade80; }
+
+        /* Central Immersive Splash View */
+        .central-display { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; }
+        
+        /* Glowing Avatar Aura Frame */
+        .avatar-aura { width: 200px; height: 200px; border-radius: 50%; background: linear-gradient(180deg, #d4af37 0%, rgba(212, 175, 55, 0.1) 100%); padding: 3px; box-shadow: 0 20px 50px rgba(212, 175, 55, 0.15); margin-bottom: 24px; position: relative; }
+        .avatar-inner { width: 100%; height: 100%; border-radius: 50%; background: #07090e; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .avatar-inner img { width: 105%; height: 105%; object-fit: cover; }
+        
+        /* Brand Identity Headers */
+        .central-display h1 { font-size: 32px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px; margin-bottom: 8px; }
+        .central-display p { font-size: 15px; color: #a0aec0; font-weight: 400; }
+
+        /* Action Control Center Area */
+        .control-area { max-width: 840px; width: 100%; margin: 0 auto; padding: 0 40px 40px 40px; display: flex; flex-direction: column; gap: 20px; }
+        
+        /* Modern Suggestion Cards Grid */
+        .suggestions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .suggestion-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 14px; text-align: left; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; min-height: 72px; }
+        .suggestion-card:hover { background: rgba(255, 255, 255, 0.04); border-color: rgba(212, 175, 55, 0.3); }
+        .suggestion-text { font-size: 13px; color: #e1e7f0; line-height: 1.4; }
+        
+        /* Console Input Wrapper */
+        .console-box { background: rgba(20, 26, 38, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .console-box:focus-within { border-color: rgba(212, 175, 55, 0.4); box-shadow: 0 10px 30px rgba(212,175,55,0.05); }
+        .console-input-row { display: flex; align-items: center; width: 100%; }
+        .console-input-row input { flex: 1; background: transparent; border: none; color: #ffffff; font-size: 15px; outline: none; padding-right: 16px; }
+        .console-input-row input::placeholder { color: #4e5d73; }
+        
+        /* Interactive Paw Print Target Action Button */
+        .paw-send-btn { width: 40px; height: 40px; background: linear-gradient(135deg, #d4af37 0%, #aa8416 100%); color: #07090e; border: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(212, 175, 55, 0.2); transition: 0.2s; }
+        .paw-send-btn:hover { transform: scale(1.04); box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4); }
+        .paw-send-btn svg { width: 20px; height: 20px; fill: #07090e; }
+
+        /* Sub-Console Utilities Toolbar */
+        .toolbar { display: flex; align-items: center; gap: 14px; border-top: 1px solid rgba(255, 255, 255, 0.04); padding-top: 12px; }
+        .tool-icon { color: #4e5d73; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .tool-icon:hover { color: #d4af37; }
+        .tool-icon svg { width: 16px; height: 16px; fill: currentColor; }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar Menu Component -->
+    <!-- Modern Sidebar Panel -->
     <div class="sidebar">
-        <div class="logo">🤖 Supru-AI</div>
-        <ul class="agent-list">
-            <li class="agent-item active">🧠 Supru-Core <span class="agent-badge">Active</span></li>
-            <li class="agent-item">🛡️ Supru-Guard <span class="agent-badge">Ready</span></li>
-            <li class="agent-item">💻 Supru-Code</li>
-            <li class="agent-item">🌐 Supru-Web</li>
-            <li class="agent-item">📁 Supru-Files</li>
-            <li class="agent-item">🚀 Supru-DevOps</li>
-        </ul>
-    </div>
-
-    <!-- Main Live Workspace -->
-    <div class="main-content">
-        <div class="header">
-            <h2>Workspace: Foundation Layer</h2>
-        </div>
-        
-        <!-- Live Chat Interface Mockup -->
-        <div class="chat-history">
-            <div class="message system">
-                <strong>Supru-Core:</strong> Welcome to your custom dashboard. The Multi-Agent platform structure is initialized.
+        <div class="sidebar-top">
+            <div class="bridge-card">
+                <div class="bridge-info">
+                    <span class="bridge-title">Supru Local Bridge</span>
+                    <div class="status-indicator"><span class="status-dot"></span>Connected</div>
+                </div>
             </div>
-            <div class="message user">
-                Hello! Let's check our layout and prepare for the local Bridge connection.
-            </div>
-            <div class="message system">
-                <strong>Supru-Guard:</strong> System secure. Ready to map filesystem and terminal permissions under Phase 2 rules.
+            <button class="new-session-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                New Session
+            </button>
+            <div class="empty-state">
+                <p><span class="highlight">No sessions found</span>Create a session to get started</p>
             </div>
         </div>
 
-        <!-- Chat Input Component -->
-        <div class="input-area">
-            <div class="input-container">
-                <input type="text" placeholder="Type a command or instruction for your agents...">
-                <button onclick="alert('Great job! This button is wired and ready for our future free API background brain connection.')">Send</button>
+        <div class="sidebar-bottom">
+            <div class="nav-item">Help</div>
+            <div class="nav-item">Settings</div>
+            <div class="profile-section">
+                <div class="profile-avatar">
+                    <!-- Little circular backup view of your cat -->
+                    <img src="https://unsplash.com" alt="Cat Icon" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <div class="profile-info">
+                    <h4>Supru AI</h4>
+                    <p>Your Companion</p>
+                </div>
             </div>
         </div>
     </div>
 
-</body>
-</html>
+    <!-- Main Live Core Workspace -->
+    <div class="main-workspace">
+        <div class="top-bar">
+            <div class="top-status"><span class="top-status-dot"></span>Supru is awake</div>
+        </div>
+
+        <!-- Central Focal Display Panel -->
+        <div class="central-display">
+            <div class="avatar-aura">
+                <div class="avatar-inner">
+                    <!-- THIS IS WHERE YOUR REAL BLACK CAT PIC GOES! -->
+                    <!-- I put a beautiful high-res black cat sample link here so you can test it live immediately -->
+                    <img src="https://unsplash.com" alt="Supru the Cat">
+                </div>
+            </div>
+            <h1>Supru is awake</h1>
+            <p>"Feel the power of meow!"</p>
+        </div>
+
