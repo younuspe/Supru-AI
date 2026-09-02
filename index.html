@@ -11,272 +11,311 @@
         body { 
             background-color: #08070f; 
             color: #ffffff; 
-            width: 1920px; 
-            height: 1080px; 
+            width: 100vw; 
+            height: 100vh; 
             position: relative; 
             overflow: hidden;
+            display: flex;
         }
 
-        /* Top Left Header Coordinates */
+        /* Responsive Layout Panels */
+        .sidebar-panel {
+            width: 428px;
+            height: 100vh;
+            background-color: #10101c;
+            border-right: 1px solid #3a4057;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 10;
+            position: relative;
+        }
+
+        .main-workspace {
+            flex: 1;
+            height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Left Header Metrics */
+        .brand-block {
+            padding-bottom: 20px;
+        }
         .supru-title {
-            position: absolute;
-            left: 20px;
-            top: 28px;
-            width: 352px;
-            height: 76px;
             font-size: 50px;
             font-weight: 800;
             color: #b5b5eb;
+            line-height: 1.1;
+        }
+        .brand-subtitle-row {
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            margin-top: 5px;
         }
-
         .supru-caption {
-            position: absolute;
-            left: 106px;
-            top: 86px;
-            width: 146px;
-            height: 13px;
             font-size: 17px;
             font-weight: 600;
             color: #ffffff;
         }
-
+        .status-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
         .status-connected {
-            position: absolute;
-            left: 315px;
-            top: 45px;
-            width: 113px;
-            height: 28px;
             font-size: 19px;
             font-weight: 500;
             color: #1a9136;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-
         .status-dot {
-            position: absolute;
-            left: 403px;
-            top: 77px;
-            width: 18px;
-            height: 18px;
+            width: 14px;
+            height: 14px;
             background-color: #7ad697;
             border-radius: 50%;
+            box-shadow: 0 0 10px #7ad697;
         }
 
-        /* Top Right Utilities Row Navigation */
-        .nav-menu {
-            position: absolute;
-            left: 1439px;
-            top: 40px;
-            width: 53px;
-            font-size: 17px;
-            font-weight: 300;
-            text-align: center;
-            color: #ffffff;
-        }
-
-        .nav-help {
-            position: absolute;
-            left: 1492px;
-            top: 40px;
-            width: 53px;
-            font-size: 17px;
-            font-weight: 300;
-            text-align: center;
-            color: #ffffff;
-        }
-
-        /* Search Box Frame 5 Component Layout */
-        .search-container {
-            position: absolute;
-            left: 1572px;
-            top: 32px;
-            width: 311px;
-            height: 33px;
-            background-color: #10101c;
-            border: 1px solid #303447;
+        /* Middle Session Controls Layer */
+        .session-container {
+            margin-top: 10px;
             display: flex;
-            align-items: center;
-            padding: 0 14px;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
         }
-
-        .search-placeholder-text {
-            position: absolute;
-            left: 1586px;
-            top: 39px;
-            width: 72px;
-            font-size: 17px;
-            font-weight: 300;
-            text-align: center;
-            color: #ffffff;
-            pointer-events: none;
-        }
-
-        /* Left Sidebar: Frame 1 Element Mapping */
-        .sidebar-panel {
-            position: absolute;
-            left: 23px;
-            top: 109px;
-            width: 428px;
-            height: 934px;
-            background-color: #10101c;
-            border-radius: 10px;
-            border: 1px solid #3a4057;
-        }
-
-        /* New Session Button Box: Frame 4 Node Layout */
         .new-session-box {
-            position: absolute;
-            left: 16px;
-            top: 18px;
-            width: 393px;
+            width: 100%;
             height: 56px;
             background-color: #10101c;
             border-radius: 6px;
             border: 1px solid #363c59;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .new-session-text {
+            color: #b5b5eb;
             font-size: 17px;
             font-weight: 600;
-            color: #b5b5eb;
+            cursor: pointer;
+            transition: 0.2s;
         }
-
+        .new-session-box:hover {
+            background-color: rgba(255,255,255,0.02);
+            border-color: #cbd5e1;
+        }
         .session-hint-text {
-            position: absolute;
-            left: 69px;
-            top: 90px;
-            width: 289px;
-            height: 32px;
             font-size: 17px;
             color: #b5b5eb;
             text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
-        /* User Footer Component Area Layout */
+        /* User Footer Profile Block Match */
         .profile-border-outer {
-            position: absolute;
-            left: 12px;
-            top: 769px;
-            width: 397px;
+            width: 100%;
             height: 154px;
             background-color: transparent;
             border-radius: 10px;
             border: 2px solid #3f4457;
-            pointer-events: none;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
         }
-
-        /* Shadow Aura Blur Glow Box Behind Cat Profile Portrait */
         .avatar-shadow-blur {
             position: absolute;
-            left: 42px;
-            top: 717px;
-            width: 171px;
-            height: 170px;
-            border-radius: 506px;
-            background-color: #595b6b;
-            filter: blur(66.9px);
-            opacity: 0.8;
-            pointer-events: none;
-        }
-
-        /* Cat Profile Portrait Frame Component */
-        .avatar-image-frame {
-            position: absolute;
             left: 12px;
-            top: 717px;
-            width: 178px;
-            height: 183px;
-            overflow: hidden;
+            top: -30px;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background-color: #595b6b;
+            filter: blur(40px);
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 1;
         }
-
+        .avatar-image-frame {
+            width: 110px;
+            height: 120px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #000;
+            z-index: 2;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
         .avatar-image-frame img {
-            position: absolute;
-            left: -16px;
-            top: 19px;
-            width: 194px;
-            height: 217px;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
         }
-
-        .user-name-title {
-            position: absolute;
-            left: 227px;
-            top: 775px;
-            width: 182px;
-            height: 53px;
-            font-size: 30px;
-            color: #ffffff;
+        .profile-meta-actions {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 2;
         }
-
-        /* Mechanical Gear Icon Placeholder */
+        .user-name-title {
+            font-size: 24px;
+            color: #ffffff;
+            font-weight: 500;
+        }
+        .profile-btn-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
         .gear-settings-icon {
-            position: absolute;
-            left: 214px;
-            top: 859px;
-            width: 57px;
-            height: 51px;
-            background-color: transparent;
+            background: transparent;
+            border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-
         .gear-settings-icon svg {
             width: 32px;
             height: 32px;
             fill: #666b8a;
+            transition: 0.2s;
         }
-
-        /* Connect Button Container Block */
+        .gear-settings-icon:hover svg {
+            fill: #ffffff;
+            transform: rotate(30deg);
+        }
         .connect-action-block {
-            position: absolute;
-            left: 299px;
-            top: 863px;
-            width: 101px;
+            flex: 1;
             height: 44px;
             border-radius: 8px;
             border: 1px solid #666b8a;
             background-color: transparent;
             color: #ffffff;
             font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: 0.2s;
+        }
+        .connect-action-block:hover {
+            background-color: rgba(255,255,255,0.05);
+            border-color: #ffffff;
         }
 
-        /* IMMERSIVE CENTER MASCOT BACKGROUND PHOTO LAYER WITH 25% OPACITY */
+        /* Top Utilities Navbar */
+        .top-navigation {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 30px;
+            gap: 24px;
+            z-index: 5;
+            background: linear-gradient(to bottom, rgba(8,7,15,0.8), transparent);
+        }
+        .top-nav-link {
+            font-size: 17px;
+            font-weight: 300;
+            color: #ffffff;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+        }
+        .top-nav-link:hover {
+            text-decoration: underline;
+        }
+        .search-container {
+            width: 311px;
+            height: 33px;
+            background-color: #10101c;
+            border: 1px solid #303447;
+            border-radius: 4px;
+            padding: 0 12px;
+            color: #ffffff;
+            font-size: 17px;
+            font-weight: 300;
+            outline: none;
+        }
+
+        /* Multi-Platform Sub-Page Content Toggle Panels */
+        .screen-view-panel {
+            flex: 1;
+            display: none;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+            z-index: 5;
+        }
+        .screen-view-panel.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Page Layout Template Cards */
+        .chat-output-logger {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            max-width: 1000px;
+            width: 100%;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        .chat-bubble {
+            max-width: 75%;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            line-height: 1.5;
+            background-color: #10101c;
+            border: 1px solid #3a4057;
+        }
+
+        .gateway-card-block {
+            max-width: 440px;
+            width: 100%;
+            background-color: #10101c;
+            border: 1px solid #3a4057;
+            border-radius: 12px;
+            padding: 32px;
+            margin: auto;
+            text-align: center;
+        }
+        .form-input-row {
+            width: 100%;
+            padding: 14px;
+            background-color: #08070f;
+            border: 1px solid #363c59;
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 16px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+        .form-input-row:focus {
+            border-color: #b5b5eb;
+        }
+
+        /* IMMERSIVE CENTER MASCOT BACKGROUND MASK DESIGN LAYER */
         .center-mascot-backdrop {
             position: absolute;
-            left: 529px;
-            top: 102px;
-            width: 1084.5px;
-            height: 792px;
-            opacity: 0.25;
-            object-fit: cover;
+            left: 50%;
+            top: 45%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 900px;
+            opacity: 0.15;
             pointer-events: none;
             mix-blend-mode: lighten;
+            z-index: 1;
         }
 
         /* Console Input Field: Bottom Strip Container Area mapping */
         .bottom-console-wrapper {
-            position: absolute;
-            left: 473px;
-            top: 919px;
-            width: 1361px;
+            width: calc(100% - 80px);
+            max-width: 1000px;
             height: 102px;
             background-color: #10101c;
             border-radius: 10px;
@@ -284,17 +323,20 @@
             display: flex;
             align-items: center;
             padding: 0 36px;
+            margin: auto auto 30px auto;
+            z-index: 5;
+            position: relative;
         }
-
         .plus-utilities-trigger {
             font-size: 57px;
             color: #ffffff;
             cursor: pointer;
             user-select: none;
-            line-height: 1;
+            background: transparent;
+            border: none;
+            outline: none;
             margin-top: -10px;
         }
-
         .console-input-element {
             flex: 1;
             background: transparent;
@@ -302,56 +344,14 @@
             outline: none;
             color: #ffffff;
             font-size: 21px;
-            padding-left: 50px;
-            padding-right: 140px;
+            padding: 0 30px;
         }
-
-        .console-input-element::placeholder {
-            color: #ffffff;
-            opacity: 1;
-        }
-
-        /* Standalone Send Action Button Match */
         .send-submit-action {
-            position: absolute;
-            left: 1227px;
-            top: 27px;
-            width: 101px;
             height: 44px;
+            width: 101px;
             border-radius: 8px;
             border: 1px solid #666b8a;
             background-color: transparent;
             color: #ffffff;
             font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
-</head>
-<body>
-
-    <!-- Top Left Brand Identifiers -->
-    <div class="supru-title">Supru AI</div>
-    <div class="supru-caption">Power of Meow!</div>
-    <div class="status-connected">Connected</div>
-    <div class="status-dot"></div>
-
-    <!-- Top Right Row Utilities Navigation Links -->
-    <div class="nav-menu">Menu</div>
-    <div class="nav-help">Help</div>
-    <div class="search-container"></div>
-    <div class="search-placeholder-text">Search</div>
-
-    <!-- Left Side Control Column Sidebar Panel -->
-    <div class="sidebar-panel">
-        <div class="new-session-box">
-            <span class="new-session-text">+ New Session</span>
-        </div>
-        <div class="session-hint-text">Create a sesson to get started</div>
-        
-        
-        <div class="avatar-shadow-blur"></div>
-        <div class="avatar-image-frame">
-            <!-- Uses your local directory source images from your file profile configurations -->
+            font-weight: 500;
