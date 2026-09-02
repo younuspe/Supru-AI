@@ -31,12 +31,13 @@
         /* Bottom Left Profile Card Area Match */
         .profile-card { background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 14px; padding: 16px; display: flex; gap: 14px; align-items: center; position: relative; }
         .avatar-box { width: 56px; height: 56px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); background: #000; flex-shrink: 0; }
+        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
         .profile-details { flex: 1; display: flex; flex-direction: column; gap: 8px; }
         .user-name-title { font-size: 18px; color: #ffffff; font-weight: 500; letter-spacing: -0.2px; }
         .profile-actions { display: flex; align-items: center; gap: 10px; }
         
         /* Interactive Gear Icon SVG Configuration */
-        .gear-btn { width: 20px; height: 20px; color: #a0aec0; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .gear-btn { width: 20px; height: 20px; color: #a0aec0; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; background: transparent; border: none; }
         .gear-btn:hover { color: #ffffff; transform: rotate(30deg); }
         .gear-btn svg { width: 100%; height: 100%; fill: currentColor; }
         
@@ -45,7 +46,9 @@
 
         /* Main Center Workspace Frame */
         .workspace-panel { flex: 1; display: flex; flex-direction: column; position: relative; }
-        .immersive-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.22; pointer-events: none; mix-blend-mode: lighten; }
+        
+        /* SUPRU'S PORTRAIT BACKDROP TARGET LAYER WITH SEAMLESS BLENDING */
+        .immersive-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35; pointer-events: none; mix-blend-mode: lighten; }
 
         /* Top Right Utilities Row Navigation */
         .top-navigation { height: 64px; display: flex; align-items: center; justify-content: flex-end; padding: 0 30px; gap: 20px; z-index: 5; }
@@ -111,8 +114,8 @@
         <!-- Left bottom Profile Node Matching Your Zoomed Screenshot Exactly -->
         <div class="profile-card">
             <div class="avatar-box">
-                <!-- Displays your real cat portrait cleanly inside the card box frame -->
-                <img src="https://unsplash.com" style="width:100%; height:100%; object-fit:cover;">
+                <!-- AUTOMATICALLY PULLS THE REAL ATTACHED DESIGN ARTWORK FOR THE AVATAR FOOTER -->
+                <img src="../bridge/src/assets/logo.png" onerror="this.src='https://unsplash.com'" alt="Supru Profile">
             </div>
             <div class="profile-details">
                 <h4 class="user-name-title">User name</h4>
@@ -123,9 +126,3 @@
                             <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
                         </svg>
                     </button>
-                    <button class="connect-badge-btn" onclick="alert('Local system connection online.')">Connect</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
