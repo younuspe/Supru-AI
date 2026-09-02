@@ -5,20 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Supru AI Dashboard</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
         
         body { 
             background-color: #08070f; 
             color: #ffffff; 
             width: 100vw; 
             height: 100vh; 
-            position: relative; 
             overflow: hidden;
-            display: flex;
+            display: flex; /* Forces side-by-side columns */
         }
 
+        /* Left Side Sidebar Panel */
         .sidebar-panel {
-            width: 428px;
+            width: 320px; /* Locked size so it stops blocking your chat area */
             height: 100vh;
             background-color: #10101c;
             border-right: 1px solid #3a4057;
@@ -26,22 +26,24 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            z-index: 10;
+            flex-shrink: 0; /* Prevents sidebar from shrinking */
         }
 
+        /* Main Workspace Right Side Area */
         .main-workspace {
-            flex: 1;
+            flex: 1; /* Automatically takes up the remaining screen space */
             height: 100vh;
             position: relative;
             display: flex;
             flex-direction: column;
         }
 
+        /* Brand Block Metrics */
         .brand-block {
             padding-bottom: 20px;
         }
         .supru-title {
-            font-size: 50px;
+            font-size: 36px;
             font-weight: 800;
             color: #b5b5eb;
             line-height: 1.1;
@@ -51,30 +53,33 @@
             align-items: center;
             justify-content: space-between;
             margin-top: 5px;
+            gap: 8px;
         }
         .supru-caption {
-            font-size: 17px;
+            font-size: 14px;
             font-weight: 600;
             color: #ffffff;
+            white-space: nowrap;
         }
         .status-container {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         .status-connected {
-            font-size: 19px;
+            font-size: 14px;
             font-weight: 500;
             color: #1a9136;
         }
         .status-dot {
-            width: 14px;
-            height: 14px;
+            width: 10px;
+            height: 10px;
             background-color: #7ad697;
             border-radius: 50%;
-            box-shadow: 0 0 10px #7ad697;
+            box-shadow: 0 0 8px #7ad697;
         }
 
+        /* Middle Session Controls Layer */
         .session-container {
             margin-top: 10px;
             display: flex;
@@ -84,49 +89,55 @@
         }
         .new-session-box {
             width: 100%;
-            height: 56px;
+            height: 48px;
             background-color: #10101c;
             border-radius: 6px;
             border: 1px solid #363c59;
             color: #b5b5eb;
-            font-size: 17px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
+            transition: 0.2s;
+        }
+        .new-session-box:hover {
+            background-color: rgba(255,255,255,0.02);
+            border-color: #cbd5e1;
         }
         .session-hint-text {
-            font-size: 17px;
+            font-size: 14px;
             color: #b5b5eb;
             text-align: center;
         }
 
+        /* User Footer Profile Block Match */
         .profile-border-outer {
             width: 100%;
-            height: 154px;
+            height: 130px;
             background-color: transparent;
             border-radius: 10px;
             border: 2px solid #3f4457;
-            padding: 14px;
+            padding: 12px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             position: relative;
         }
         .avatar-shadow-blur {
             position: absolute;
             left: 12px;
-            top: -30px;
-            width: 140px;
-            height: 140px;
+            top: -20px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             background-color: #595b6b;
-            filter: blur(40px);
+            filter: blur(30px);
             opacity: 0.4;
             pointer-events: none;
             z-index: 1;
         }
         .avatar-image-frame {
-            width: 110px;
-            height: 120px;
+            width: 80px;
+            height: 90px;
             border-radius: 6px;
             overflow: hidden;
             background: #000;
@@ -142,18 +153,18 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             z-index: 2;
         }
         .user-name-title {
-            font-size: 24px;
+            font-size: 20px;
             color: #ffffff;
             font-weight: 500;
         }
         .profile-btn-row {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
         .gear-settings-icon {
             background: transparent;
@@ -164,22 +175,23 @@
             justify-content: center;
         }
         .gear-settings-icon svg {
-            width: 32px;
-            height: 32px;
+            width: 26px;
+            height: 26px;
             fill: #666b8a;
         }
         .connect-action-block {
             flex: 1;
-            height: 44px;
-            border-radius: 8px;
+            height: 36px;
+            border-radius: 6px;
             border: 1px solid #666b8a;
             background-color: transparent;
             color: #ffffff;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 500;
             cursor: pointer;
         }
 
+        /* Top Utilities Navbar */
         .top-navigation {
             height: 64px;
             display: flex;
@@ -190,7 +202,7 @@
             z-index: 5;
         }
         .top-nav-link {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 300;
             color: #ffffff;
             cursor: pointer;
@@ -198,18 +210,19 @@
             border: none;
         }
         .search-container {
-            width: 311px;
+            width: 240px;
             height: 33px;
             background-color: #10101c;
             border: 1px solid #303447;
             border-radius: 4px;
             padding: 0 12px;
             color: #ffffff;
-            font-size: 17px;
+            font-size: 15px;
             font-weight: 300;
             outline: none;
         }
 
+        /* View Panels Toggle Configurations */
         .screen-view-panel {
             flex: 1;
             display: none;
@@ -230,7 +243,6 @@
             gap: 16px;
             overflow-y: auto;
             margin-bottom: 20px;
-            max-width: 1000px;
             width: 100%;
         }
         .chat-bubble {
@@ -270,36 +282,35 @@
             left: 50%;
             top: 45%;
             transform: translate(-50%, -50%);
-            width: 80%;
-            max-width: 900px;
+            width: 70%;
+            max-width: 700px;
             opacity: 0.15;
             pointer-events: none;
             mix-blend-mode: lighten;
             z-index: 1;
         }
 
+        /* Bottom Entry Prompting Ribbon Strip Component */
         .bottom-console-wrapper {
             width: 100%;
-            max-width: 1000px;
-            height: 102px;
+            height: 80px;
             background-color: #10101c;
             border-radius: 10px;
             border: 1px solid #3a4057;
             display: flex;
             align-items: center;
-            padding: 0 36px;
-            margin: auto auto 0 auto;
+            padding: 0 24px;
+            margin-top: auto;
             z-index: 5;
-            position: relative;
         }
         .plus-utilities-trigger {
-            font-size: 57px;
+            font-size: 40px;
             color: #ffffff;
             cursor: pointer;
             background: transparent;
             border: none;
             outline: none;
-            margin-top: -10px;
+            line-height: 1;
         }
         .console-input-element {
             flex: 1;
@@ -307,17 +318,17 @@
             border: none;
             outline: none;
             color: #ffffff;
-            font-size: 21px;
-            padding: 0 30px;
+            font-size: 18px;
+            padding: 0 20px;
         }
         .send-submit-action {
-            height: 44px;
-            width: 101px;
-            border-radius: 8px;
+            height: 38px;
+            width: 80px;
+            border-radius: 6px;
             border: 1px solid #666b8a;
             background-color: transparent;
             color: #ffffff;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 500;
             cursor: pointer;
         }
@@ -325,6 +336,7 @@
 </head>
 <body>
 
+    <!-- Left Side Control Column Sidebar Panel Component -->
     <div class="sidebar-panel">
         <div>
             <div class="brand-block">
@@ -339,16 +351,3 @@
             </div>
             
             <div class="session-container">
-                <button class="new-session-box" onclick="togglePlatformPage('chat-view')">+ New Session</button>
-                <div class="session-hint-text" style="margin-top: 12px;">Create a sesson to get started</div>
-            </div>
-        </div>
-        
-        <div class="profile-border-outer">
-            <div class="avatar-shadow-blur"></div>
-            <div class="avatar-image-frame">
-                <img src="../bridge/src/assets/logo.png" onerror="this.src='https://unsplash.com'" alt="Supru Icon">
-            </div>
-            <div class="profile-meta-actions">
-                <h4 class="user-name-title">User name</h4>
-                <div class="profile-btn-row">
