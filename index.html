@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Supru AI Dashboard</title>
     <style>
-        /* Exact layout style and color variables from your pen.dev canvas */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         
         body { 
             background-color: #08070f; 
@@ -18,7 +17,6 @@
             display: flex;
         }
 
-        /* Responsive Layout Panels */
         .sidebar-panel {
             width: 428px;
             height: 100vh;
@@ -29,7 +27,6 @@
             flex-direction: column;
             justify-content: space-between;
             z-index: 10;
-            position: relative;
         }
 
         .main-workspace {
@@ -40,7 +37,6 @@
             flex-direction: column;
         }
 
-        /* Top Left Header Metrics */
         .brand-block {
             padding-bottom: 20px;
         }
@@ -79,7 +75,6 @@
             box-shadow: 0 0 10px #7ad697;
         }
 
-        /* Middle Session Controls Layer */
         .session-container {
             margin-top: 10px;
             display: flex;
@@ -97,11 +92,6 @@
             font-size: 17px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
-        }
-        .new-session-box:hover {
-            background-color: rgba(255,255,255,0.02);
-            border-color: #cbd5e1;
         }
         .session-hint-text {
             font-size: 17px;
@@ -109,7 +99,6 @@
             text-align: center;
         }
 
-        /* User Footer Profile Block Match */
         .profile-border-outer {
             width: 100%;
             height: 154px;
@@ -178,11 +167,6 @@
             width: 32px;
             height: 32px;
             fill: #666b8a;
-            transition: 0.2s;
-        }
-        .gear-settings-icon:hover svg {
-            fill: #ffffff;
-            transform: rotate(30deg);
         }
         .connect-action-block {
             flex: 1;
@@ -194,14 +178,8 @@
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
-            transition: 0.2s;
-        }
-        .connect-action-block:hover {
-            background-color: rgba(255,255,255,0.05);
-            border-color: #ffffff;
         }
 
-        /* Top Utilities Navbar */
         .top-navigation {
             height: 64px;
             display: flex;
@@ -210,7 +188,6 @@
             padding: 0 30px;
             gap: 24px;
             z-index: 5;
-            background: linear-gradient(to bottom, rgba(8,7,15,0.8), transparent);
         }
         .top-nav-link {
             font-size: 17px;
@@ -219,9 +196,6 @@
             cursor: pointer;
             background: transparent;
             border: none;
-        }
-        .top-nav-link:hover {
-            text-decoration: underline;
         }
         .search-container {
             width: 311px;
@@ -236,7 +210,6 @@
             outline: none;
         }
 
-        /* Multi-Platform Sub-Page Content Toggle Panels */
         .screen-view-panel {
             flex: 1;
             display: none;
@@ -250,7 +223,6 @@
             flex-direction: column;
         }
 
-        /* Page Layout Template Cards */
         .chat-output-logger {
             flex: 1;
             display: flex;
@@ -260,8 +232,6 @@
             margin-bottom: 20px;
             max-width: 1000px;
             width: 100%;
-            margin-right: auto;
-            margin-left: auto;
         }
         .chat-bubble {
             max-width: 75%;
@@ -294,11 +264,7 @@
             margin-bottom: 20px;
             outline: none;
         }
-        .form-input-row:focus {
-            border-color: #b5b5eb;
-        }
 
-        /* IMMERSIVE CENTER MASCOT BACKGROUND MASK DESIGN LAYER */
         .center-mascot-backdrop {
             position: absolute;
             left: 50%;
@@ -312,9 +278,8 @@
             z-index: 1;
         }
 
-        /* Console Input Field: Bottom Strip Container Area mapping */
         .bottom-console-wrapper {
-            width: calc(100% - 80px);
+            width: 100%;
             max-width: 1000px;
             height: 102px;
             background-color: #10101c;
@@ -323,7 +288,7 @@
             display: flex;
             align-items: center;
             padding: 0 36px;
-            margin: auto auto 30px auto;
+            margin: auto auto 0 auto;
             z-index: 5;
             position: relative;
         }
@@ -331,7 +296,6 @@
             font-size: 57px;
             color: #ffffff;
             cursor: pointer;
-            user-select: none;
             background: transparent;
             border: none;
             outline: none;
@@ -355,3 +319,36 @@
             color: #ffffff;
             font-size: 16px;
             font-weight: 500;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-panel">
+        <div>
+            <div class="brand-block">
+                <div class="supru-title">Supru AI</div>
+                <div class="brand-subtitle-row">
+                    <span class="supru-caption">Power of Meow!</span>
+                    <div class="status-container">
+                        <span class="status-connected">Connected</span>
+                        <span class="status-dot"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="session-container">
+                <button class="new-session-box" onclick="togglePlatformPage('chat-view')">+ New Session</button>
+                <div class="session-hint-text" style="margin-top: 12px;">Create a sesson to get started</div>
+            </div>
+        </div>
+        
+        <div class="profile-border-outer">
+            <div class="avatar-shadow-blur"></div>
+            <div class="avatar-image-frame">
+                <img src="../bridge/src/assets/logo.png" onerror="this.src='https://unsplash.com'" alt="Supru Icon">
+            </div>
+            <div class="profile-meta-actions">
+                <h4 class="user-name-title">User name</h4>
+                <div class="profile-btn-row">
