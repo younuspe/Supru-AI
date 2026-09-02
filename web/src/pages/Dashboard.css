@@ -1,0 +1,127 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.dashboard-header {
+  margin-bottom: 16px;
+}
+
+.dashboard-header h1 {
+  font-size: 32px;
+  color: var(--text);
+  margin: 0 0 8px 0;
+}
+
+.subtitle {
+  color: var(--text-dim);
+  font-size: 16px;
+  margin: 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(168, 164, 245, 0.1);
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.sessions-section h2,
+.activity-section h2 {
+  font-size: 20px;
+  color: var(--text);
+  margin: 0 0 16px 0;
+}
+
+.sessions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.activity-section {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.activity-item {
+  display: flex;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  font-size: 24px;
+  min-width: 32px;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-title {
+  color: var(--text);
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.activity-desc {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin: 0 0 4px 0;
+}
+
+.activity-time {
+  color: var(--text-dim);
+  font-size: 12px;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sessions-grid {
+    grid-template-columns: 1fr;
+  }
+}
