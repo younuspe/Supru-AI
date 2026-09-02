@@ -6,125 +6,140 @@
     <title>Supru AI Dashboard</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background: radial-gradient(circle at center, #0f131a 0%, #07090e 100%); color: #e1e7f0; display: flex; height: 100vh; overflow: hidden; }
+        body { background: #07090e; color: #e1e7f0; display: flex; height: 100vh; overflow: hidden; }
 
-        /* Left Navigation Panel Frame */
-        .sidebar { width: 280px; background: rgba(17, 22, 32, 0.85); backdrop-filter: blur(20px); border-right: 1px solid rgba(212, 175, 55, 0.15); display: flex; flex-direction: column; padding: 24px; justify-content: space-between; transition: 0.3s; z-index: 10; }
-        .sidebar.collapsed { margin-left: -280px; }
+        /* Left Side Panel Window Frame */
+        .sidebar { width: 280px; background: rgba(17, 22, 32, 0.85); backdrop-filter: blur(20px); border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; padding: 24px; justify-content: space-between; z-index: 10; }
         .sidebar-top { display: flex; flex-direction: column; gap: 20px; }
         
-        .brand-header { display: flex; flex-direction: column; gap: 2px; }
-        .brand-title { font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; }
-        .brand-subtitle { font-size: 11px; color: #d4af37; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* Modern Action Trigger Elements */
-        .action-link { display: flex; align-items: center; gap: 12px; color: #a0aec0; font-size: 14px; padding: 12px; cursor: pointer; border-radius: 8px; transition: 0.2s; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.03); }
-        .action-link:hover, .action-link.active { color: #ffffff; background: rgba(255, 255, 255, 0.04); border-color: rgba(212, 175, 55, 0.2); }
-        .action-link.active { color: #d4af37; font-weight: 600; }
-
-        /* Immersive Central Display Matrix */
-        .main-workspace { flex: 1; display: flex; flex-direction: column; position: relative; background: #07090e; }
+        .brand-section { display: flex; flex-direction: column; }
+        .brand-name { font-size: 24px; font-weight: 800; color: #ffffff; }
+        .brand-caption { font-size: 12px; color: #a0aec0; margin-top: 2px; }
         
-        /* THE IMMERSIVE BACKGROUND PHOTO OF SUPRU */
-        .workspace-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35; pointer-events: none; mix-blend-mode: lighten; }
-        
-        /* Content Overlay Layers */
-        .top-navbar { height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; background: linear-gradient(to bottom, rgba(7,9,14,0.8) 0%, rgba(7,9,14,0) 100%); z-index: 5; }
-        .connection-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4ade80; font-weight: 500; cursor: pointer; background: rgba(74, 222, 128, 0.08); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(74, 222, 128, 0.2); }
-        .status-pulse { width: 8px; height: 8px; background-color: #4ade80; border-radius: 50%; box-shadow: 0 0 12px #4ade80; }
-        
-        .view-panel { flex: 1; display: none; flex-direction: column; padding: 30px; position: relative; z-index: 5; }
-        .view-panel.active { display: flex; }
+        /* Chat Session Target Link */
+        .session-link { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 12px; font-size: 14px; cursor: pointer; text-align: center; color: #cbd5e1; transition: 0.2s; }
+        .session-link:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(212, 175, 55, 0.3); }
 
-        /* Conversation Logging Window */
-        .chat-stream { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-bottom: 20px; }
-        .chat-bubble { max-width: 70%; padding: 14px 18px; border-radius: 14px; font-size: 15px; line-height: 1.5; backdrop-filter: blur(8px); }
-        .chat-bubble.bot { background: rgba(22, 28, 38, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); align-self: flex-start; }
-        .chat-bubble.user { background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(17, 22, 32, 0.8) 100%); border: 1px solid rgba(212, 175, 55, 0.3); align-self: flex-end; }
+        /* Profile Segment With Interactive Token Link */
+        .profile-footer { background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.04); padding: 14px; border-radius: 12px; display: flex; align-items: center; gap: 12px; }
+        .avatar-circle { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #d4af37; overflow: hidden; background: #000; }
+        .profile-meta h4 { font-size: 14px; color: #ffffff; font-weight: 600; }
+        .profile-controls { display: flex; gap: 8px; font-size: 11px; color: #718096; margin-top: 2px; }
+        .control-lbl { cursor: pointer; transition: 0.15s; }
+        .control-lbl:hover { color: #d4af37; }
+
+        /* Central Working Space Section */
+        .main-workspace { flex: 1; display: flex; flex-direction: column; position: relative; }
+        
+        /* IMMERSIVE COMPANION MASK BACKGROUND FRAME */
+        .backdrop-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.25; pointer-events: none; mix-blend-mode: lighten; }
+
+        /* Right Hand Navbar Controls Row */
+        .top-navbar { height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; z-index: 5; }
+        .connection-indicator { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4ade80; font-weight: 500; }
+        .status-dot { width: 8px; height: 8px; background-color: #4ade80; border-radius: 50%; box-shadow: 0 0 10px #4ade80; }
+        
+        .nav-utilities { display: flex; align-items: center; gap: 16px; font-size: 13px; color: #a0aec0; }
+        .nav-utility-item { cursor: pointer; transition: 0.15s; }
+        .nav-utility-item:hover { color: #ffffff; }
+        
+        /* Modern Native Search Input Element */
+        .search-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; padding: 6px 12px; color: #ffffff; font-size: 12px; outline: none; width: 160px; }
+        .search-box::placeholder { color: #4e5d73; }
+
+        /* Content Views panels */
+        .panel-container { flex: 1; display: none; padding: 30px; z-index: 5; position: relative; flex-direction: column; }
+        .panel-container.active { display: flex; }
+        .chat-output-log { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-bottom: 20px; }
+        .bubble { max-width: 70%; padding: 14px 18px; border-radius: 14px; font-size: 15px; line-height: 1.5; background: rgba(22, 28, 38, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); }
 
         /* Configuration Forms Layout */
-        .config-card { max-width: 580px; background: rgba(17, 22, 32, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 24px; margin-top: 20px; }
-        .config-card h3 { color: #d4af37; margin-bottom: 8px; font-size: 18px; }
-        .config-card p { font-size: 14px; color: #a0aec0; margin-bottom: 16px; line-height: 1.4; }
-        
-        /* Unified UI Components */
-        .text-input { flex: 1; padding: 14px; background: #07090e; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; color: white; font-size: 14px; outline: none; }
-        .text-input:focus { border-color: #d4af37; }
-        .prime-btn { background: linear-gradient(135deg, #d4af37 0%, #aa8416 100%); color: #07090e; border: none; border-radius: 8px; padding: 14px 24px; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
-        .prime-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3); }
+        .config-block { max-width: 540px; background: rgba(20, 26, 38, 0.9); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 24px; margin-top: 20px; }
+        .config-block h3 { color: #d4af37; margin-bottom: 12px; }
+        .config-input-row { display: flex; gap: 10px; margin-top: 14px; }
+        .token-field { flex: 1; padding: 12px; background: #07090e; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; color: white; outline: none; font-size: 14px; }
+        .save-btn { background: linear-gradient(135deg, #d4af37 0%, #aa8416 100%); color: #07090e; border: none; border-radius: 6px; padding: 12px 20px; font-weight: 700; cursor: pointer; }
 
-        /* SUGGESTION CHIPS GRID ELEMENT */
-        .suggestions-row { display: flex; gap: 10px; max-width: 840px; width: 100%; margin: 0 auto 12px auto; overflow-x: auto; padding-bottom: 4px; }
-        .suggestion-chip { background: rgba(17, 22, 32, 0.6); backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 8px 16px; font-size: 12px; color: #cbd5e1; cursor: pointer; transition: 0.2s; white-space: nowrap; }
-        .suggestion-chip:hover { border-color: rgba(212, 175, 55, 0.4); background: rgba(17, 22, 32, 0.8); color: #ffffff; }
-
-        /* INPUT CONTROL BOX MATRIX WITH THE PAW SYMBOL */
-        .input-console-wrapper { max-width: 840px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .console-container { background: rgba(20, 26, 38, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+        /* BOTTOM MIDDLE PROMPTING CONSOLE FIELD COMPONENTS */
+        .prompt-wrapper { max-width: 840px; width: 100%; margin: 0 auto 30px auto; z-index: 5; padding: 0 20px; }
+        .console-container { background: rgba(20, 26, 38, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
         .console-container input { flex: 1; background: transparent; border: none; color: #ffffff; font-size: 15px; outline: none; }
-        .console-container input::placeholder { color: #4e5d73; }
         
-        /* THE PAW PRINT BUTTON ELEMENT */
-        .paw-action-button { width: 44px; height: 44px; background: linear-gradient(135deg, #d4af37 0%, #aa8416 100%); border: none; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.25); transition: 0.2s; }
-        .paw-action-button:hover { transform: scale(1.05); box-shadow: 0 4px 18px rgba(212, 175, 55, 0.45); }
-        .paw-action-button svg { width: 22px; height: 22px; fill: #07090e; }
-
-        /* Left Hand Identity Profile Node */
-        .profile-node { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04); padding: 14px; border-radius: 12px; display: flex; align-items: center; gap: 12px; }
-        .avatar-circle { width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid #d4af37; background: #07090e; overflow: hidden; box-shadow: 0 0 10px rgba(212,175,55,0.2); }
-        .profile-meta h4 { font-size: 14px; color: #ffffff; font-weight: 600; margin-bottom: 2px; }
-        .profile-actions-row { display: flex; gap: 8px; font-size: 11px; color: #718096; }
-        .profile-action-lbl { cursor: pointer; transition: 0.15s; }
-        .profile-action-lbl:hover { color: #d4af37; }
+        /* Neon Paw Print Control Action */
+        .paw-btn { width: 38px; height: 38px; background: linear-gradient(135deg, #d4af37 0%, #aa8416 100%); border: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2); }
+        .paw-btn svg { width: 20px; height: 20px; fill: #07090e; }
     </style>
 </head>
 <body>
 
-    <!-- Left Hand Sidebar Configuration -->
-    <div class="sidebar" id="app-sidebar">
+    <!-- Left Hand Sidebar configuration matches your design layout precisely -->
+    <div class="sidebar">
         <div class="sidebar-top">
-            <div class="brand-header">
-                <span class="brand-title">Supru AI</span>
-                <span class="brand-subtitle">Power of Meow!</span>
+            <div class="brand-section">
+                <span class="brand-name">Supru AI</span>
+                <span class="brand-caption">Power of Meow!</span>
             </div>
-            <div class="action-link active" onclick="navigate('chat', this)">Workspace Chat</div>
-            <div class="action-link" onclick="navigate('settings', this)">Engine Settings</div>
+            
+            <!-- Chat session navigation trigger -->
+            <div class="session-link" onclick="openPanel('chat')">+ New Session</div>
+            <div style="font-size:12px; color:#4e5d73; text-align:center; padding:10px 0;">Create a session to get started</div>
         </div>
-        
-        <!-- Upgraded Profile Section matches your Frame 1 drawing perfectly -->
-        <div class="profile-node">
+
+        <!-- Left bottom Profile Node containing unified settings access points -->
+        <div class="profile-footer">
             <div class="avatar-circle">
                 <img src="https://unsplash.com" style="width:100%; height:100%; object-fit:cover;">
             </div>
             <div class="profile-meta">
-                <h4>User Name</h4>
-                <div class="profile-actions-row">
-                    <span class="profile-action-lbl" onclick="navigate('settings', document.querySelectorAll('.action-link')[1])">Settings</span>
+                <h4>User name</h4>
+                <div class="profile-controls">
+                    <!-- Clicking this acts as your Engine Settings link -->
+                    <span class="control-lbl" onclick="openPanel('engine')">Settings icon</span>
                     <span>•</span>
-                    <span class="profile-action-lbl" onclick="alert('Bridge sync triggered.')">Connect</span>
+                    <span class="control-lbl" onclick="alert('Local bridge initialization verified.')">Connect</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Live Execution Canvas Workspace -->
+    <!-- Main Live Workspace Canvas -->
     <div class="main-workspace">
-        <!-- IMMERSIVE BACKGROUND GRAPHIC DEPICTING REAL COMPANION ARTWORK -->
-        <!-- This link shows a gorgeous matching black cat layout right now, replace with your exact filename if needed -->
-        <img src="https://unsplash.com" class="workspace-bg" alt="Supru Background Assets">
+        <!-- BACKGROUND MASK GRAPHIC SHOWING REAL SIGNATURE MOCKUP -->
+        <img src="https://unsplash.com" class="backdrop-image" alt="Supru Mascot Backdrop">
 
+        <!-- Top Right Navbar Structure -->
         <div class="top-navbar">
-            <!-- Sidebar Visibility Toggle Controller -->
-            <div class="connection-status" onclick="toggleSidebar()">
-                <span class="status-pulse"></span>
-                <span>Connected (Toggle Panel)</span>
+            <div class="connection-indicator"><span class="status-dot"></span>Connected</div>
+            <div class="nav-utilities">
+                <span class="nav-utility-item">Menu</span>
+                <span class="nav-utility-item">Help</span>
+                <input type="text" class="search-box" placeholder="Search...">
             </div>
-            <div style="font-size: 13px; color: #a0aec0; background: rgba(0,0,0,0.4); padding: 6px 14px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">Menu Help Search</div>
         </div>
-        
-        <!-- PANEL ALPHA: MAIN DIALOGUE INTERFACE -->
-        <div id="panel-chat" class="view-panel active">
-            <div class="chat-stream" id="chat-logger">
-                <div class="chat-bubble bot"><strong>Supru AI:</strong> Serverless Client Engine initialized. I can see our new beautiful background frame layout running cleanly. Type an instruction or use a chip below to begin!</div>
+
+        <!-- PANEL ALPHA: SECURE CORE CONVERSATION LOGGER -->
+        <div id-view="chat" class="panel-container active">
+            <div class="chat-output-log" id="logger-box">
+                <div class="bubble"><strong>Supru AI:</strong> Serverless architecture synchronized. Click "Settings icon" inside your bottom left profile container anytime to update your open-source API credential tokens.</div>
             </div>
-            
+        </div>
+
+        <!-- PANEL BETA: PRIVATE ENGINE CREDENTIAL CONFIGURATION -->
+        <div id-view="engine" class="panel-container">
+            <h2>Engine Configuration Settings</h2>
+            <div class="config-block">
+                <h3>Google Gemini API Authentication</h3>
+                <p>Paste your private AI Studio key here. It remains securely inside your own local browser instance without passing data through a background application server.</p>
+                <div class="config-input-row">
+                    <input type="password" id="token-input-field" class="token-field" placeholder="Paste your AI Studio Key (AIzaSy...)">
+                    <button class="save-btn" onclick="storeCredential()">Save Token</button>
+                </div>
+                <p id="save-feedback" style="margin-top:12px; font-size:13px; color:#4ade80; font-weight:500;"></p>
+            </div>
+        </div>
+
+        <!-- BOTTOM MIDDLE PROMPTING CONSOLE INTERFACE -->
+        <div class="prompt-wrapper">
+            <div class="console-container">
+                <input type="text" id="user-prompt" placeholder="Message Supru AI..." onkeypress="if(event.key === 'Enter') transmitPrompt()">
+                <button class="paw-btn" onclick="transmitPrompt()">
