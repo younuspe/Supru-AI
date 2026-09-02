@@ -3,579 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Supru AI</title>
-
+    <title>Supru AI Dashboard</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            background: #07060d;
-            color: #f4f2f8;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        .app {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            background: #07060d;
-        }
-
-        /* =========================
-           TOP BAR
-        ========================= */
-
-        .top-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 90px;
-
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-
-            padding: 23px 25px 0 14px;
-            z-index: 10;
-        }
-
-        .brand {
-            display: flex;
-            flex-direction: column;
-            line-height: 1;
-        }
-
-        .brand-name {
-            color: #aaa6e8;
-            font-size: 45px;
-            font-weight: 700;
-            letter-spacing: -2px;
-        }
-
-        .brand-tagline {
-            margin-left: 72px;
-            margin-top: 3px;
-            font-size: 15px;
-            font-weight: 700;
-            color: #f2f0f5;
-        }
-
-        .connection {
-            position: absolute;
-            left: 272px;
-            top: 38px;
-
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .connected {
-            color: #13a94c;
-            font-size: 16px;
-        }
-
-        .status-dot {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background: #78d99d;
-        }
-
-        .top-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 1px;
-        }
-
-        .menu,
-        .help {
-            color: #dedce3;
-            font-size: 15px;
-            padding: 8px 3px;
-        }
-
-        .search {
-            width: 269px;
-            height: 29px;
-
-            margin-left: 15px;
-
-            border: 1px solid #29283b;
-            background: #0e0d17;
-
-            color: white;
-            padding: 0 18px;
-
-            font-size: 14px;
-            outline: none;
-        }
-
-        .search::placeholder {
-            color: #d0cdd5;
-        }
-
-        /* =========================
-           LEFT SIDEBAR
-        ========================= */
-
-        .sidebar {
-            position: absolute;
-            left: 15px;
-            top: 90px;
-            bottom: 32px;
-
-            width: 370px;
-
-            border: 1px solid #34334b;
-            border-radius: 10px;
-
-            background: #10101b;
-
-            padding: 15px 13px 10px;
-
-            z-index: 5;
-        }
-
-        .new-session {
-            width: 100%;
-            height: 49px;
-
-            border: 1px solid #393952;
-            border-radius: 5px;
-
-            background: #11111e;
-            color: #b5b1e7;
-
-            font-size: 15px;
-            font-weight: 600;
-
-            cursor: pointer;
-        }
-
-        .new-session:hover {
-            background: #171627;
-        }
-
-        .empty-message {
-            margin-top: 19px;
-
-            text-align: center;
-
-            color: #aaa8d1;
-            font-size: 15px;
-        }
-
-        /* =========================
-           USER CARD
-        ========================= */
-
-        .user-card {
-            position: absolute;
-            left: 10px;
-            right: 15px;
-            bottom: 7px;
-
-            height: 134px;
-
-            border: 2px solid #3b3b55;
-            border-radius: 8px;
-
-            background: #11111d;
-
-            overflow: hidden;
-        }
-
-        .cat-small {
-            position: absolute;
-            left: -8px;
-            bottom: -7px;
-
-            width: 170px;
-            height: 155px;
-
-            object-fit: contain;
-
-            filter:
-                drop-shadow(0 0 12px rgba(150, 150, 255, 0.30));
-        }
-
-        .user-name {
-            position: absolute;
-            top: 7px;
-            left: 184px;
-
-            font-size: 27px;
-            color: #f1eff4;
-            white-space: nowrap;
-        }
-
-        .settings {
-            position: absolute;
-            left: 178px;
-            bottom: 12px;
-
-            width: 44px;
-            height: 44px;
-
-            border: none;
-            background: transparent;
-
-            font-size: 39px;
-            line-height: 1;
-
-            cursor: pointer;
-        }
-
-        .connect-button {
-            position: absolute;
-            right: 6px;
-            bottom: 12px;
-
-            height: 39px;
-            width: 88px;
-
-            border: 1px solid #565675;
-            border-radius: 7px;
-
-            background: #12121f;
-            color: #eeeeef;
-
-            font-size: 14px;
-
-            cursor: pointer;
-        }
-
-        .connect-button:hover {
-            background: #1a192a;
-        }
-
-        /* =========================
-           MAIN CAT AREA
-        ========================= */
-
-        .main-area {
-            position: absolute;
-
-            left: 385px;
-            right: 0;
-            top: 0;
-            bottom: 0;
-
-            overflow: hidden;
-        }
-
-        .cat-background {
-            position: absolute;
-
-            left: 4%;
-            top: 25px;
-
-            width: 72%;
-            height: 78%;
-
-            object-fit: contain;
-
-            opacity: 0.23;
-
-            filter:
-                brightness(0.55)
-                contrast(1.15);
-
-            pointer-events: none;
-        }
-
-        /* =========================
-           MESSAGE BOX
-        ========================= */
-
-        .message-area {
-            position: absolute;
-
-            left: 18px;
-            right: 67px;
-            bottom: 50px;
-
-            height: 88px;
-
-            border: 1px solid #393951;
-            border-radius: 9px;
-
-            background: #10101b;
-
-            display: flex;
-            align-items: center;
-
-            padding: 0 27px;
-
-            z-index: 6;
-        }
-
-        .plus {
-            font-size: 43px;
-            font-weight: 300;
-
-            width: 62px;
-
-            color: #ffffff;
-        }
-
-        .message-text {
-            flex: 1;
-
-            color: #eeecf2;
-            font-size: 18px;
-        }
-
-        .send-button {
-            width: 87px;
-            height: 40px;
-
-            border: 1px solid #575774;
-            border-radius: 7px;
-
-            background: #12121f;
-            color: #efedf2;
-
-            font-size: 14px;
-
-            cursor: pointer;
-        }
-
-        .send-button:hover {
-            background: #1a192a;
-        }
-
-        /* =========================
-           RESPONSIVE
-        ========================= */
-
-        @media (max-width: 900px) {
-
-            .sidebar {
-                width: 300px;
-            }
-
-            .main-area {
-                left: 315px;
-            }
-
-            .connection {
-                display: none;
-            }
-
-            .search {
-                width: 180px;
-            }
-
-            .brand-name {
-                font-size: 36px;
-            }
-
-            .brand-tagline {
-                margin-left: 55px;
-            }
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: #07090e; color: #e1e7f0; display: flex; height: 100vh; overflow: hidden; }
+
+        /* Left Side Navigation Sidebar panel matching your layout precisely */
+        .sidebar { width: 290px; background: rgba(17, 22, 32, 0.85); backdrop-filter: blur(20px); border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; padding: 24px; justify-content: space-between; z-index: 10; }
+        .sidebar-top { display: flex; flex-direction: column; gap: 24px; }
+        
+        /* Top Left Header Area Match */
+        .brand-header-row { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; }
+        .brand-text-block { display: flex; flex-direction: column; }
+        .brand-title { font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; }
+        .brand-subtitle { font-size: 12px; color: #ffffff; font-weight: 600; margin-top: 1px; }
+        
+        .status-container { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; padding-top: 4px; }
+        .status-text { font-size: 12px; color: #4ade80; font-weight: 500; letter-spacing: 0.2px; }
+        .status-dot { width: 10px; height: 10px; background-color: #4ade80; border-radius: 50%; box-shadow: 0 0 12px #4ade80; }
+        
+        /* Middle Session controls row */
+        .session-container { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+        .new-session-btn { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 12px; font-size: 13px; font-weight: 500; cursor: pointer; text-align: center; color: #cbd5e1; transition: 0.2s; }
+        .new-session-btn:hover { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.2); }
+        .session-hint { font-size: 12px; color: #4e5d73; text-align: center; margin-top: 2px; }
+
+        /* Bottom Left Profile Card Area Match with Settings Gear */
+        .profile-card { background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 14px; padding: 16px; display: flex; gap: 14px; align-items: center; position: relative; }
+        .avatar-box { width: 56px; height: 56px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); background: #000; flex-shrink: 0; position: relative; }
+        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Glowing mist background effect behind your cat avatar */
+        .avatar-box::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 80%); pointer-events: none; }
+        
+        .profile-details { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .user-name-title { font-size: 18px; color: #ffffff; font-weight: 500; letter-spacing: -0.2px; }
+        .profile-actions { display: flex; align-items: center; gap: 10px; }
+        
+        /* Interactive Gear Icon SVG Configuration */
+        .gear-btn { width: 22px; height: 22px; color: #a0aec0; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; background: transparent; border: none; outline: none; }
+        .gear-btn:hover { color: #ffffff; transform: rotate(30deg); }
+        .gear-btn svg { width: 100%; height: 100%; fill: currentColor; }
+        
+        .connect-badge-btn { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; padding: 5px 12px; color: #ffffff; font-size: 12px; cursor: pointer; font-weight: 500; transition: 0.2s; }
+        .connect-badge-btn:hover { background: rgba(255, 255, 255, 0.05); border-color: #ffffff; }
+
+        /* Main Center Workspace Frame */
+        .workspace-panel { flex: 1; display: flex; flex-direction: column; position: relative; }
+        
+        /* SUPRU'S IMMERSIVE FADED PORTRAIT BACKDROP TARGET LAYER */
+        .immersive-bg { position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; object-fit: cover; opacity: 0.25; transform: translate(-50%, -50%); pointer-events: none; mix-blend-mode: lighten; z-index: 1; }
+
+        /* Top Right Utilities Row Navigation */
+        .top-navigation { height: 64px; display: flex; align-items: center; justify-content: flex-end; padding: 0 30px; gap: 20px; z-index: 5; position: relative; }
+        .top-nav-link { font-size: 13px; color: #a0aec0; cursor: pointer; transition: 0.15s; text-decoration: none; position: relative; }
+        .top-nav-link:hover { color: #ffffff; }
+        
+        /* Interactive Menu Dropdown Wrapper */
+        .menu-dropdown { display: none; position: absolute; top: 45px; right: 220px; background: #161b22; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; width: 180px; padding: 6px 0; box-shadow: 0 8px 24px rgba(0,0,0,0.5); list-style: none; }
+        .menu-dropdown li { padding: 10px 14px; font-size: 13px; color: #cbd5e1; cursor: pointer; transition: 0.2s; }
+        .menu-dropdown li:hover { background: rgba(255,255,255,0.04); color: #ffffff; }
+        
+        .search-field { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; padding: 6px 12px; color: #ffffff; font-size: 12px; outline: none; width: 160px; }
+
+        /* Display Screens view toggle frames */
+        .screen-view { flex: 1; display: none; padding: 30px; z-index: 5; position: relative; flex-direction: column; }
+        .screen-view.active { display: flex; }
+        .message-log-stream { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-bottom: 25px; }
+        .chat-bubble { max-width: 70%; padding: 14px 18px; border-radius: 14px; font-size: 15px; line-height: 1.5; background: rgba(22, 28, 38, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(8px); }
+
+        /* Engine Setup Form card elements */
+        .settings-card-block { max-width: 540px; background: rgba(20, 26, 38, 0.9); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 24px; margin-top: 20px; }
+        .settings-card-block h3 { color: #ffffff; margin-bottom: 12px; font-size: 16px; }
+        .settings-input-wrapper { display: flex; gap: 10px; margin-top: 14px; }
+        .api-input-box { flex: 1; padding: 12px; background: #07090e; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; color: white; outline: none; font-size: 14px; }
+        .api-input-box:focus { border-color: #cbd5e1; }
+        .save-token-btn { background: #ffffff; color: #07090e; border: none; border-radius: 6px; padding: 12px 20px; font-weight: 600; cursor: pointer; transition: 0.15s; }
+        .save-token-btn:hover { background: #cbd5e1; }
+
+        /* UPGRADED CHAT BOX CONSOLE INPUT COMPONENT MATCHING YOUR MOCKUP */
+        .bottom-console-wrapper { max-width: 840px; width: 100%; margin: auto auto 30px auto; z-index: 5; padding: 0 20px; position: relative; }
+        .console-pill-box { background: rgba(20, 26, 38, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 10px 18px; display: flex; align-items: center; gap: 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+        
+        /* Left side + icon button */
+        .plus-attach-btn { color: #718096; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; background: transparent; border: none; outline: none; }
+        .plus-attach-btn:hover { color: #ffffff; }
+        .plus-attach-btn svg { width: 20px; height: 20px; fill: currentColor; }
+        
+        .console-pill-box input { flex: 1; background: transparent; border: none; color: #ffffff; font-size: 15px; outline: none; }
+        .console-pill-box input::placeholder { color: #4e5d73; }
+        
+        /* Right side custom crisp Send button container */
+        .send-submit-btn { background: transparent; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px; padding: 6px 16px; color: #ffffff; font-size: 13px; font-weight: 500; cursor: pointer; transition: 0.2s; outline: none; }
+        .send-submit-btn:hover { background: rgba(255, 255, 255, 0.05); border-color: #ffffff; }
     </style>
 </head>
-
 <body>
 
-<div class="app">
-
-    <!-- =========================
-         TOP BAR
-    ========================= -->
-
-    <header class="top-bar">
-
-        <div class="brand">
-            <div class="brand-name">Supru AI</div>
-            <div class="brand-tagline">Power of Meow!</div>
-        </div>
-
-        <div class="connection">
-            <div class="connected">Connected</div>
-            <div class="status-dot"></div>
-        </div>
-
-        <div class="top-right">
-            <div class="menu">Menu</div>
-            <div class="help">Help</div>
-
-            <input
-                class="search"
-                type="text"
-                placeholder="Search"
-            >
-        </div>
-
-    </header>
-
-
-    <!-- =========================
-         SIDEBAR
-    ========================= -->
-
-    <aside class="sidebar">
-
-        <button class="new-session">
-            + New Session
-        </button>
-
-        <div class="empty-message">
-            Create a session to get started
-        </div>
-
-
-        <!-- USER CARD -->
-
-        <div class="user-card">
-
-            <!--
-                Put your Supru image here.
-                Example:
-                images/supru.png
-            -->
-
-            <img
-                class="cat-small"
-                src="images/supru.png"
-                alt="Supru"
-            >
-
-            <div class="user-name">
-                User name
+    <!-- Left Hand Sidebar Configuration Panel -->
+    <div class="sidebar">
+        <div class="sidebar-top">
+            <div class="brand-header-row">
+                <div class="brand-text-block">
+                    <span class="brand-title">Supru AI</span>
+                    <span class="brand-subtitle">Power of Meow!</span>
+                </div>
+                <div class="status-container">
+                    <span class="status-text">Connected</span>
+                    <span class="status-dot"></span>
+                </div>
             </div>
-
-            <button class="settings" title="Settings">
-                ⚙
-            </button>
-
-            <button class="connect-button">
-                Connect
-            </button>
-
+            
+            <div class="session-container">
+                <div class="new-session-btn" onclick="toggleView('chat')">+ New Session</div>
+                <div class="session-hint">Create a sesson to get started</div>
+            </div>
         </div>
 
-    </aside>
-
-
-    <!-- =========================
-         MAIN AREA
-    ========================= -->
-
-    <main class="main-area">
-
-        <!-- Large Supru background image -->
-
-        <img
-            class="cat-background"
-            src="images/supru.png"
-            alt="Supru"
-        >
-
-
-        <!-- =========================
-             MESSAGE BAR
-        ========================= -->
-
-        <div class="message-area">
-
-            <div class="plus">
-                +
+        <!-- Left bottom Profile Node Matching Your Design Precisely -->
+        <div class="profile-card">
+            <div class="avatar-box">
+                <!-- Uses your internal directory setup for Supru's small icon portrait -->
+                <img src="../bridge/src/assets/logo.png" onerror="this.src='https://unsplash.com'" alt="Supru Profile">
             </div>
-
-            <div class="message-text">
-                Supru is ready to hear from you.
-            </div>
-
-            <button class="send-button">
-                Send
-            </button>
-
-        </div>
-
-    </main>
-
-</div>
-
-
-<script>
-
-    /* New Session */
-
-    document
-        .querySelector(".new-session")
-        .addEventListener("click", function () {
-
-            alert("New Supru session started.");
-
-        });
-
-
-    /* Connect */
-
-    document
-        .querySelector(".connect-button")
-        .addEventListener("click", function () {
-
-            const status = document.querySelector(".connected");
-
-            status.textContent = "Connected";
-
-        });
-
-
-    /* Send */
-
-    document
-        .querySelector(".send-button")
-        .addEventListener("click", function () {
-
-            const message = document.querySelector(".message-text");
-
-            message.textContent =
-                "Supru received your message.";
-
-        });
-
-
-    /* Search */
-
-    document
-        .querySelector(".search")
-        .addEventListener("keydown", function (event) {
-
-            if (event.key === "Enter") {
-
-                const value = this.value.trim();
-
-                if (value !== "") {
-
-                    console.log(
-                        "Searching Supru AI for:",
-                        value
-                    );
-
-                }
-
-            }
-
-        });
-
-</script>
-
-</body>
-</html>
+            <div class="profile-details">
